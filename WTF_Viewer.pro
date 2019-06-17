@@ -80,6 +80,7 @@ FORMS += \
     export/export.ui \
     graph/graphdialog.ui \
     graph/panelwidget.ui \
+    loadcalibrationfiles.ui \
     settings/settingsimage.ui \
     viewer/clogfilterpanel.ui \
     viewer/masksettings.ui \

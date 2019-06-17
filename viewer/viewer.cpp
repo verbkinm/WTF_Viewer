@@ -939,6 +939,18 @@ void Viewer::slotRotate()
 {
     if( sender()->objectName() == "rotate_plus" ){
 //        ui->angle->setValue(ui->angle->value() + 90);
+            size_t matrix_rang = row;
+            for (size_t i = 0; i < row / 2; i++)
+            {
+                for (size_t j = i; j < row - 1 - i; j++)
+                {
+                    double tmp = arrayOrigin[i][j];
+                    arrayOrigin[i][j] = arrayOrigin[j][matrix_rang - i - 1];
+                    arrayOrigin[j][matrix_rang - i - 1] = arrayOrigin[matrix_rang - i - 1][matrix_rang - j - 1];
+                    arrayOrigin[matrix_rang - i - 1][matrix_rang - j - 1] = arrayOrigin[matrix_rang - j - 1][i];
+                    arrayOrigin[matrix_rang - j - 1][i] = tmp;
+                }
+            }
     }
     else if ( sender()->objectName() == "rotate_minus" ){
         size_t matrix_rang = row;
