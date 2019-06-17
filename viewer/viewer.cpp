@@ -12,6 +12,7 @@
 #include <QMessageBox>
 #include <QFile>
 #include <QFileInfo>
+#include <QTemporaryFile>
 
 #include <QDebug>
 #include <QTime>
@@ -21,6 +22,8 @@ Viewer::Viewer(QWidget *parent) :
     QWidget(parent),
     ui(new Ui::Viewer)
 {
+    this->setAttribute(Qt::WA_DeleteOnClose);
+
     currentScene = &defaultScene;
     for (unsigned int i = 0; i < sizeof(action_array) / sizeof (action_array[0]) - 1; ++i)
         action_array[i] = true;
@@ -36,7 +39,6 @@ Viewer::Viewer(QWidget *parent) :
 
     connect(ui->horizontal_mirror, SIGNAL(clicked()), this, SLOT(slotMirror()));
     connect(ui->vertical_mirror, SIGNAL(clicked()), this, SLOT(slotMirror()));
-
 
     //сброс трансформации
     connect(ui->reset_transform, SIGNAL(clicked()), this, SLOT(slotResetTransform()));
@@ -95,15 +97,14 @@ void Viewer::selectFile()
     currentScene->setSceneRect(QRect(0,0, 50,50));
     currentScene->addText("Select file!");
 }
-size_t Viewer::getColumnFromFile(QString fileName)
+size_t Viewer::getColumnFromFile(QString fileName) const
 {
     return ListData(fileName).column;
 }
-size_t Viewer::getRowFromFile(QString fileName)
+size_t Viewer::getRowFromFile(QString fileName) const
 {
     return ListData(fileName).row;
 }
-
 void Viewer::setReadOnly(bool value)
 {
     readOnly = value;
@@ -117,28 +118,23 @@ void Viewer::setReadOnly(bool value)
     else
         currentScene->setObjectName("scene");
 }
-
 void Viewer::hideAllPanel()
 {
     for(unsigned int i = 0; i < sizeof(action_array) / sizeof (action_array[0]) - 1; ++i)
         pMenuFile->actions()[int(i)]->trigger();
 }
-
 void Viewer::hideSettingsButton(bool value)
 {
     ui->button_settings->setVisible(!value);
 }
-
 Frames *Viewer::getFrames()
 {
     return &frames;
 }
-
 QImage Viewer::getImageFromTxtFile(QString fileName)
 {
     return createArrayImage(fileName);
 }
-
 QImage Viewer::getImageFromClogFile(QString fileName)
 {
     ProgressBar progressBar(0);
@@ -159,7 +155,6 @@ QImage Viewer::getImageFromClogFile(QString fileName)
     for (size_t  i = 0; i < column; ++i)
         arrayOrigin[i] = new double[row];
 
-
     //наполняем основной массив данными согласно установленному фильтру
     applyClogFilter(image);
 
@@ -175,7 +170,6 @@ void Viewer::clearArrayOrigin()
         column = 0;
         row = 0;
 
-        itemBackground = nullptr;
         itemForeground = nullptr;
         itemRect       = nullptr;
     }
@@ -222,14 +216,12 @@ void Viewer::setEnableButtonPanel(bool state)
         ui->clogFilterPanel->setTotRange(frames.getTotLenghtList());
     }
 
-
     //state
     setEnableDataPanelSelection(false);
 }
 void Viewer::setImage(QImage image)
 {
     imageOrigin = image;
-    imageBackground = image;
 
     if(image.format() != QImage::Format_Invalid)
     {
@@ -245,8 +237,6 @@ void Viewer::setImage(QImage image)
 
         currentScene->clear();
 
-        itemBackground = currentScene->addPixmap(QPixmap::fromImage(imageBackground));
-        itemBackground->setZValue(0);
         itemForeground = currentScene->addPixmap(QPixmap::fromImage(imageOrigin));
         itemForeground->setZValue(1);
 
@@ -267,18 +257,15 @@ void Viewer::setImage(QImage image)
     else
         incorrectFile();
 }
-
 void Viewer::setSettings(QSettings &settings)
 {
     pSettings = &settings;
 }
-
 void Viewer::setScene(QGraphicsScene *scene)
 {
     ui->graphicsView->setScene(scene);
     currentScene = scene;
 }
-
 void Viewer::setSceneDefault()
 {
     currentScene = &defaultScene;
@@ -287,7 +274,8 @@ void Viewer::setSceneDefault()
 void Viewer::setImageFile(QString fileName)
 {
     QApplication::setOverrideCursor(QCursor(Qt::WaitCursor));
-    QFileInfo file(fileName);
+    filePath = fileName;
+    QFileInfo file(filePath);
 
     frames.clear();
     clearArrayOrigin();
@@ -295,12 +283,12 @@ void Viewer::setImageFile(QString fileName)
     if(file.suffix() == "txt")
     {
         fType = TXT;
-        setImage(getImageFromTxtFile(fileName));
+        setImage(getImageFromTxtFile(filePath));
     }
     else if(file.suffix() == "clog")
     {
         fType = CLOG;
-        setImage(getImageFromClogFile(fileName));
+        setImage(getImageFromClogFile(filePath));
     }
     else {
         fType = UNDEFINED;
@@ -362,13 +350,14 @@ void Viewer::applyClogFilter(QImage& image)
     imageSettingsForArray();
 
     double max = findMaxInArrayOrigin();
+    double min = findMinInArrayOrigin();
 
     //наполнение объекта QImage
     for (size_t  x = 0; x < column; ++x)
         for (size_t  y = 0; y < row; ++y) {
-            double value = convert(double(arrayOrigin[x][y]), \
-                                            double(0), \
-                                            double(max), \
+            double value = convert(arrayOrigin[x][y], \
+                                            min, \
+                                            max, \
                                             double(0), \
                                             double(255) );
             QColor color(qRound(value), qRound(value), qRound(value));
@@ -389,7 +378,6 @@ void Viewer::applyClogFilterAdditionalFunction(const ePoint &point)
     else
         arrayOrigin[point.x][point.y] = arrayOrigin[point.x][point.y] + point.tot;
 }
-
 void Viewer::imageSettingsForImage(QImage &image)
 {
     if(pSettings != nullptr)
@@ -407,7 +395,6 @@ void Viewer::imageSettingsForImage(QImage &image)
             arrayMask = nullptr;
         }
 }
-
 void Viewer::imageSettingsForArray()
 {
     if(pSettings != nullptr){
@@ -424,7 +411,6 @@ void Viewer::imageSettingsForArray()
         pSettings->endGroup();
     }
 }
-
 void Viewer::createFrameInArray()
 {
     if(pSettings != nullptr){
@@ -451,7 +437,6 @@ void Viewer::createFrameInArray()
                 arrayOrigin[x][y] = value;
     }
 }
-
 void Viewer::createMaskInArray()
 {
     if(pSettings != nullptr){
@@ -491,9 +476,8 @@ void Viewer::createMaskInArray()
 
 void Viewer::createButtonMenu()
 {
-    pMenuFile = new QMenu("Menu");
+    pMenuFile = new QMenu;
 
-    pMenuFile = new QMenu("File");
     pMenuFile->addAction("pix. && filter pnael", this,
                          SLOT(slotPFP()));
     pMenuFile->addAction("data pnael", this,
@@ -502,9 +486,9 @@ void Viewer::createButtonMenu()
                          SLOT(slotBP()));
     pMenuFile->addAction("inversion", this,
                          SLOT(slotI()));
+    pMenuFile->addSeparator();
     pMenuFile->addAction("separate window", this,
                          SLOT(slotSW()));
-    pMenuFile->actions().back()->setDisabled(true);
 
     ui->button_settings->setMenu(pMenuFile);
 
@@ -513,19 +497,17 @@ void Viewer::createButtonMenu()
                                         top: -3px; \
                                         left: -3px;}");
 
-    for (QAction* action : pMenuFile->actions())
-        action->setCheckable(true);
-
 /* Actions  [0 - pix. && filter pnael]
             [1 - data pnael]
             [2 - buttons panel]
             [3 - inversion]
-            [4 - single window]
+            [4 - separate window]
   */
-    unsigned int lenght = sizeof(action_array) / sizeof (action_array[0]) - 1;
-    for (unsigned int i = 0; i < lenght; ++i)
-        if(action_array[i])
+    unsigned int lenght = sizeof(action_array) / sizeof (action_array[0]) - 1; // -1 - для последнего пункта не надо
+    for (unsigned int i = 0; i < lenght; ++i){
+            pMenuFile->actions()[int(i)]->setCheckable(true);
             pMenuFile->actions()[int(i)]->setChecked(true);
+    }
 }
 
 void Viewer::slotSetImageFile(QString file)
@@ -541,12 +523,10 @@ void Viewer::slotMoveRectFromKey()
     rectItem->setRect(ui->x_selection->value(), ui->y_selection->value(),
                       ui->width_selection->value(), ui->heigth_selection->value());
 }
-
 void Viewer::slotCreateRectItem(QGraphicsRectItem * item)
 {
     itemRect = item;
 }
-
 void Viewer::slotApplyClogFilter()
 {
     QImage image(int(column), int(row), QImage::Format_ARGB32_Premultiplied);
@@ -556,17 +536,16 @@ void Viewer::slotApplyClogFilter()
 
     setImage(image);
 }
-
 void Viewer::slotRepaint()
 {
     double max = findMaxInArrayOrigin();
-
+    double min = findMinInArrayOrigin();
     //наполнение объекта QImage
     for (size_t  x = 0; x < column; ++x)
         for (size_t  y = 0; y < row; ++y) {
-            double value = convert(double(arrayOrigin[x][y]), \
-                                            double(0), \
-                                            double(max), \
+            double value = convert(arrayOrigin[x][y], \
+                                            min, \
+                                            max, \
                                             double(0), \
                                             double(255) );
             QColor color(qRound(value), qRound(value), qRound(value));
@@ -580,28 +559,87 @@ void Viewer::slotPFP()
     ui->tabWidgetRight->setVisible(!action_array[PIX_AND_FILTER_PANEL]);
     action_array[PIX_AND_FILTER_PANEL] = !action_array[PIX_AND_FILTER_PANEL];
 }
-
 void Viewer::slotDP()
 {
     ui->data_panel->setVisible(!action_array[DATA_PANEL]);
     action_array[DATA_PANEL] = !action_array[DATA_PANEL];
 }
-
 void Viewer::slotBP()
 {
     ui->button_panel->setVisible(!action_array[BUTTONS_PANEL]);
     action_array[BUTTONS_PANEL] = !action_array[BUTTONS_PANEL];
 }
-
 void Viewer::slotI()
 {
+
     ui->inversion->setVisible(!action_array[INVERSION]);
     action_array[INVERSION] = !action_array[INVERSION];
 }
-
 void Viewer::slotSW()
-{
+{   
+    Viewer* SW = new Viewer;
+    SW->show();
+    SW->setSettings(*pSettings);
 
+    if(fType == TXT){
+        SW->setImageFile(filePath);
+        for (size_t  x = 0; x < column; ++x)
+            for (size_t  y = 0; y < row; ++y)
+                SW->arrayOrigin[x][y] = arrayOrigin[x][y];
+
+        SW->slotRepaint();
+    }
+    else if(fType == CLOG){
+        SW->setImageFile(filePath);
+        SW->ui->tabWidgetRight->setCurrentIndex(this->ui->tabWidgetRight->currentIndex());
+
+        SW->ui->clogFilterPanel->setCluster(this->ui->clogFilterPanel->isClusterEnable());
+        SW->ui->clogFilterPanel->setTot(this->ui->clogFilterPanel->isTotEnable());
+        SW->ui->clogFilterPanel->setAllTotInCluster(this->ui->clogFilterPanel->isAllTotInCluster());
+
+        SW->ui->clogFilterPanel->setClusterBegin(this->ui->clogFilterPanel->getClusterBegin());
+        SW->ui->clogFilterPanel->setClusterEnd(this->ui->clogFilterPanel->getClusterEnd());
+
+        SW->ui->clogFilterPanel->setTotBegin(this->ui->clogFilterPanel->getTotBegin());
+        SW->ui->clogFilterPanel->setTotEnd(this->ui->clogFilterPanel->getTotEnd());
+
+        if(this->ui->clogFilterPanel->isMediPix())
+            SW->ui->clogFilterPanel->setMediPix(true);
+        else
+            SW->ui->clogFilterPanel->setTimePix(true);
+
+        SW->slotApplyClogFilter();
+
+        for (size_t  x = 0; x < column; ++x)
+            for (size_t  y = 0; y < row; ++y)
+                SW->arrayOrigin[x][y] = arrayOrigin[x][y];
+
+        SW->slotRepaint();
+    }
+    else{
+        QTemporaryFile tmpFile;
+        QString pref = ".txt";
+        tmpFile.open();
+        QFile file(tmpFile.fileName()+pref);
+        tmpFile.close();
+
+        QTextStream writeStrime(&file);
+        if (file.open(QIODevice::WriteOnly | QIODevice::Text))
+        for (size_t x = 0; x < row; ++x)
+        {
+            for (size_t y = 0; y < column; ++y) {
+                if(y != 0)
+                    writeStrime << " ";
+                writeStrime << QString::number(arrayOrigin[y][x]);
+            }
+            writeStrime << "\n";
+            writeStrime.flush();
+        }
+
+        SW->setImageFile(file.fileName());
+
+        file.close();
+    }
 }
 
 void Viewer::slotViewSelectionMovePos(QPoint point)
@@ -701,17 +739,17 @@ QImage Viewer::createArrayImage(const QString& fileName)
     imageSettingsForArray();
 
     double max = findMaxInArrayOrigin();
+    double min = findMinInArrayOrigin();
 
     //наполнение объекта QImage
     for (size_t  x = 0; x < column; ++x)
         for (size_t  y = 0; y < row; ++y) {
-            double value = convert(double(arrayOrigin[x][y]), \
-                                            double(0), \
-                                            double(max), \
+            double value = convert(arrayOrigin[x][y], \
+                                            min, \
+                                            max, \
                                             double(0), \
                                             double(255) );
-            if(value < 0)
-                value = 0;
+
             QColor color(qRound(value), qRound(value), qRound(value));
             image.setPixelColor(int(x), int(y), color);
         }
@@ -733,6 +771,20 @@ double Viewer::findMaxInArrayOrigin()
         }
 
     return max;
+}
+
+double Viewer::findMinInArrayOrigin()
+{
+    double min = std::numeric_limits<double>::max();
+    double value = 0;
+
+    for (size_t y = 0; y < row; ++y)
+        for (size_t x = 0; x < column; ++x) {
+            value = arrayOrigin[x][y];
+            if(min > value) min = value;
+        }
+
+    return min;
 }
 double Viewer::convert(double value, double From1, double From2, double To1, double To2)
 {
@@ -837,13 +889,9 @@ void Viewer::slotInversionCheckBox(int state)
     switch (state)
     {
     case (Qt::Unchecked):
-        imageBackground.fill(Qt::black);
-        itemBackground->setPixmap(QPixmap::fromImage(imageBackground));
         itemForeground->setPixmap(QPixmap::fromImage(imageOrigin));
         break;
     case (Qt::Checked):
-        imageBackground.fill(Qt::white);
-        itemBackground->setPixmap(QPixmap::fromImage(imageBackground));
         QImage inversion(imageOrigin);
         inversion.invertPixels(QImage::InvertRgb);
         itemForeground->setPixmap(QPixmap::fromImage(inversion));
@@ -863,9 +911,6 @@ void Viewer::slotCut()
     size_t row     = size_t(ui->heigth_selection->value());
 
     QImage image(int(column), int(row), QImage::Format_ARGB32_Premultiplied);
-
-//    if(column == 0 || row == 0 || column-1 > 65535 || row-1 > 65535)
-//        setImage(QImage(QSize(0,0),QImage::Format_Invalid));
 
     //Временный массив для данных преобразованного диапазона
     double** array;
@@ -905,13 +950,14 @@ void Viewer::slotCut()
         }
 
     double max = findMaxInArrayOrigin();
+    double min = findMinInArrayOrigin();
 
     // преобразование диапазонов
     for (size_t x = 0; x < column; ++x)
         for (size_t y = 0; y < row; ++y) {
-            double value = convert(double(arrayOrigin[x][y]), \
-                                            double(0), \
-                                            double(max), \
+            double value = convert(arrayOrigin[x][y], \
+                                            min, \
+                                            max, \
                                             double(0), \
                                             double(255) );
             array[x][y] = value;
@@ -934,6 +980,8 @@ void Viewer::slotCut()
 
     if(fType == CLOG)
         ui->tabWidgetRight->setTabEnabled(CLOG_FILTER_TAB, false);
+
+    fType = UNDEFINED;
 }
 void Viewer::slotRotate()
 {
@@ -1085,12 +1133,17 @@ void Viewer::slotSaveTXT()
     }
     file.close();
 }
-//void Viewer::closeEvent(QCloseEvent *event)
-//{
-//    qDebug() << "close";
-//}
 Viewer::~Viewer()
 {
     delete ui;
     delete pMenuFile;
+    clearArrayOrigin();
+    objectDelete(eventFilterScene);
+}
+
+template<typename T>
+void Viewer::objectDelete(T* obj)
+{
+    if(obj != nullptr)
+        delete obj;
 }

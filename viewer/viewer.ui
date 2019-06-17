@@ -61,7 +61,7 @@
       <number>0</number>
      </property>
      <property name="movable">
-      <bool>true</bool>
+      <bool>false</bool>
      </property>
      <widget class="QWidget" name="twrProperty">
       <attribute name="title">
@@ -371,6 +371,12 @@
         <property name="prefix">
          <string>Data: </string>
         </property>
+        <property name="minimum">
+         <double>-10000000000000000213204190094543968723012578712679649467743338496.000000000000000</double>
+        </property>
+        <property name="maximum">
+         <double>9999999999999999932209486743616279764617084419440640.000000000000000</double>
+        </property>
        </widget>
       </item>
       <item>
@@ -548,7 +554,7 @@
       <item>
        <widget class="QPushButton" name="rotate_plus">
         <property name="enabled">
-         <bool>false</bool>
+         <bool>true</bool>
         </property>
         <property name="toolTip">
          <string>+90º</string>

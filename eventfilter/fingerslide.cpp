@@ -57,7 +57,7 @@ bool FingerSlide::eventFilterScene(QObject* object, QEvent* event)
         point = mevent->scenePos();
 
         //не перетаскивать рамку выделения, если мы рисуем карандашом
-        if(scene->items().count() > 2 &&
+        if(scene->items().count() > 1 &&
             graphView->cursor().hotSpot().x() == Viewer::X_HOT &&
             graphView->cursor().hotSpot().y() == Viewer::Y_HOT)
         {
@@ -86,7 +86,7 @@ bool FingerSlide::eventFilterScene(QObject* object, QEvent* event)
     if(event->type() == QEvent::GraphicsSceneMouseRelease)
     {
         //если есть рамка выделения
-        if(graphView->scene()->items().length() > 2 )
+        if(graphView->scene()->items().length() > 1 )
         {
             QGraphicsRectItem* rectItem = static_cast<QGraphicsRectItem*>(scene->items().at(0));
             rectItem->setFlags(QGraphicsItem::ItemIsMovable | QGraphicsItem::ItemIsSelectable);

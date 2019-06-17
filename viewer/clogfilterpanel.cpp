@@ -250,6 +250,51 @@ bool ClogFilterPanel::isMediPix()
     return ui->midiPixRadioButton->isChecked();
 }
 
+void ClogFilterPanel::setClusterBegin(int v)
+{
+    ui->clusterRangeBegin->setCurrentText(QString::number(v));
+}
+
+void ClogFilterPanel::setClusterEnd(int v)
+{
+    ui->clusterRangeEnd->setCurrentText(QString::number(v));
+}
+
+void ClogFilterPanel::setTotBegin(int v)
+{
+    ui->totRangeBegin->setCurrentText(QString::number(v));
+}
+
+void ClogFilterPanel::setTotEnd(int v)
+{
+    ui->totRangeEnd->setCurrentText(QString::number(v));
+}
+
+void ClogFilterPanel::setCluster(bool b)
+{
+    ui->clusterRangeGroup->setChecked(b);
+}
+
+void ClogFilterPanel::setTot(bool b)
+{
+    ui->totRangeGroup->setChecked(b);
+}
+
+void ClogFilterPanel::setAllTotInCluster(bool b)
+{
+    ui->allTotInCluster->setChecked(b);
+}
+
+void ClogFilterPanel::setMediPix(bool b)
+{
+    ui->midiPixRadioButton->setChecked(b);
+}
+
+void ClogFilterPanel::setTimePix(bool b)
+{
+    ui->timePixRadioButton->setChecked(b);
+}
+
 void ClogFilterPanel::disconnectSignals()
 {
     disconnect(ui->clusterRangeBegin,  SIGNAL(currentTextChanged(QString)), this, SLOT(slotDates(QString)));

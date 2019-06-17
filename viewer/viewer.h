@@ -9,9 +9,6 @@
 #include <QSettings>
 #include <QMenu>
 
-
-//#include <QGraphicsPathItem>
-
 #include "../eventfilter/fingerslide.h"
 #include "frames/frames.h"
 
@@ -59,17 +56,16 @@ public:
     QGraphicsScene                      defaultScene;
 
     QGraphicsScene*                     getScene();
-    size_t      getColumnFromFile       (QString fileName);
-    size_t      getRowFromFile          (QString fileName);
+    size_t      getColumnFromFile       (QString fileName) const;
+    size_t      getRowFromFile          (QString fileName) const;
 
     void        setReadOnly             (bool value = true);
     void        hideAllPanel                 ();
     void        hideSettingsButton      (bool value = true);
 
-    Frames* getFrames();
+    Frames*     getFrames();
 
 signals:
-
 
 private:
     Ui::Viewer *ui;
@@ -92,6 +88,7 @@ private:
 
     //текущий тип файла
     fileType fType;
+    QString  filePath;
 
 //используется для нормального вращения QGraphicsView без сложных(для меня) модификаций QTransform
     double angle = 0;
@@ -99,10 +96,9 @@ private:
 //объект, который хранит сам рисунок
     QImage      imageOrigin;
 //фон
-    QImage      imageBackground;
+//    QImage      imageBackground;
 
 //указатели на item`ы
-    QGraphicsPixmapItem* itemBackground = nullptr;
     QGraphicsPixmapItem* itemForeground = nullptr;
     //рамка при выделении
     QGraphicsRectItem*   itemRect       = nullptr;
@@ -124,7 +120,9 @@ private:
 
     //возвращает рисунок из файла или QImage::Format_Invalid
     QImage      createArrayImage        (const QString& fileName);
-    double findMaxInArrayOrigin();
+
+    double      findMaxInArrayOrigin();
+    double      findMinInArrayOrigin();
 
     //преобразование диапазонов
     double      convert                 (double value,
@@ -157,6 +155,7 @@ private:
 
     void        imageSettingsForArray();
     void        imageSettingsForImage(QImage& image);
+
     //создаёт рамку согласно настройкам
     void        createFrameInArray();
     //маскируем выбранные пиксели
@@ -165,6 +164,8 @@ private:
     QMenu*      pMenuFile               = nullptr;
     void        createButtonMenu        ();
 
+    template <typename T>
+    void        objectDelete(T* obj);
 
 public slots:
     void        slotSetImageFile(QString file);
@@ -209,11 +210,7 @@ private slots:
 
     void        slotCreateRectItem(QGraphicsRectItem* item);
 
-//    void        slotClogFilterRangeChange(QObject* obj, int value);
-
     void        slotApplyClogFilter     ();
-
-//    void        slotSetAllTotInCluster(bool value);
 
     void        slotRepaint             ();
 
@@ -229,9 +226,7 @@ private slots:
     void        slotI();
     void        slotSW();
 
-
 protected:
-//    virtual void closeEvent(QCloseEvent *event);
 };
 
 #endif // VIEWER_H

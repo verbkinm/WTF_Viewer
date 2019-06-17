@@ -21,23 +21,29 @@ public:
     void    setClusterRange(QVector<int> vector);
     void    setTotRange(QVector<int> vector);
 
-//    void    setClusterBegin(QString value);
-//    void    setClusterEnd(QString value);
+    int     getClusterBegin() const;
+    int     getClusterEnd() const;
 
-    int getClusterBegin() const;
-    int getClusterEnd() const;
-
-    int getTotBegin() const;
-    int getTotEnd() const;
-
-//    void    setLabelClusterMaxMin(int max, int min);
-//    void    setLabelTotMaxMin(int max, int min);
+    int     getTotBegin() const;
+    int     getTotEnd() const;
 
     bool    isClusterEnable();
     bool    isTotEnable();
     bool    isAllTotInCluster();
 
     bool    isMediPix();
+
+    void    setClusterBegin(int v);
+    void    setClusterEnd(int v);
+
+    void    setTotBegin(int v);
+    void    setTotEnd(int v);
+
+    void    setCluster(bool b);
+    void    setTot(bool b);
+    void    setAllTotInCluster(bool b);
+    void    setMediPix(bool b);
+    void    setTimePix(bool b);
 
 private:
     Ui::ClogFilterPanel *ui;
@@ -51,24 +57,18 @@ private:
     void    disconnectSignals       ();
     void    connectSignals          ();
 
-//    void    clusterEndSetList       ();
-//    Frames* frames = nullptr;
-
 private slots:
     void    slotEnableRange         ();
 
-//    void    slotPixGroupFilter      (bool checked);
     void    slotDates               (QString value);
 
 public slots:
     void    slotApplyFilter         ();
 
 signals:
-//    void    signalRangeChanged      (QObject* obj, int value);
     void    signalApplyFilter       ();
 
     void    signalPixGroupMidiPixSet(bool);
-//    void    signalAllTotInClusterToggled(bool);
 
 protected:
 
