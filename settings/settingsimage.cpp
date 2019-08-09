@@ -6,14 +6,12 @@
 #include <QColorDialog>
 
 SettingsImage::SettingsImage(QSettings &settings, QWidget *parent) :
-    QDialog(parent),
+    QDialog(parent), settings(&settings),
     ui(new Ui::SettingsImage)
 {
     ui->setupUi(this);
 
     ui->listWidget->setCurrentRow(0);
-
-    this->settings = &settings;
 
     readSettings();
 }

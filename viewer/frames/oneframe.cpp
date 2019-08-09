@@ -20,7 +20,7 @@ void OneFrame::appendEPoint(const ePoint& point)
     list.last().append(point);
 }
 
-void OneFrame::appendEPoint(const int& x, const int& y, const int& tot)
+void OneFrame::appendEPoint(const int& x, const int& y, const double& tot)
 {
     appendEPoint({x, y, tot});
 }
@@ -29,11 +29,9 @@ void OneFrame::addCluster()
 {
     cluster newClaster;
     list.append(newClaster);
-
-//    return list.last();
 }
 
-void OneFrame::addEPoint(cluster& inClaster, const int &x, const int &y, const int &tot)
+void OneFrame::addEPoint(cluster& inClaster, const int &x, const int &y, const double &tot)
 {
     inClaster.append({x,y,tot});
 }
@@ -55,7 +53,7 @@ int OneFrame::getEventCountInCluster(const int& clusterNumber) const
         exit(1);
     }
 
-    return int(list.at(int(clusterNumber)).length());
+    return list.at(clusterNumber).length();
 }
 
 const QList<cluster> &OneFrame::getList() const
@@ -66,7 +64,7 @@ const QList<cluster> &OneFrame::getList() const
 const ePoint& OneFrame::getEPoint(const int &clusterNumber, const int &eventNumber) const
 {
     if(clusterNumber > list.length() - 1 ||
-           eventNumber > list.at(int(clusterNumber)).length())
+           eventNumber > list.at(clusterNumber).length())
     {
         qDebug() << "error in " << Q_FUNC_INFO << __FILE__ << "line: " << __LINE__;
         exit(1);

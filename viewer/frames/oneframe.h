@@ -8,9 +8,10 @@ struct evPoint
 {
     int x = 0;
     int y = 0;
-    int tot = 0;
+    double tot = 0;
 
-    evPoint(const int& x, const int& y, const int& tot) {
+    evPoint(const int& x, const int& y, const double& tot)
+    {
         this->x = x;
         this->y = y;
         this->tot = tot;
@@ -29,10 +30,10 @@ public:
     void setExposure_time           (const double& value);
 
     void appendEPoint(const ePoint &point);
-    void appendEPoint(const int &x, const int &y, const int &tot);
+    void appendEPoint(const int &x, const int &y, const double &tot);
 
     void addCluster();
-    void addEPoint(cluster& inClaster, const int& x, const int& y, const int& tot);
+    void addEPoint(cluster& inClaster, const int& x, const int& y, const double &tot);
 
     int getClusterCount() const;
     int getClusterLenght(const int& clusterNumber) const;

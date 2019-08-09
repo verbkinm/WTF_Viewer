@@ -1,10 +1,6 @@
 #ifndef CENTRALWIDGET_H
 #define CENTRALWIDGET_H
 
-#include "chart.h"
-#include "chartview.h"
-#include "panelwidget.h"
-
 #include <QMainWindow>
 #include <QLineSeries>
 #include <QScatterSeries>
@@ -19,6 +15,10 @@
 #include <QLabel>
 
 #include <QHBoxLayout>
+
+#include "chart.h"
+#include "chartview.h"
+#include "panelwidget.h"
 
 QT_CHARTS_USE_NAMESPACE
 
@@ -104,7 +104,7 @@ private slots:
 public slots:
 
 protected:
-    virtual void closeEvent(QCloseEvent *event);
+    virtual void closeEvent(QCloseEvent *);
 
 signals:
     void signalCloseWindow(QObject*);

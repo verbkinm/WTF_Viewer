@@ -1,5 +1,6 @@
 #include "checkfile.h"
 #include <QFile>
+#include <QTemporaryFile>
 #include <QDebug>
 
 ListData::ListData(QString fileName)
@@ -8,10 +9,15 @@ ListData::ListData(QString fileName)
 }
 QList<double> ListData::checkFile(QString fileName)
 {
-    QFile file(fileName);
+    QFile originFile(fileName);
+    originFile.open(QIODevice::ReadOnly);
 
-    if(file.open(QIODevice::ReadWrite) )
+    QTemporaryFile file;
+
+    if(file.open() )
     {
+        file.write(originFile.readAll());
+
         char c;
         //замена символов табуляции, если они есть, на пробелы
         while (!file.atEnd()){
@@ -32,7 +38,7 @@ QList<double> ListData::checkFile(QString fileName)
         //определяем наибольшее кол-во элементов в строке
         while (!file.atEnd()) {
             int counInLine = QString(file.readLine()).remove("\r\n").split(" ").length();
-            maxCountElement < counInLine ? maxCountElement = counInLine: NULL ;
+            maxCountElement < counInLine ? maxCountElement = counInLine: 0 ;
             countString++;
         }
         file.seek(0);
@@ -56,6 +62,11 @@ QList<double> ListData::checkFile(QString fileName)
         row    = size_t(countString);
         file.close();
     }
+    else {
+        qDebug() << "file " << fileName << " can't open";
+    }
+
+    originFile.close();
 
     return list;
 }

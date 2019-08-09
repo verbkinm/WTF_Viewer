@@ -19,7 +19,7 @@ public:
     ~ClogFilterPanel();
 
     void    setClusterRange(QVector<int> vector);
-    void    setTotRange(QVector<int> vector);
+    void    setTotRange(QVector<double> vector);
 
     int     getClusterBegin() const;
     int     getClusterEnd() const;

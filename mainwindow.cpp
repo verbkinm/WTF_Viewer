@@ -1,12 +1,12 @@
-#include "mainwindow.h"
-#include "export\export.h"
-#include "graph/graphdialog.h"
-
 #include <QApplication>
 #include <QHeaderView>
 #include <QDebug>
 
-const QString VERSION =  "0.9.8";
+#include "mainwindow.h"
+#include "export\export.h"
+#include "graph/graphdialog.h"
+#include "calibration/generalcalibration.h"
+const QString VERSION =  "0.9.8.1";
 
 #ifdef Q_OS_Linux
     #define SPLITTER_PATH "/"
@@ -54,9 +54,9 @@ MainWindow::MainWindow(QWidget *parent)
 
     this->setWindowTitle("WTF_Viewer " + VERSION);
 
-    QString lastPath = settings.value("Path/lastDir", 0).toString();
-    pTreeView->setCurrentIndex(pFSModel->index(lastPath));
-    pTreeView->clicked(pTreeView->currentIndex());
+//    QString lastPath = settings.value("Path/lastDir", 0).toString();
+//    pTreeView->setCurrentIndex(pFSModel->index(lastPath));
+//    pTreeView->clicked(pTreeView->currentIndex());
 
 }
 void MainWindow::createMenu()
@@ -79,9 +79,15 @@ void MainWindow::createMenu()
     pMenuAbout->addAction(QIcon(":/author"),"Author", this, SLOT(slotAuthor()));
     pMenuAbout->addAction(QIcon(":/qt_logo"), "About Qt", QApplication::instance(), SLOT(aboutQt()));
 
+    pMenuCalibration= new QMenu("Calibration");
+    pMenuCalibration->addAction(QIcon(":/"),"General calibration", this, SLOT(slotGeneralCalibration()));
+    pMenuCalibration->addAction(QIcon(":/"),"Pixel masturbation calibration", this, SLOT(slotPixelCalibration()));
+
+
     this->menuBar()->addMenu(pMenuFile);
     this->menuBar()->addMenu(pMenuSettings);
     this->menuBar()->addMenu(pMenuGraph);
+    this->menuBar()->addMenu(pMenuCalibration);
     this->menuBar()->addMenu(pMenuAbout);
 }
 void MainWindow::slotExportFile()
@@ -208,8 +214,15 @@ void MainWindow::slotPlotGraph()
         QVector<QPointF> vector;
         if(gd->getCurrentX() == "Tots")
         {
+
             vector = frames->getClusterVectorTot(gd->getCurrentClusterLenght());
+
             legendText = gd->getCurrentY() + "px";
+
+//            for (auto &item : vector) {
+//                qDebug() << item.x() << item.y();
+//            }
+
         }
         if(gd->getCurrentX() == "Clusters")
         {
@@ -252,6 +265,20 @@ void MainWindow::slotPlotGraph()
     delete gd;
 }
 
+void MainWindow::slotGeneralCalibration()
+{
+    GeneralCalibration gc(settings, this);
+    if(gc.exec() == QDialog::Accepted)
+    {
+        gc.writeSettings();
+    }
+}
+
+void MainWindow::slotPixelCalibration()
+{
+
+}
+
 void MainWindow::slotSettingsImage()
 {
     pSettingsImage = new SettingsImage(settings, this);
@@ -260,7 +287,6 @@ void MainWindow::slotSettingsImage()
 
     delete pSettingsImage;
     pSettingsImage = nullptr;
-
 }
 void MainWindow::slotSelectFile(const QModelIndex& index)
 {

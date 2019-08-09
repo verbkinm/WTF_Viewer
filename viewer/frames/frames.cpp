@@ -28,7 +28,7 @@ void Frames::appendEPoint(const ePoint& point)
     list.last().appendEPoint(point);
 }
 
-void Frames::appendEPoint(const int &x, const int &y, const int &tot)
+void Frames::appendEPoint(const int &x, const int &y, const double &tot)
 {
     list.last().appendEPoint(x, y, tot);
 }
@@ -106,10 +106,10 @@ void Frames::setFile(const QString &path)
             {
                 i++;
                 QStringList point = str.split(",");
-                int tot = int(point.at(2).toInt());
+                double tot = point.at(2).toDouble();
 
-                appendEPoint(quint8(point.at(0).toInt()),
-                             quint8(point.at(1).toInt()),
+                appendEPoint(point.at(0).toInt(),
+                             point.at(1).toInt(),
                              tot);
             }
         }
@@ -142,7 +142,7 @@ bool Frames::clusterInRange(const int &clusterLength, const int &clusterRangeBeg
 bool Frames::totInRange(const int& frameNumber, const int& clusterNumber, const int& totRangeBegin, const int& totRangeEnd)
 {
     OneFrame frame = list.at(frameNumber);
-    foreach (ePoint point, frame.getList().at(clusterNumber))
+    for (const auto &point : frame.getList().at(clusterNumber))
         if(point.tot >= totRangeBegin && point.tot <= totRangeEnd)
             return true;
 
@@ -156,7 +156,7 @@ QList<ePoint> Frames::getListTotInRange(const int &frameNumber, const int &clust
     QList<ePoint> listePoint;
     listePoint.clear();
 
-    foreach (const ePoint& point, frame.getList().at(clusterNumber))
+    for (const auto &point : frame.getList().at(clusterNumber))
         if(point.tot >= totRangeBegin && point.tot <= totRangeEnd)
             listePoint << point;
 
@@ -182,21 +182,21 @@ QVector<QPointF> Frames::getClusterVectorTot(const int &clusterLenght) const
 {
     QVector<QPointF> vector;
     //key = tot, value = count
-    QMap<int, int> map;
+    QMap<double, double> map;
 
     for (int frameNumber = 0; frameNumber < getFrameCount(); ++frameNumber)
         for (int clusterNumber = 0; clusterNumber < getClusterCount(frameNumber); ++clusterNumber)
             if(getClusterLenght(frameNumber, clusterNumber) == clusterLenght || clusterLenght == 0)
                 for (int eventNumber = 0; eventNumber < getEventCountInCluster(frameNumber, clusterNumber); ++eventNumber)
                 {
-                    int key = getEPoint(frameNumber, clusterNumber, eventNumber).tot;
-                    if(map.value(key) == 0)
+                    double key = getEPoint(frameNumber, clusterNumber, eventNumber).tot;
+                    if(map.value(key) == 0.0)
                         map.insert(key, 1);
                     else
                         map[key] = map.value(key) + 1;
 
                 }
-    QMapIterator<int, int> i(map);
+    QMapIterator<double, double> i(map);
 
     while (i.hasNext())
     {
@@ -234,13 +234,13 @@ QVector<QPointF> Frames::getClusterVector() const
     return vector;
 }
 
-QVector<int> Frames::getTotLenghtList() const
+QVector<double> Frames::getTotLenghtList() const
 {
-    QVector<int> lenghtList;
+    QVector<double> lenghtList;
     for (int frameNumber = 0; frameNumber < getFrameCount(); ++frameNumber)
         for (int clusterNumber = 0; clusterNumber < getClusterCount(frameNumber); ++clusterNumber)
             for (int eventNumber = 0; eventNumber < getEventCountInCluster(frameNumber, clusterNumber); ++eventNumber) {
-                int tot = getEPoint(frameNumber, clusterNumber, eventNumber).tot;
+                double tot = getEPoint(frameNumber, clusterNumber, eventNumber).tot;
                 if(!lenghtList.contains(tot))
                     lenghtList << tot;
             }

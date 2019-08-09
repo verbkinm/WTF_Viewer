@@ -17,7 +17,7 @@ public:
     void    appendCluster   ();
 
     void    appendEPoint    (const ePoint& point);
-    void    appendEPoint    (const int& x, const int& y, const int& tot);
+    void    appendEPoint    (const int& x, const int& y, const double &tot);
 
     int getFrameCount() const;
     int getClusterCount(const int& frameNumber) const;
@@ -44,7 +44,7 @@ public:
     QVector<QPointF> getClusterVectorTot(const int& clusterLenght) const;
     //получение вектора кол-ва кластеров
     QVector<QPointF> getClusterVector() const;
-    QVector<int> getTotLenghtList() const;
+    QVector<double> getTotLenghtList() const;
 
 private:
     QList<OneFrame> list;

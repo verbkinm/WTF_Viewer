@@ -43,6 +43,7 @@ private:
     QMenu*              pMenuGraph      = nullptr;
     QMenu*              pMenuAbout      = nullptr;
     QMenu*              pMenuSettings   = nullptr;
+    QMenu*              pMenuCalibration= nullptr;
 
 
     QList<CentralWidget*> graphWindowList;
@@ -61,6 +62,8 @@ private slots:
 
     void slotAuthor();
     void slotPlotGraph();
+    void slotGeneralCalibration();
+    void slotPixelCalibration();
 
     void slotSettingsImage();
 

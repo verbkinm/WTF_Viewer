@@ -27,8 +27,9 @@ private slots:
     void on_actionsetColor_triggered();
 
 private:
-    Ui::SettingsImage *ui;
     QSettings* settings;
+    Ui::SettingsImage *ui;
+
 
     void    readSettings();
 };

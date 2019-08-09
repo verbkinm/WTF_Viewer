@@ -25,8 +25,8 @@ CentralWidget::CentralWidget(QWidget *parent) : QMainWindow(parent)
 
     createAxes();
 
-    chart.axisX()->setTitleText("X");
-    chart.axisY()->setTitleText("Y");
+    chart.axes(Qt::Horizontal).back()->setTitleText("X");
+    chart.axes(Qt::Vertical).back()->setTitleText("Y");
     chart.setDropShadowEnabled(true);
 
     chartView.setChart(&chart);
@@ -142,10 +142,10 @@ void CentralWidget::addSeries(QVector<QPointF> pointVector, QXYSeries::SeriesTyp
 
     createAxes();
 
-    chart.axisX()->setRange(minX, maxX);
-    chart.axisX()->setTitleText(axsisX_Title);
-    chart.axisY()->setRange(minY, maxY);
-    chart.axisY()->setTitleText(axsisY_Title);
+    chart.axes(Qt::Horizontal).back()->setRange(minX, maxX);
+    chart.axes(Qt::Horizontal).back()->setTitleText(axsisX_Title);
+    chart.axes(Qt::Vertical).back()->setRange(minY, maxY);
+    chart.axes(Qt::Vertical).back()->setTitleText(axsisY_Title);
 }
 
 void CentralWidget::addSeries(QVector<QPointF> pointVector, QString legendTitle, QString axsisX_Title, QString axsisY_Title)
@@ -166,7 +166,7 @@ QString CentralWidget::getTitle()
 
 QString CentralWidget::getDataXType()
 {
-    return chart.axisX()->titleText();
+    return chart.axes(Qt::Horizontal).back()->titleText();
 }
 void CentralWidget::XYDefault()
 {
@@ -240,8 +240,8 @@ void CentralWidget::createAxes()
 
     chart.createDefaultAxes();
 
-    pAxisX = qobject_cast<QValueAxis*>(chart.axisX());
-    pAxisY = qobject_cast<QValueAxis*>(chart.axisY());
+    pAxisX = qobject_cast<QValueAxis*>(chart.axes(Qt::Horizontal).back());
+    pAxisY = qobject_cast<QValueAxis*>(chart.axes(Qt::Vertical).back());
 
     connect(pAxisX, SIGNAL(rangeChanged(qreal, qreal)), this, SLOT(slotRangeXChanged(qreal, qreal)));
     connect(pAxisY, SIGNAL(rangeChanged(qreal, qreal)), this, SLOT(slotRangeYChanged(qreal, qreal)));
@@ -298,7 +298,7 @@ void CentralWidget::slotAntialiasing(bool value)
 
 void CentralWidget::slotSetTcickCountY(int value)
 {
-    QValueAxis* axis = static_cast<QValueAxis*>(chart.axisY());
+    QValueAxis* axis = static_cast<QValueAxis*>(chart.axes(Qt::Vertical).back());
     axis->setTickCount(value);
 }
 
@@ -338,14 +338,14 @@ void CentralWidget::slotReRange()
     chartView.rangeY.max = maxY;
 //Что-бы правильно работало нажатие Esc <<
 
-    QString axisX_Title = chart.axisX()->titleText();
-    QString axisY_Title = chart.axisY()->titleText();
+    QString axisX_Title = chart.axes(Qt::Horizontal).back()->titleText();
+    QString axisY_Title = chart.axes(Qt::Vertical).back()->titleText();
 
     createAxes();
-    chart.axisX()->setRange(minX, maxX);
-    chart.axisX()->setTitleText(axisX_Title);
-    chart.axisY()->setRange(minY, maxY);
-    chart.axisY()->setTitleText(axisY_Title);
+    chart.axes(Qt::Horizontal).back()->setRange(minX, maxX);
+    chart.axes(Qt::Horizontal).back()->setTitleText(axisX_Title);
+    chart.axes(Qt::Vertical).back()->setRange(minY, maxY);
+    chart.axes(Qt::Vertical).back()->setTitleText(axisY_Title);
 }
 
 void CentralWidget::slotResetZoomAndPosition()
@@ -386,23 +386,22 @@ void CentralWidget::slotRangeYSet(qreal min, qreal max)
 
 void CentralWidget::slotSeriesTypeChanged()
 {
-    QString axisX_Title = chart.axisX()->titleText();
-    QString axisY_Title = chart.axisY()->titleText();
+    QString axisX_Title = chart.axes(Qt::Horizontal).back()->titleText();
+    QString axisY_Title = chart.axes(Qt::Vertical).back()->titleText();
 
     createAxes();
 
-    chart.axisX()->setTitleText(axisX_Title);
-    chart.axisY()->setTitleText(axisY_Title);
+    chart.axes(Qt::Horizontal).back()->setTitleText(axisX_Title);
+    chart.axes(Qt::Vertical).back()->setTitleText(axisY_Title);
 }
 
-void CentralWidget::closeEvent(QCloseEvent *event)
+void CentralWidget::closeEvent(QCloseEvent*)
 {
-    Q_UNUSED(event);
     emit signalCloseWindow(this);
 }
 
 void CentralWidget::slotSetTcickCountX(int value)
 {
-    QValueAxis* axis = static_cast<QValueAxis*>(chart.axisX());
+    QValueAxis* axis = static_cast<QValueAxis*>(chart.axes(Qt::Horizontal).back());
     axis->setTickCount(value);
 }

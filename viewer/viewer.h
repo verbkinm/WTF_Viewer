@@ -22,7 +22,6 @@ class Viewer : public QWidget
     Q_OBJECT
 
 public:
-
     const static int CLOG_SIZE = 256;
 
     //For cursor with Pen
@@ -60,7 +59,7 @@ public:
     size_t      getRowFromFile          (QString fileName) const;
 
     void        setReadOnly             (bool value = true);
-    void        hideAllPanel                 ();
+    void        hideAllPanel            ();
     void        hideSettingsButton      (bool value = true);
 
     Frames*     getFrames();
@@ -151,10 +150,12 @@ private:
     void        connectSelectionSpinBox ();
 
     void        applyClogFilter(QImage& image);
-    void        applyClogFilterAdditionalFunction(const ePoint & point);
+    void        applyClogFilterAdditionalFunction(ePoint &point);
 
     void        imageSettingsForArray();
     void        imageSettingsForImage(QImage& image);
+
+    void        calibrationSettingsForArray();
 
     //создаёт рамку согласно настройкам
     void        createFrameInArray();

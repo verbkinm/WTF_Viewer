@@ -13,6 +13,7 @@
 #include <QFile>
 #include <QFileInfo>
 #include <QTemporaryFile>
+#include <QtMath>
 
 #include <QDebug>
 #include <QTime>
@@ -349,6 +350,8 @@ void Viewer::applyClogFilter(QImage& image)
     //проверяем настройки для картинки такие как рамка и маскирование пикселей
     imageSettingsForArray();
 
+
+
     double max = findMaxInArrayOrigin();
     double min = findMinInArrayOrigin();
 
@@ -367,7 +370,7 @@ void Viewer::applyClogFilter(QImage& image)
     imageSettingsForImage(image);
 }
 //для меньшего кол-ва строк исполбзуем эту функцию
-void Viewer::applyClogFilterAdditionalFunction(const ePoint &point)
+void Viewer::applyClogFilterAdditionalFunction(ePoint &point)
 {
     //если координаты точек выходят за границы - это просто игнорируется
     if(point.x >= int(column) || point.y >= int(row) )
@@ -376,7 +379,22 @@ void Viewer::applyClogFilterAdditionalFunction(const ePoint &point)
     if(ui->clogFilterPanel->isMediPix())
         arrayOrigin[point.x][point.y] = arrayOrigin[point.x][point.y] + 1;
     else
+    {
+        if(pSettings != nullptr && pSettings->value("GeneralCalibration/apply").toBool())
+        {
+            double A = (pSettings->value("GeneralCalibration/A").toDouble());
+            double B = (pSettings->value("GeneralCalibration/B").toDouble());
+            double C = (pSettings->value("GeneralCalibration/C").toDouble());
+            double T = (pSettings->value("GeneralCalibration/T").toDouble());
+
+            double parA = A;
+            double parB = B - point.tot - A * T;
+            double parC = point.tot * T - B * T - C;
+
+            point.tot = ( -parB + ( qSqrt(parB * parB - 4 * parA * parC)) ) / (2 * parA);
+        }
         arrayOrigin[point.x][point.y] = arrayOrigin[point.x][point.y] + point.tot;
+    }
 }
 void Viewer::imageSettingsForImage(QImage &image)
 {
@@ -394,6 +412,26 @@ void Viewer::imageSettingsForImage(QImage &image)
             delete[] arrayMask;
             arrayMask = nullptr;
         }
+}
+
+void Viewer::calibrationSettingsForArray()
+{
+    if(pSettings != nullptr){
+//        pSettings->beginGroup("SettingsImage");
+
+//        //если в настройка включено рисование рамки то рисуем её
+//        if(pSettings->value("FrameGroupBox").toBool())
+//            createFrameInArray();
+
+//        //если в настройка включено маскирование пискелей то маскируем их
+//        if(pSettings->value("MasquradingGroupBox").toBool())
+//            createMaskInArray();
+
+//        pSettings->endGroup();
+    }
+
+
+
 }
 void Viewer::imageSettingsForArray()
 {

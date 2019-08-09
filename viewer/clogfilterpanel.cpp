@@ -32,7 +32,7 @@ void ClogFilterPanel::setClusterRange(QVector<int> vector)
     clusterListBegin.clear();
     clusterListEnd.clear();
 
-    foreach(int value, vector)
+    for(auto value : vector)
         clusterListModel << QString::number(value);
 
     ui->clusterRangeBegin->addItems(clusterListModel);
@@ -66,7 +66,7 @@ void ClogFilterPanel::setClusterRange(QVector<int> vector)
 }
 void ClogFilterPanel::slotDates(QString value)
 {
-    if(value == "")
+    if(value.isEmpty())
         return;
 
     QComboBox* pCB = static_cast<QComboBox*>(sender());
@@ -167,7 +167,7 @@ void ClogFilterPanel::slotApplyFilter()
     emit signalApplyFilter();
 }
 
-void ClogFilterPanel::setTotRange(QVector<int> vector)
+void ClogFilterPanel::setTotRange(QVector<double> vector)
 {
     disconnectSignals();
 
@@ -178,7 +178,7 @@ void ClogFilterPanel::setTotRange(QVector<int> vector)
     totListBegin.clear();
     totListEnd.clear();
 
-    foreach(int value, vector)
+    for(const auto &value : vector)
         totListModel << QString::number(value);
 
     ui->totRangeBegin->addItems(totListModel);
@@ -376,15 +376,3 @@ bool ClogFilterPanel::event(QEvent *event)
 
     return QWidget::event(event);
 }
-
-//bool ClogFilterPanel::event(QEvent *event)
-//{
-//    if(event->type() == QEvent::KeyRelease)
-//    {
-//        QKeyEvent* kEv = static_cast<QKeyEvent*>(event);
-//        if(kEv->key() == Qt::Key_Enter)
-//            emit signalApplyFilter();
-//    }
-
-//    return QWidget::event(event);
-//}

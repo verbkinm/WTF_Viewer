@@ -1,6 +1,7 @@
+#include <QDoubleSpinBox>
+
 #include "table.h"
 #include "ui_table.h"
-#include <QDoubleSpinBox>
 
 Table::Table(int size, double **array, QWidget *parent) :
     QDialog(parent),

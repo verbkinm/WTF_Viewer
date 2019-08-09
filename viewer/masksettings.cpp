@@ -24,24 +24,6 @@ int** MaskSettings::dynamicArrayInt(int N, int M)
         arrayPtr[i] = new int[2 * M + 1];
 
     return arrayPtr;
-
-    /*
-     N = 3
-     массив 3x3
-     { [], [], [],
-       [], [], [],
-       [], [], [] }
-
-     arrayPtr = new int *[2 * N + 1]; - Что это делает???
-     new int *[7] - массив из семи указателей
-     { *,*,*,*,*,*,* },
-     каждый из которых указывает на массив размером [2 * N + 1], в нашем случае 7
-     for (int i = 0; i < 2 * N + 1; ++i)
-        arrayPtr[i] = new int[2 * M + 1];
-
-     в итоге получается массив из 7-ми указателей, которые ссылаются на массивы длиной 7
-     или проще говоря - { [7], [7], [7], [7], [7], [7], [7]}
-     */
 }
 
 double** MaskSettings::dynamicArrayDouble(int N, int M)

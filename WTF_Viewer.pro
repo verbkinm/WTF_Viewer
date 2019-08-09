@@ -25,6 +25,8 @@ DEFINES += QT_DEPRECATED_WARNINGS
 CONFIG += c++11
 
 SOURCES += \
+    calibration/generalcalibration.cpp \
+    calibration/pixelcalibration.cpp \
     eventfilter/eventfilter.cpp \
     eventfilter/fingerslide.cpp \
     export/export.cpp \
@@ -49,6 +51,8 @@ SOURCES += \
     progressbar.cpp
 
 HEADERS += \
+    calibration/generalcalibration.h \
+    calibration/pixelcalibration.h \
     eventfilter/eventfilter.h \
     eventfilter/fingerslide.h \
     export/export.h \
@@ -77,6 +81,8 @@ else: unix:!android: target.path = /opt/$${TARGET}/bin
 !isEmpty(target.path): INSTALLS += target
 
 FORMS += \
+    calibration/generalcalibration.ui \
+    calibration/pixelcalibration.ui \
     export/export.ui \
     graph/graphdialog.ui \
     graph/panelwidget.ui \
