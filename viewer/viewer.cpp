@@ -1,9 +1,3 @@
-#include "viewer.h"
-#include "ui_viewer.h"
-#include "checkFile/checkfile.h"
-#include "../progressbar.h"
-
-
 #include <QPushButton>
 #include <QTransform>
 #include <QFileDialog>
@@ -18,11 +12,16 @@
 #include <QDebug>
 #include <QTime>
 
+#include "viewer.h"
+#include "ui_viewer.h"
+#include "checkFile/checkfile.h"
+#include "../progressbar.h"
 
 Viewer::Viewer(QWidget *parent) :
     QWidget(parent),
     ui(new Ui::Viewer)
-{
+{ 
+
     this->setAttribute(Qt::WA_DeleteOnClose);
 
     currentScene = &defaultScene;
@@ -32,26 +31,9 @@ Viewer::Viewer(QWidget *parent) :
     ui->setupUi(this);
 
     createButtonMenu();
-
-    //повороты
-    connect(ui->rotate_plus, SIGNAL(clicked()), this, SLOT(slotRotate()));
-    connect(ui->rotate_minus, SIGNAL(clicked()), this, SLOT(slotRotate()));
-    connect(ui->angle, SIGNAL(valueChanged(double)), this, SLOT(slotRotate()));
-
-    connect(ui->horizontal_mirror, SIGNAL(clicked()), this, SLOT(slotMirror()));
-    connect(ui->vertical_mirror, SIGNAL(clicked()), this, SLOT(slotMirror()));
-
-    //сброс трансформации
-    connect(ui->reset_transform, SIGNAL(clicked()), this, SLOT(slotResetTransform()));
-
-    //масштаб
-    connect(ui->scaled_plus, SIGNAL(clicked()), this, SLOT(slotScaled()));
-    connect(ui->scaled_minus, SIGNAL(clicked()), this, SLOT(slotScaled()));
-
-    //сохранение в bmp
-    connect(ui->save_bmp, SIGNAL(clicked()), this, SLOT(slotSaveBMP()));
-    //сохранение в txt
-    connect(ui->save_txt, SIGNAL(clicked()), this, SLOT(slotSaveTXT()));
+    createDataPanel();
+    createButtonPanel();
+    createPixFilterPanel();
 
     //инверсия цвета
     connect(ui->inversion, SIGNAL(stateChanged(int)), this, SLOT(slotInversionCheckBox(int)));
@@ -70,21 +52,6 @@ Viewer::Viewer(QWidget *parent) :
     FingerSlide* eventFilterViewPort = new FingerSlide(ui->graphicsView->viewport());
     ui->graphicsView->viewport()->installEventFilter(eventFilterViewPort);
     connect(eventFilterViewPort, SIGNAL(signalWheel(int)), this, SLOT(slotScaleWheel(int)));
-
-    //соединение сигналов высылаемых классом ToolsPanel
-    connect(ui->edit_panel, SIGNAL(signalSelectionToggle(bool)), this, SLOT(slotSelectionFrame(bool)));
-    connect(ui->edit_panel, SIGNAL(signalPenToggle(bool)), this, SLOT(slotPen(bool)));
-    connect(ui->edit_panel, SIGNAL(signalCutClicked(bool)), this, SLOT(slotCut()));
-    connect(ui->edit_panel, SIGNAL(signalRepaint()), this, SLOT(slotRepaint()));
-
-    //изменение выделения с помощью спинбоксов
-    connect(ui->x_selection, SIGNAL(valueChanged(int)), this, SLOT(slotMoveRectFromKey()) );
-    connect(ui->y_selection, SIGNAL(valueChanged(int)), this, SLOT(slotMoveRectFromKey()) );
-    connect(ui->width_selection, SIGNAL(valueChanged(int)), this, SLOT(slotMoveRectFromKey()) );
-    connect(ui->heigth_selection, SIGNAL(valueChanged(int)), this, SLOT(slotMoveRectFromKey()) );
-
-    //Нажатия на кнопку Apply на панели фильтров clog
-    connect(ui->clogFilterPanel, SIGNAL(signalApplyFilter()),       this, SLOT(slotApplyClogFilter()));
 
     //при первом запуске - вывести на экран надпись и отключить всё не нужное
     incorrectFile();
@@ -110,7 +77,8 @@ void Viewer::setReadOnly(bool value)
 {
     readOnly = value;
 
-    if(itemRect){
+    if(itemRect)
+    {
         itemRect->setFlag(QGraphicsItem::ItemIsMovable, !value);
         itemRect->setFlag(QGraphicsItem::ItemIsSelectable, !value);
     }
@@ -121,12 +89,15 @@ void Viewer::setReadOnly(bool value)
 }
 void Viewer::hideAllPanel()
 {
-    for(unsigned int i = 0; i < sizeof(action_array) / sizeof (action_array[0]) - 1; ++i)
+    for(size_t i = 0; i < sizeof(action_array) / sizeof (action_array[0]) - 1; ++i)
         pMenuFile->actions()[int(i)]->trigger();
 }
 void Viewer::hideSettingsButton(bool value)
 {
+    objectDelete(pMenuFile);
+    pMenuFile = nullptr;
     ui->button_settings->setVisible(!value);
+    ui->marker_label->setVisible(!value);
 }
 Frames *Viewer::getFrames()
 {
@@ -177,44 +148,49 @@ void Viewer::clearArrayOrigin()
 }
 void Viewer::setEnableDataPanelSelection(bool state)
 {
-    disconnectSelectionSpinBox();
+    disconnectPixFilterPanelSelectionBox();
 
-    ui->data_panel_selection->setEnabled(state);
-    ui->edit_panel->buttonCutDisable(!state);
-
-    ui->x_selection->setValue(0);
-    ui->y_selection->setValue(0);
-    ui->width_selection->setValue(0);
-    ui->heigth_selection->setValue(0);
+    if(pPixFilterPanel)
+    {
+        pPixFilterPanel->setDataPanelEnabled(state);
+        pPixFilterPanel->setX(0);
+        pPixFilterPanel->setY(0);
+        pPixFilterPanel->setWidth(0);
+        pPixFilterPanel->setHeight(0);
+    }
 
     setReadOnlyDataPanelSelection(true);
 
-    connectSelectionSpinBox();
+    connectPixFilterPanelSelectionBox();
 }
 void Viewer::setReadOnlyDataPanelSelection(bool state)
 {
-    ui->x_selection->setReadOnly(state);
-    ui->y_selection->setReadOnly(state);
-    ui->width_selection->setReadOnly(state);
-    ui->heigth_selection->setReadOnly(state);
+    if(pPixFilterPanel)
+        pPixFilterPanel->setDataPanelReadOnly(state);
 }
 void Viewer::setEnableButtonPanel(bool state)
 {
-    ui->button_panel->setEnabled(state);
+    if(pViewerButtonPanel)
+        pViewerButtonPanel->setEnabled(state);
+    if(pViewerDataPanel)
+        pViewerDataPanel->setEnabled(state);
+
     ui->inversion->setEnabled(state);
-    ui->data_panel->setEnabled(state);
 
-    ui->tabWidgetRight->setEnabled(state);
-    ui->edit_panel->setToggleButtons(false);
-
-    if(fType == TXT)
-        ui->tabWidgetRight->setTabEnabled(CLOG_FILTER_TAB, false);
-    else if(fType == CLOG)
+    if(pPixFilterPanel)
     {
-        ui->tabWidgetRight->setTabEnabled(CLOG_FILTER_TAB, true);
-
-        ui->clogFilterPanel->setClusterRange(frames.getClustersLenghtList());
-        ui->clogFilterPanel->setTotRange(frames.getTotLenghtList());
+        pPixFilterPanel->setEnabled(state);
+        pPixFilterPanel->setToggleButtonEnable(false);
+    }
+    if(fType == fileType::TXT && pPixFilterPanel)
+    {
+        pPixFilterPanel->setTabEnable(Pix_Filter_Panel::CLOG_FILTER_TAB, false);
+    }
+    else if(fType == fileType::CLOG && pPixFilterPanel)
+    {
+        pPixFilterPanel->setTabEnable(Pix_Filter_Panel::CLOG_FILTER_TAB, true);
+        pPixFilterPanel->setClusterRange(frames.getClustersLenghtList());
+        pPixFilterPanel->setTotRange(frames.getTotLenghtList());
     }
 
     //state
@@ -228,12 +204,17 @@ void Viewer::setImage(QImage image)
     {
         setEnableButtonPanel(true);
 
-        angle = 0;
-        ui->angle->setValue(0);
+//        angle = 0;
+//        ui->angle->setValue(0);
         ui->graphicsView->resetTransform();
         currentScene->setSceneRect(image.rect());
-        ui->width->setValue(int(currentScene->width()) );
-        ui->heigth->setValue(int(currentScene->height()) );
+
+        if(pViewerDataPanel)
+        {
+            pViewerDataPanel->setAllData(0,0, 0.0, static_cast<int>(currentScene->width()), static_cast<int>(currentScene->height()) );
+            //Отображение на панели координаты курсора (x,y) относительно graphicsView
+            connect(eventFilterScene, SIGNAL(signalMousePos(QPointF)), this, SLOT(slotViewPosition(QPointF)));
+        }
         ui->graphicsView->fitInView(image.rect(), Qt::KeepAspectRatio);
 
         currentScene->clear();
@@ -243,8 +224,6 @@ void Viewer::setImage(QImage image)
 
         slotInversionCheckBox(ui->inversion->checkState());
 
-        //Отображение на панели координаты курсора (x,y) относительно graphicsView
-        connect(eventFilterScene, SIGNAL(signalMousePos(QPointF)), this, SLOT(slotViewPosition(QPointF)));
         //Отображение на панели данных о выделении(x,y,width,height)
         connect(eventFilterScene, SIGNAL(siganlRect(QRect)), this, SLOT(slotViewSelectionPos(QRect)));
         //Отображение на панели координат выделения при перемещении(x,y)
@@ -283,38 +262,69 @@ void Viewer::setImageFile(QString fileName)
 
     if(file.suffix() == "txt")
     {
-        fType = TXT;
+        fType = fileType::TXT;
         setImage(getImageFromTxtFile(filePath));
     }
     else if(file.suffix() == "clog")
     {
-        fType = CLOG;
+        if(!pPixFilterPanel)
+        {
+            QApplication::restoreOverrideCursor();
+            QMessageBox::critical(this, "Error", "Please, enable \"pix. & filter panel\"!");
+            return;
+        }
+        fType = fileType::CLOG;
         setImage(getImageFromClogFile(filePath));
     }
     else {
-        fType = UNDEFINED;
+        fType = fileType::UNDEFINED;
         incorrectFile();
     }
 
     QApplication::restoreOverrideCursor();
 }
-void Viewer::disconnectSelectionSpinBox()
+void Viewer::disconnectPixFilterPanelSelectionBox()
 {
-    disconnect(ui->x_selection, SIGNAL(valueChanged(int)), this, SLOT(slotMoveRectFromKey()) );
-    disconnect(ui->y_selection, SIGNAL(valueChanged(int)), this, SLOT(slotMoveRectFromKey()) );
-    disconnect(ui->width_selection, SIGNAL(valueChanged(int)), this, SLOT(slotMoveRectFromKey()) );
-    disconnect(ui->heigth_selection, SIGNAL(valueChanged(int)), this, SLOT(slotMoveRectFromKey()) );
+    if(!pPixFilterPanel)
+        return;
+    disconnect(pPixFilterPanel, SIGNAL(signalValueX_Changed(int)), this, SLOT(slotMoveRectFromKey()) );
+    disconnect(pPixFilterPanel, SIGNAL(signalValueY_Changed(int)), this, SLOT(slotMoveRectFromKey()) );
+    disconnect(pPixFilterPanel, SIGNAL(signalValueWidth_Changed(int)), this, SLOT(slotMoveRectFromKey()) );
+    disconnect(pPixFilterPanel, SIGNAL(signalValueHeight_Changed(int)), this, SLOT(slotMoveRectFromKey()) );
 }
-void Viewer::connectSelectionSpinBox()
+
+void Viewer::connectPixFilterPanel()
 {
-    connect(ui->x_selection, SIGNAL(valueChanged(int)), this, SLOT(slotMoveRectFromKey()) );
-    connect(ui->y_selection, SIGNAL(valueChanged(int)), this, SLOT(slotMoveRectFromKey()) );
-    connect(ui->width_selection, SIGNAL(valueChanged(int)), this, SLOT(slotMoveRectFromKey()) );
-    connect(ui->heigth_selection, SIGNAL(valueChanged(int)), this, SLOT(slotMoveRectFromKey()) );
+    //соединение сигналов высылаемых классом ToolsPanel
+    connect(pPixFilterPanel, SIGNAL(signalSelectionToggle(bool)), this, SLOT(slotSelectionFrame(bool)));
+    connect(pPixFilterPanel, SIGNAL(signalPenToggle(bool)), this, SLOT(slotPen(bool)));
+    connect(pPixFilterPanel, SIGNAL(signalCutClicked(bool)), this, SLOT(slotCut()));
+    connect(pPixFilterPanel, SIGNAL(signalRepaint()), this, SLOT(slotRepaint()));
+
+    connectPixFilterPanelSelectionBox();
+
+//    //Нажатия на кнопку Apply на панели фильтров clog
+    connect(pPixFilterPanel, SIGNAL(signalApplyFilter()),       this, SLOT(slotApplyClogFilter()));
+}
+
+void Viewer::connectPixFilterPanelSelectionBox()
+{
+    if(!pPixFilterPanel)
+        return;
+    //изменение выделения с помощью спинбоксов
+    connect(pPixFilterPanel, SIGNAL(signalValueX_Changed(int)), this, SLOT(slotMoveRectFromKey()) );
+    connect(pPixFilterPanel, SIGNAL(signalValueY_Changed(int)), this, SLOT(slotMoveRectFromKey()) );
+    connect(pPixFilterPanel, SIGNAL(signalValueWidth_Changed(int)), this, SLOT(slotMoveRectFromKey()) );
+    connect(pPixFilterPanel, SIGNAL(signalValueHeight_Changed(int)), this, SLOT(slotMoveRectFromKey()) );
 }
 
 void Viewer::applyClogFilter(QImage& image)
 {
+    if(!pPixFilterPanel)
+    {
+        pMenuFile->actions()[PIX_AND_FILTER_PANEL]->trigger();
+    }
+
     //обнуляем основной массив
    for (size_t  x = 0; x < column; ++x)
        for (size_t  y = 0; y < row; ++y)
@@ -324,14 +334,14 @@ void Viewer::applyClogFilter(QImage& image)
         for (int clusterNumber = 0; clusterNumber < frames.getClusterCount(frameNumber); ++clusterNumber)
         {
             if( frames.isClusterInRange(frames.getClusterLenght(frameNumber, clusterNumber),
-                                      ui->clogFilterPanel->getClusterBegin(),
-                                      ui->clogFilterPanel->getClusterEnd())
+                                      pPixFilterPanel->getClusterBegin(),
+                                      pPixFilterPanel->getClusterEnd())
                                       &&
                 frames.isTotInRange(frameNumber, clusterNumber,
-                                  ui->clogFilterPanel->getTotBegin(),
-                                  ui->clogFilterPanel->getTotEnd()) )
+                                  pPixFilterPanel->getTotBegin(),
+                                  pPixFilterPanel->getTotEnd()) )
             {
-                if(ui->clogFilterPanel->isAllTotInCluster())
+                if(pPixFilterPanel->isAllTotInCluster())
                     for (int eventNumber = 0; eventNumber < frames.getEventCountInCluster(frameNumber, clusterNumber); ++eventNumber)
                     {
                         ePoint point = frames.getEPoint(frameNumber, clusterNumber, eventNumber);
@@ -340,8 +350,8 @@ void Viewer::applyClogFilter(QImage& image)
                 else
                 {
                     QList<ePoint> listePoint = frames.getListTotInRange(frameNumber, clusterNumber,
-                                                                        ui->clogFilterPanel->getTotBegin(), ui->clogFilterPanel->getTotEnd());
-                    foreach (ePoint point, listePoint)
+                                                                        pPixFilterPanel->getTotBegin(), pPixFilterPanel->getTotEnd());
+                    for (auto &point : listePoint)
                         applyClogFilterAdditionalFunction(point);
                 }
             }
@@ -368,6 +378,7 @@ void Viewer::applyClogFilter(QImage& image)
         }
     //цвет пикселей, к которым применилась маска
     imageSettingsForImage(image);
+
 }
 //для меньшего кол-ва строк исполбзуем эту функцию
 void Viewer::applyClogFilterAdditionalFunction(ePoint &point)
@@ -376,7 +387,7 @@ void Viewer::applyClogFilterAdditionalFunction(ePoint &point)
     if(point.x >= int(column) || point.y >= int(row) )
         return;
     //Выбор режима - MediPix or TimePix
-    if(ui->clogFilterPanel->isMediPix())
+    if(pPixFilterPanel->isMediPix())
         arrayOrigin[point.x][point.y] = arrayOrigin[point.x][point.y] + 1;
     else
     {
@@ -399,8 +410,11 @@ void Viewer::applyClogFilterAdditionalFunction(ePoint &point)
 void Viewer::imageSettingsForImage(QImage &image)
 {
     if(pSettings != nullptr)
+    {
         if(pSettings->value("SettingsImage/MasquradingGroupBox").toBool())
         {
+            qDebug() << "MasquradingGroupBox";
+
             //рисуем маскированые пиксели выбраным цветом
             for (size_t  x = 0; x < column; ++x)
                 for (size_t  y = 0; y < row; ++y)
@@ -412,11 +426,13 @@ void Viewer::imageSettingsForImage(QImage &image)
             delete[] arrayMask;
             arrayMask = nullptr;
         }
+    }
 }
 
 void Viewer::calibrationSettingsForArray()
 {
-    if(pSettings != nullptr){
+    if(pSettings != nullptr)
+    {
 //        pSettings->beginGroup("SettingsImage");
 
 //        //если в настройка включено рисование рамки то рисуем её
@@ -516,7 +532,7 @@ void Viewer::createButtonMenu()
 {
     pMenuFile = new QMenu;
 
-    pMenuFile->addAction("pix. && filter pnael", this,
+    pMenuFile->addAction("pix. && filter panel", this,
                          SLOT(slotPFP()));
     pMenuFile->addAction("data pnael", this,
                          SLOT(slotDP()));
@@ -548,6 +564,56 @@ void Viewer::createButtonMenu()
     }
 }
 
+void Viewer::createButtonPanel()
+{
+    if(pViewerButtonPanel != nullptr)
+        return;
+
+    pViewerButtonPanel = new Viewer_Button_Panel;
+    //повороты
+    connect(pViewerButtonPanel, SIGNAL(signalRotatePlus()), this, SLOT(slotRotatePlus()));
+    connect(pViewerButtonPanel, SIGNAL(signalRotateMinus()), this, SLOT(slotRotateMinus()));
+//    connect(pViewerButtonPanel, SIGNAL(valueChanged(double)), this, SLOT(slotRotatePlus()));
+    //зеркальное отражение
+    connect(pViewerButtonPanel, SIGNAL(signalMirrorHorizontal()), this, SLOT(slotMirrorHorizontal()));
+    connect(pViewerButtonPanel, SIGNAL(signalMirrorVertical()), this, SLOT(slotMirrorVertical()));
+    //сброс трансформации
+    connect(pViewerButtonPanel, SIGNAL(signalResetTransform()), this, SLOT(slotResetTransform()));
+    //масштаб
+    connect(pViewerButtonPanel, SIGNAL(signalScaledPlus()), this, SLOT(slotScaledPlus()));
+    connect(pViewerButtonPanel, SIGNAL(signalScaledMinus()), this, SLOT(slotScaledMinus()));
+    //сохранение в bmp и txt
+    connect(pViewerButtonPanel, SIGNAL(signalSaveToBmp()), this, SLOT(slotSaveBMP()));
+    connect(pViewerButtonPanel, SIGNAL(signalSaveToTxt()), this, SLOT(slotSaveTXT()));
+
+    this->layout()->addWidget(pViewerButtonPanel);
+}
+
+void Viewer::createDataPanel()
+{
+    if(pViewerDataPanel != nullptr)
+        return;
+
+    pViewerDataPanel = new Viewer_Data_Panel;
+    if(arrayOrigin != nullptr)
+        connect(eventFilterScene, SIGNAL(signalMousePos(QPointF)), this, SLOT(slotViewPosition(QPointF)));
+
+    this->layout()->addWidget(pViewerDataPanel);
+}
+
+void Viewer::createPixFilterPanel()
+{
+    if(pPixFilterPanel != nullptr)
+        return;
+
+    pPixFilterPanel = new Pix_Filter_Panel;
+
+    ui->layout_graphicView_and_Pix_filter_panel->addWidget(pPixFilterPanel);
+    ui->layout_graphicView_and_Pix_filter_panel->setStretch(0,1);
+
+    connectPixFilterPanel();
+}
+
 void Viewer::slotSetImageFile(QString file)
 {
     setImageFile(file);
@@ -555,11 +621,14 @@ void Viewer::slotSetImageFile(QString file)
 // !!!
 void Viewer::slotMoveRectFromKey()
 {
+    if(!pPixFilterPanel)
+        return;
+
     QGraphicsRectItem* rectItem = static_cast<QGraphicsRectItem*>(currentScene->items().at(0));
 
     rectItem->setPos(0, 0);
-    rectItem->setRect(ui->x_selection->value(), ui->y_selection->value(),
-                      ui->width_selection->value(), ui->heigth_selection->value());
+    rectItem->setRect(pPixFilterPanel->getX(), pPixFilterPanel->getY(),
+                      pPixFilterPanel->getWidth(), pPixFilterPanel->getHeight());
 }
 void Viewer::slotCreateRectItem(QGraphicsRectItem * item)
 {
@@ -594,17 +663,50 @@ void Viewer::slotRepaint()
 
 void Viewer::slotPFP()
 {
-    ui->tabWidgetRight->setVisible(!action_array[PIX_AND_FILTER_PANEL]);
+    if(fType == fileType::CLOG)
+    {
+        QMessageBox::critical(this, "Error", "You cannot disable this panel when viewing this type of file!");
+        return;
+    }
+
+    if(action_array[PIX_AND_FILTER_PANEL])
+    {
+        objectDelete(pPixFilterPanel);
+        pPixFilterPanel = nullptr;
+        if(itemRect)
+        {
+            currentScene->removeItem(itemRect);
+            itemRect = nullptr;
+        }
+        ui->graphicsView->unsetCursor();
+    }
+    else
+        createPixFilterPanel();
+
     action_array[PIX_AND_FILTER_PANEL] = !action_array[PIX_AND_FILTER_PANEL];
 }
 void Viewer::slotDP()
 {
-    ui->data_panel->setVisible(!action_array[DATA_PANEL]);
+    if(action_array[DATA_PANEL])
+    {
+        objectDelete(pViewerDataPanel);
+        pViewerDataPanel = nullptr;
+    }
+    else
+        createDataPanel();
+
     action_array[DATA_PANEL] = !action_array[DATA_PANEL];
 }
 void Viewer::slotBP()
 {
-    ui->button_panel->setVisible(!action_array[BUTTONS_PANEL]);
+    if(action_array[BUTTONS_PANEL])
+    {
+        objectDelete(pViewerButtonPanel);
+        pViewerButtonPanel = nullptr;
+    }
+    else
+        createButtonPanel();
+
     action_array[BUTTONS_PANEL] = !action_array[BUTTONS_PANEL];
 }
 void Viewer::slotI()
@@ -617,10 +719,9 @@ void Viewer::slotSW()
 {   
     Viewer* SW = new Viewer;
     SW->setWindowTitle(filePath);
-    SW->show();
     SW->setSettings(*pSettings);
 
-    if(fType == TXT){
+    if(fType == fileType::TXT){
         SW->setImageFile(filePath);
         for (size_t  x = 0; x < column; ++x)
             for (size_t  y = 0; y < row; ++y)
@@ -628,32 +729,17 @@ void Viewer::slotSW()
 
         SW->slotRepaint();
     }
-    else if(fType == CLOG){
+    else if(fType == fileType::CLOG)
+    {
         SW->setImageFile(filePath);
-        SW->ui->tabWidgetRight->setCurrentIndex(this->ui->tabWidgetRight->currentIndex());
-
-        SW->ui->clogFilterPanel->setCluster(this->ui->clogFilterPanel->isClusterEnable());
-        SW->ui->clogFilterPanel->setTot(this->ui->clogFilterPanel->isTotEnable());
-        SW->ui->clogFilterPanel->setAllTotInCluster(this->ui->clogFilterPanel->isAllTotInCluster());
-
-        SW->ui->clogFilterPanel->setClusterBegin(this->ui->clogFilterPanel->getClusterBegin());
-        SW->ui->clogFilterPanel->setClusterEnd(this->ui->clogFilterPanel->getClusterEnd());
-
-        SW->ui->clogFilterPanel->setTotBegin(this->ui->clogFilterPanel->getTotBegin());
-        SW->ui->clogFilterPanel->setTotEnd(this->ui->clogFilterPanel->getTotEnd());
-
-        if(this->ui->clogFilterPanel->isMediPix())
-            SW->ui->clogFilterPanel->setMediPix(true);
-        else
-            SW->ui->clogFilterPanel->setTimePix(true);
-
+//        SW->pPixFilterPanel = pPixFilterPanel;
         SW->slotApplyClogFilter();
 
-        for (size_t  x = 0; x < column; ++x)
-            for (size_t  y = 0; y < row; ++y)
-                SW->arrayOrigin[x][y] = arrayOrigin[x][y];
+//        for (size_t  x = 0; x < column; ++x)
+//            for (size_t  y = 0; y < row; ++y)
+//                SW->arrayOrigin[x][y] = arrayOrigin[x][y];
 
-        SW->slotRepaint();
+//        SW->slotRepaint();
     }
     else{
         QTemporaryFile tmpFile;
@@ -679,28 +765,35 @@ void Viewer::slotSW()
 
         file.close();
     }
+    SW->show();
 }
 
 void Viewer::slotViewSelectionMovePos(QPoint point)
 {
-    disconnectSelectionSpinBox();
+    disconnectPixFilterPanelSelectionBox();
 
-    ui->x_selection->setValue(point.x());
-    ui->y_selection->setValue(point.y());
+    if(pPixFilterPanel)
+    {
+        pPixFilterPanel->setX(point.x());
+        pPixFilterPanel->setY(point.y());
+    }
 
-    connectSelectionSpinBox();
+    connectPixFilterPanelSelectionBox();
 }
 
 void Viewer::slotDrawPoint(QPointF point)
 {
+    if(!pPixFilterPanel)
+        return;
+
     int x = int(point.x());
     int y = int(point.y());
 
     if(x >= 0 && x < int(column) && y >= 0 && y < int(row))
     {
-        imageOrigin.setPixelColor(x, y, ui->edit_panel->getPenColor());
+        imageOrigin.setPixelColor(x, y, pPixFilterPanel->getPenColor());
         slotInversionCheckBox(ui->inversion->checkState());
-        arrayOrigin[x][y] = ui->edit_panel->getPenValue();
+        arrayOrigin[x][y] = pPixFilterPanel->getPenValue();
     }
 }
 void Viewer::slotViewSelectionPos(QRect rect)
@@ -735,18 +828,20 @@ void Viewer::slotViewSelectionPos(QRect rect)
         ;
     }
 
-    ui->x_selection->setValue(x);
-    ui->y_selection->setValue(y);
-    ui->width_selection->setValue(width);
-    ui->heigth_selection->setValue(height);
+    if(!pPixFilterPanel)
+        return;
+
+    pPixFilterPanel->setX(x);
+    pPixFilterPanel->setY(y);
+    pPixFilterPanel->setWidth(width);
+    pPixFilterPanel->setHeight(height);
 }
 void Viewer::slotFinishSelection()
 {
     ui->graphicsView->unsetCursor();
-    ui->graphicsView->unsetCursor();
     setReadOnlyDataPanelSelection(false);
-    ui->edit_panel->finishSelection();
-    ui->edit_panel->buttonCutDisable(false);
+    pPixFilterPanel->finishSelection();
+    pPixFilterPanel->setButtonCutDisable(false);
 }
 QImage Viewer::createArrayImage(const QString& fileName)
 {
@@ -836,8 +931,11 @@ void Viewer::incorrectFile()
 {
     setEnableButtonPanel(false);
     selectFile();
-    //Отображение на панели координаты курсора (x,y) относительно graphicsView
-    disconnect(eventFilterScene, SIGNAL(signalMousePos(QPointF)), this, SLOT(slotViewPosition(QPointF)));
+    if(pViewerDataPanel)
+    {
+        //Отображение на панели координаты курсора (x,y) относительно graphicsView
+        disconnect(eventFilterScene, SIGNAL(signalMousePos(QPointF)), this, SLOT(slotViewPosition(QPointF)));
+    }
     //Отображение на панели данных о выделении(x,y,width,height)
     disconnect(eventFilterScene, SIGNAL(siganlRect(QRect)), this, SLOT(slotViewSelectionPos(QRect)));
     //Отображение на панели координат выделения при перемещении(x,y)
@@ -848,12 +946,8 @@ void Viewer::incorrectFile()
     disconnect(eventFilterScene, SIGNAL(signalCreateRectItem(QGraphicsRectItem*)), this, SLOT(slotCreateRectItem(QGraphicsRectItem*)));
     disconnect(eventFilterScene, SIGNAL(signalDrawPoint(QPointF)), this, SLOT(slotDrawPoint(QPointF)));
 
-    ui->x->setValue(0);
-    ui->y->setValue(0);
-    ui->data->setValue(0);
-    ui->width->setValue(0);
-    ui->heigth->setValue(0);
-
+    if(pViewerDataPanel)
+        pViewerDataPanel->setAllData(0,0,0.0,0,0);
     clearArrayOrigin();
 }
 QImage Viewer::getImage()
@@ -895,19 +989,19 @@ void Viewer::slotScaleWheel(int value)
         ui->graphicsView->scale(1 / 1.1, 1 / 1.1);
     }
 }
-void Viewer::slotSelectionFrame(bool value)
+void Viewer::slotSelectionFrame(bool state)
 {
-    if(value)
+    if(state)
     {
         setEnableDataPanelSelection(true);
-
-        if(itemRect){
+        if(itemRect)
+        {
             currentScene->removeItem(itemRect);
             itemRect = nullptr;
         }
         ui->graphicsView->setCursor(QCursor(Qt::CrossCursor));
     }
-    if(!value && itemRect == nullptr)
+    if(!state && itemRect == nullptr)
     {
         ui->graphicsView->unsetCursor();
         setEnableDataPanelSelection(false);
@@ -946,8 +1040,8 @@ void Viewer::slotCut()
     }
 
 
-    size_t column  = size_t(ui->width_selection->value());
-    size_t row     = size_t(ui->heigth_selection->value());
+    size_t column  = size_t(pPixFilterPanel->getWidth());
+    size_t row     = size_t(pPixFilterPanel->getHeight());
 
     QImage image(int(column), int(row), QImage::Format_ARGB32_Premultiplied);
 
@@ -961,8 +1055,13 @@ void Viewer::slotCut()
 
     //Заполнение временного массива данными из выделенной области
     double value = 0;
-    for (int x = int(ui->x_selection->value()), tmpX = 0; tmpX < int(column); ++x, ++tmpX)
-        for (int y = int(ui->y_selection->value()), tmpY = 0; tmpY < int(row); ++y, ++tmpY) {
+    if(!pPixFilterPanel)
+    {
+        qDebug() << __FUNCTION__ << " pPixFilterPanel=nullptr";
+        exit(1);
+    }
+    for (int x = pPixFilterPanel->getX(), tmpX = 0; tmpX < int(column); ++x, ++tmpX)
+        for (int y = pPixFilterPanel->getY(), tmpY = 0; tmpY < int(row); ++y, ++tmpY) {
             if( (x < 0) || (x >= int(this->column)) || (y < 0) || (y >= int(this->row)) )
                 value = 0;
             else
@@ -1017,74 +1116,59 @@ void Viewer::slotCut()
 
     setImage(image);
 
-    if(fType == CLOG)
-        ui->tabWidgetRight->setTabEnabled(CLOG_FILTER_TAB, false);
+    if(fType == fileType::CLOG && pPixFilterPanel)
+        pPixFilterPanel->setTabEnable(Pix_Filter_Panel::CLOG_FILTER_TAB, false);
 
-    fType = UNDEFINED;
+    fType = fileType::UNDEFINED;
 }
-void Viewer::slotRotate()
+void Viewer::slotRotatePlus()
 {
-    if( sender()->objectName() == "rotate_plus" ){
 //        ui->angle->setValue(ui->angle->value() + 90);
-            size_t matrix_rang = row;
-            for (size_t i = 0; i < row / 2; i++)
-            {
-                for (size_t j = i; j < row - 1 - i; j++)
-                {
-                    double tmp = arrayOrigin[i][j];
-                    arrayOrigin[i][j] = arrayOrigin[j][matrix_rang - i - 1];
-                    arrayOrigin[j][matrix_rang - i - 1] = arrayOrigin[matrix_rang - i - 1][matrix_rang - j - 1];
-                    arrayOrigin[matrix_rang - i - 1][matrix_rang - j - 1] = arrayOrigin[matrix_rang - j - 1][i];
-                    arrayOrigin[matrix_rang - j - 1][i] = tmp;
-                }
-            }
-    }
-    else if ( sender()->objectName() == "rotate_minus" ){
-        size_t matrix_rang = row;
-        for (size_t i = 0; i < row / 2; i++)
-        {
-            for (size_t j = i; j < row - 1 - i; j++)
-            {
-                double tmp = arrayOrigin[i][j];
-                arrayOrigin[i][j] = arrayOrigin[matrix_rang - j - 1][i];
-                arrayOrigin[matrix_rang - j - 1][i] = arrayOrigin[matrix_rang - i - 1][matrix_rang - j - 1];
-                arrayOrigin[matrix_rang - i - 1][matrix_rang - j - 1] = arrayOrigin[j][matrix_rang - i - 1];
-                arrayOrigin[j][matrix_rang - i - 1] = tmp;
-            }
-        }
-//        ui->angle->setValue(ui->angle->value() - 90);
-    }
-    else
+    size_t matrix_rang = row;
+    for (size_t i = 0; i < row / 2; i++)
     {
-        ;
+        for (size_t j = i; j < row - 1 - i; j++)
+        {
+            double tmp = arrayOrigin[i][j];
+            arrayOrigin[i][j] = arrayOrigin[j][matrix_rang - i - 1];
+            arrayOrigin[j][matrix_rang - i - 1] = arrayOrigin[matrix_rang - i - 1][matrix_rang - j - 1];
+            arrayOrigin[matrix_rang - i - 1][matrix_rang - j - 1] = arrayOrigin[matrix_rang - j - 1][i];
+            arrayOrigin[matrix_rang - j - 1][i] = tmp;
+        }
     }
-
+    slotRepaint();
+}
+void Viewer::slotRotateMinus()
+{
+    size_t matrix_rang = row;
+    for (size_t i = 0; i < row / 2; i++)
+    {
+        for (size_t j = i; j < row - 1 - i; j++)
+        {
+            double tmp = arrayOrigin[i][j];
+            arrayOrigin[i][j] = arrayOrigin[matrix_rang - j - 1][i];
+            arrayOrigin[matrix_rang - j - 1][i] = arrayOrigin[matrix_rang - i - 1][matrix_rang - j - 1];
+            arrayOrigin[matrix_rang - i - 1][matrix_rang - j - 1] = arrayOrigin[j][matrix_rang - i - 1];
+            arrayOrigin[j][matrix_rang - i - 1] = tmp;
+        }
+    }
+    //        ui->angle->setValue(ui->angle->value() - 90);
     slotRepaint();
 }
 
-void Viewer::slotMirror()
+void Viewer::slotMirrorHorizontal()
 {
-    if( sender()->objectName() == "horizontal_mirror" )
+    for (size_t i = 0; i < row / 2; i++)
+                std::swap(arrayOrigin[i], arrayOrigin[row - i - 1]);
+
+    slotRepaint();
+}
+void Viewer::slotMirrorVertical()
+{
+    for (size_t i = 0; i < row; i++)
     {
-        for (size_t i = 0; i < row / 2; i++)
-                {
-                    std::swap(arrayOrigin[i], arrayOrigin[row - i - 1]);
-
-                }
-
-    }
-
-    else if( sender()->objectName() == "vertical_mirror" )
-    {
-        for (size_t i = 0; i < row; i++)
-        {
-            for (size_t j = 0; j < row / 2; j++)
-                    {
-                        std::swap(arrayOrigin[i][j], arrayOrigin[i][row - j - 1]);
-
-                    }
-        }
-
+        for (size_t j = 0; j < row / 2; j++)
+                    std::swap(arrayOrigin[i][j], arrayOrigin[i][row - j - 1]);
     }
 
     slotRepaint();
@@ -1094,19 +1178,22 @@ void Viewer::slotResetTransform()
     ui->graphicsView->resetTransform();
     ui->graphicsView->fitInView(imageOrigin.rect(), Qt::KeepAspectRatio);
 
-    angle = 0;
-    ui->angle->setValue(0);
+//    angle = 0;
+//    ui->angle->setValue(0);
 }
 void Viewer::slotViewPosition(QPointF pos)
 {
+    if(pViewerDataPanel == nullptr)
+        return;
+
     int width = int(currentScene->sceneRect().width());
     int height = int(currentScene->sceneRect().height());
 
     if(pos.x() < 0 || pos.x() > width || pos.y() < 0 || pos.y() > height)
     {
-        ui->x->setValue(0);
-        ui->y->setValue(0);
-        ui->data->setValue(0);
+        pViewerDataPanel->setX(0);
+        pViewerDataPanel->setY(0);
+        pViewerDataPanel->setAllData(0.0);
     }
     else if(arrayOrigin != nullptr)
     {
@@ -1115,22 +1202,19 @@ void Viewer::slotViewPosition(QPointF pos)
 
         if( (x < int(column)) && (y < int(row)) ){
             double data = arrayOrigin[x][y];
-            ui->x->setValue(x);
-            ui->y->setValue(y);
-            ui->data->setValue(data);
+            pViewerDataPanel->setX(x);
+            pViewerDataPanel->setY(y);
+            pViewerDataPanel->setAllData(data);
         }
     }
 }
-void Viewer::slotScaled()
+void Viewer::slotScaledPlus()
 {
-    if( sender()->objectName() == "scaled_plus" )
-    {
-        ui->graphicsView->scale(1.1, 1.1);
-    }
-    else if ( sender()->objectName() == "scaled_minus" )
-    {
-        ui->graphicsView->scale(1 / 1.1, 1 / 1.1);
-    }
+    ui->graphicsView->scale(1.1, 1.1);
+}
+void Viewer::slotScaledMinus()
+{
+    ui->graphicsView->scale(1 / 1.1, 1 / 1.1);
 }
 void Viewer::slotSaveBMP()
 {
@@ -1175,7 +1259,7 @@ void Viewer::slotSaveTXT()
 Viewer::~Viewer()
 {
     delete ui;
-    delete pMenuFile;
+    objectDelete(pMenuFile);
     clearArrayOrigin();
     objectDelete(eventFilterScene);
 }

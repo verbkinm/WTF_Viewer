@@ -7,7 +7,7 @@
 #include "graph/graphdialog.h"
 #include "calibration/generalcalibration.h"
 
-const static QString VERSION =  "0.9.8.2";
+const static QString VERSION =  "0.9.8.3";
 
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent), settings(QSettings::IniFormat, QSettings::UserScope, "WTF.org", "WTF")

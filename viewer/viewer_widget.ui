@@ -39,69 +39,13 @@
       <attribute name="title">
        <string>Mask</string>
       </attribute>
-      <layout class="QGridLayout" name="gridLayout">
-       <item row="0" column="0">
-        <widget class="QGroupBox" name="groupBox">
-         <property name="title">
-          <string>Origin:</string>
-         </property>
-         <layout class="QVBoxLayout" name="verticalLayout">
-          <item>
-           <widget class="Viewer" name="graphicsView_origin" native="true"/>
-          </item>
-         </layout>
-        </widget>
-       </item>
-       <item row="0" column="1">
-        <widget class="QGroupBox" name="groupBox_3">
-         <property name="title">
-          <string>Result:</string>
-         </property>
-         <layout class="QVBoxLayout" name="verticalLayout_3">
-          <item>
-           <widget class="QGraphicsView" name="graphicsView_Result">
-            <property name="backgroundBrush">
-             <brush brushstyle="SolidPattern">
-              <color alpha="255">
-               <red>200</red>
-               <green>200</green>
-               <blue>200</blue>
-              </color>
-             </brush>
-            </property>
-           </widget>
-          </item>
-         </layout>
-        </widget>
-       </item>
-       <item row="1" column="0">
-        <widget class="QGroupBox" name="groupBox_2">
-         <property name="title">
-          <string>Mask:</string>
-         </property>
-         <layout class="QVBoxLayout" name="verticalLayout_2">
-          <item>
-           <widget class="Viewer" name="mask_viewer" native="true"/>
-          </item>
-         </layout>
-        </widget>
-       </item>
-       <item row="1" column="1">
-        <widget class="MaskSettings" name="mask_settings" native="true"/>
-       </item>
-      </layout>
+      <layout class="QGridLayout" name="gridLayout"/>
      </widget>
     </widget>
    </item>
   </layout>
  </widget>
  <customwidgets>
-  <customwidget>
-   <class>MaskSettings</class>
-   <extends>QWidget</extends>
-   <header>../WTF_Viewer/viewer/masksettings.h</header>
-   <container>1</container>
-  </customwidget>
   <customwidget>
    <class>Viewer</class>
    <extends>QWidget</extends>
@@ -111,7 +55,6 @@
  </customwidgets>
  <tabstops>
   <tabstop>tabWidget</tabstop>
-  <tabstop>graphicsView_Result</tabstop>
  </tabstops>
  <resources/>
  <connections/>

@@ -11,6 +11,9 @@
 
 #include "../eventfilter/fingerslide.h"
 #include "frames/frames.h"
+#include "viewer_button_panel.h"
+#include "viewer_data_panel.h"
+#include "pix_filter_panel.h"
 
 namespace Ui {
 class Viewer;
@@ -68,6 +71,14 @@ signals:
 private:
     Ui::Viewer *ui;
 
+    Viewer_Button_Panel *pViewerButtonPanel = nullptr;
+    Viewer_Data_Panel *pViewerDataPanel = nullptr;
+    Pix_Filter_Panel *pPixFilterPanel = nullptr;
+
+    void createButtonPanel();
+    void createDataPanel();
+    void createPixFilterPanel();
+
     bool    readOnly = false;
 
     enum {PIX_AND_FILTER_PANEL, DATA_PANEL, BUTTONS_PANEL, INVERSION, SINGLE_WINDOW};
@@ -81,8 +92,7 @@ private:
     */
     bool    action_array[5];
 
-    enum fileType {UNDEFINED, TXT, CLOG};
-    enum tabName  {PIX_PROPERTY_TAB, CLOG_FILTER_TAB};
+    enum class fileType {UNDEFINED, TXT, CLOG};
 
     //текущий тип файла
     fileType fType;
@@ -145,8 +155,10 @@ private:
     //состояние readonly на панели Data
     void        setReadOnlyDataPanelSelection(bool);
 
-    void        disconnectSelectionSpinBox ();
-    void        connectSelectionSpinBox ();
+    void        disconnectPixFilterPanelSelectionBox ();
+
+    void        connectPixFilterPanel();
+    void connectPixFilterPanelSelectionBox();
 
     void        applyClogFilter(QImage& image);
     void        applyClogFilterAdditionalFunction(ePoint &point);
@@ -176,13 +188,16 @@ public slots:
 
 private slots:
     //поворот
-    void        slotRotate              ();
+    void        slotRotatePlus();
+    void        slotRotateMinus();
     // отражение по горизонтали
-    void        slotMirror              ();
+    void        slotMirrorHorizontal();
+    void        slotMirrorVertical();
     //сброс трансформации
     void        slotResetTransform      ();
     //масштаб при нажатии на виджете кнопок + и -
-    void        slotScaled              ();
+    void        slotScaledPlus();
+    void        slotScaledMinus();
     // масштаб колёсиком мышки
     void        slotScaleWheel          (int);
 
@@ -198,7 +213,7 @@ private slots:
     void        slotDrawPoint           (QPointF point);
 
     //действия при нажатии кнопки на панели инструментов
-    void        slotSelectionFrame      (bool value);
+    void        slotSelectionFrame      (bool state);
     void        slotPen                 (bool value);
     void        slotCut                 ();
 
@@ -220,10 +235,10 @@ private slots:
 //                [3 - inversion]
 //                [4 - single window]
     //действия для каждого пункта меню кнопки button_settings
-    void        slotPFP();
-    void        slotDP();
-    void        slotBP();
-    void        slotI();
+    void        slotPFP(); //pix and filter panel
+    void        slotDP(); // data panel
+    void        slotBP(); // button panel
+    void        slotI(); // inversion chekbox
     void        slotSW(); //siparate window
 
 protected:

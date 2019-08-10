@@ -21,17 +21,19 @@ Viewer_widget::Viewer_widget(QSettings &setting, QWidget *parent) :
 {
     ui->setupUi(this);
 
+    makeMaskTab();
+
     ui->graphicsView->setSettings(_settings);
-    ui->graphicsView_origin->setScene(ui->graphicsView->getScene());
+    graphicsView_origin.setScene(ui->graphicsView->getScene());
 
-    ui->graphicsView_origin->hideAllPanel();
-    ui->graphicsView_origin->setReadOnly();
-    ui->graphicsView_origin->hideSettingsButton();
-    ui->mask_viewer->hideAllPanel();
+    graphicsView_origin.hideAllPanel();
+    graphicsView_origin.setReadOnly();
+    graphicsView_origin.hideSettingsButton();
+    mask_viewer.hideAllPanel();
 
-    connect(ui->mask_settings, SIGNAL(signalOpenTXT(QString)), ui->mask_viewer, SLOT(slotSetImageFile(QString)));
-    connect(ui->mask_settings, SIGNAL(signalSaveTXT()), ui->mask_viewer, SLOT(slotSaveTXT()));
-    connect(ui->mask_settings, SIGNAL(signalGenerated(QString)), ui->mask_viewer, SLOT(slotSetImageFile(QString)));
+    connect(&mask_settings, SIGNAL(signalOpenTXT(QString)), &mask_viewer, SLOT(slotSetImageFile(QString)));
+    connect(&mask_settings, SIGNAL(signalSaveTXT()), &mask_viewer, SLOT(slotSaveTXT()));
+    connect(&mask_settings, SIGNAL(signalGenerated(QString)), &mask_viewer, SLOT(slotSetImageFile(QString)));
 
     connect(ui->tabWidget, SIGNAL(currentChanged(int)), this, SLOT(slotTabChanged(int)));
 
@@ -58,6 +60,24 @@ Frames* Viewer_widget::getFrames()
 QImage Viewer_widget::getImageFromTxtFile(QString file)
 {
     return ui->graphicsView->getImageFromTxtFile(file);
+}
+
+void Viewer_widget::makeMaskTab()
+{
+    main_splitter.setOrientation(Qt::Horizontal);
+    left_splitter.setOrientation(Qt::Vertical);
+    right_splitter.setOrientation(Qt::Vertical);
+
+    main_splitter.addWidget(&left_splitter);
+    main_splitter.addWidget(&right_splitter);
+
+    left_splitter.addWidget(&graphicsView_origin);
+    left_splitter.addWidget(&mask_viewer);
+    right_splitter.addWidget(&graphicsView_Result);
+    right_splitter.addWidget(&mask_settings);
+
+    ui->tab_2->layout()->addWidget(&main_splitter);
+    graphicsView_Result.hideAllPanel();
 }
 
 void Viewer_widget::slotTabChanged(int value)

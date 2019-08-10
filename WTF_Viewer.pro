@@ -42,9 +42,12 @@ SOURCES += \
     viewer/frames/oneframe.cpp \
     viewer/clogfilterpanel.cpp \
     viewer/masksettings.cpp \
+    viewer/pix_filter_panel.cpp \
     viewer/table.cpp \
     viewer/toolspanel.cpp \
     viewer/viewer.cpp \
+    viewer/viewer_button_panel.cpp \
+    viewer/viewer_data_panel.cpp \
     viewer/viewer_widget.cpp \
     main.cpp \
     mainwindow.cpp \
@@ -68,9 +71,12 @@ HEADERS += \
     viewer/frames/oneframe.h \
     viewer/clogfilterpanel.h \
     viewer/masksettings.h \
+    viewer/pix_filter_panel.h \
     viewer/table.h \
     viewer/toolspanel.h \
     viewer/viewer.h \
+    viewer/viewer_button_panel.h \
+    viewer/viewer_data_panel.h \
     viewer/viewer_widget.h \
     mainwindow.h \
     progressbar.h
@@ -90,9 +96,12 @@ FORMS += \
     settings/settingsimage.ui \
     viewer/clogfilterpanel.ui \
     viewer/masksettings.ui \
+    viewer/pix_filter_panel.ui \
     viewer/table.ui \
     viewer/toolspanel.ui \
     viewer/viewer.ui \
+    viewer/viewer_button_panel.ui \
+    viewer/viewer_data_panel.ui \
     viewer/viewer_widget.ui \
     progressbar.ui
 

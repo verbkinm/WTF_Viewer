@@ -7,9 +7,12 @@
 #include <QCloseEvent>
 #include <QGraphicsScene>
 #include <QSettings>
+#include <QSplitter>
 
 #include "../eventfilter/fingerslide.h"
 #include "frames/frames.h"
+#include "viewer.h"
+#include "masksettings.h"
 
 namespace Ui {
 class Viewer_widget;
@@ -32,6 +35,13 @@ public:
 
 private:
     Ui::Viewer_widget *ui;
+
+    QSplitter main_splitter, left_splitter, right_splitter;
+
+    Viewer graphicsView_origin, mask_viewer, graphicsView_Result;
+    MaskSettings mask_settings;
+
+    void makeMaskTab();
 
 private slots:
     void slotTabChanged(int);

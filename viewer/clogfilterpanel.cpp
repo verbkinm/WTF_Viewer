@@ -21,7 +21,7 @@ ClogFilterPanel::~ClogFilterPanel()
     delete ui;
 }
 
-void ClogFilterPanel::setClusterRange(QVector<int> vector)
+void ClogFilterPanel::setClusterRange(const QVector<int> &vector)
 {
     disconnectSignals();
 
@@ -32,7 +32,7 @@ void ClogFilterPanel::setClusterRange(QVector<int> vector)
     clusterListBegin.clear();
     clusterListEnd.clear();
 
-    for(auto value : vector)
+    for(const auto &value : vector)
         clusterListModel << QString::number(value);
 
     ui->clusterRangeBegin->addItems(clusterListModel);
@@ -167,7 +167,7 @@ void ClogFilterPanel::slotApplyFilter()
     emit signalApplyFilter();
 }
 
-void ClogFilterPanel::setTotRange(QVector<double> vector)
+void ClogFilterPanel::setTotRange(const QVector<double> &vector)
 {
     disconnectSignals();
 

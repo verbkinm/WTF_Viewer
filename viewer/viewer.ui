@@ -6,796 +6,138 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>694</width>
-    <height>295</height>
+    <width>604</width>
+    <height>354</height>
    </rect>
   </property>
   <property name="windowTitle">
    <string>Form</string>
   </property>
-  <layout class="QGridLayout" name="gridLayout" columnstretch="1,0,0,0">
-   <item row="1" column="0" colspan="3">
-    <widget class="QGraphicsView" name="graphicsView">
-     <property name="frameShape">
-      <enum>QFrame::StyledPanel</enum>
-     </property>
-     <property name="frameShadow">
-      <enum>QFrame::Sunken</enum>
-     </property>
-     <property name="midLineWidth">
-      <number>0</number>
-     </property>
-     <property name="backgroundBrush">
-      <brush brushstyle="SolidPattern">
-       <color alpha="255">
-        <red>200</red>
-        <green>200</green>
-        <blue>200</blue>
-       </color>
-      </brush>
-     </property>
-     <property name="foregroundBrush">
-      <brush brushstyle="NoBrush">
-       <color alpha="255">
-        <red>0</red>
-        <green>0</green>
-        <blue>0</blue>
-       </color>
-      </brush>
-     </property>
-     <property name="interactive">
-      <bool>true</bool>
-     </property>
-     <property name="sceneRect">
-      <rectf>
-       <x>0.000000000000000</x>
-       <y>0.000000000000000</y>
-       <width>0.000000000000000</width>
-       <height>0.000000000000000</height>
-      </rectf>
-     </property>
-     <property name="renderHints">
-      <set>QPainter::Antialiasing|QPainter::HighQualityAntialiasing|QPainter::SmoothPixmapTransform|QPainter::TextAntialiasing</set>
-     </property>
-     <property name="cacheMode">
-      <set>QGraphicsView::CacheNone</set>
-     </property>
-     <property name="transformationAnchor">
-      <enum>QGraphicsView::AnchorUnderMouse</enum>
-     </property>
-     <property name="resizeAnchor">
-      <enum>QGraphicsView::AnchorUnderMouse</enum>
-     </property>
-     <property name="viewportUpdateMode">
-      <enum>QGraphicsView::FullViewportUpdate</enum>
-     </property>
-     <property name="rubberBandSelectionMode">
-      <enum>Qt::IntersectsItemShape</enum>
-     </property>
-    </widget>
+  <layout class="QVBoxLayout" name="verticalLayout">
+   <property name="leftMargin">
+    <number>9</number>
+   </property>
+   <property name="topMargin">
+    <number>3</number>
+   </property>
+   <property name="bottomMargin">
+    <number>3</number>
+   </property>
+   <item>
+    <layout class="QHBoxLayout" name="layout_Invers_and_Setting_button" stretch="0,1,1">
+     <item>
+      <widget class="QCheckBox" name="inversion">
+       <property name="sizePolicy">
+        <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
+         <horstretch>0</horstretch>
+         <verstretch>0</verstretch>
+        </sizepolicy>
+       </property>
+       <property name="toolTip">
+        <string>negative of  image</string>
+       </property>
+       <property name="text">
+        <string>Inversion</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QLabel" name="marker_label">
+       <property name="text">
+        <string>marker</string>
+       </property>
+       <property name="alignment">
+        <set>Qt::AlignCenter</set>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QPushButton" name="button_settings">
+       <property name="minimumSize">
+        <size>
+         <width>24</width>
+         <height>24</height>
+        </size>
+       </property>
+       <property name="maximumSize">
+        <size>
+         <width>24</width>
+         <height>24</height>
+        </size>
+       </property>
+       <property name="text">
+        <string/>
+       </property>
+      </widget>
+     </item>
+    </layout>
    </item>
-   <item row="2" column="0" colspan="3">
-    <widget class="QGroupBox" name="data_panel">
-     <property name="title">
-      <string/>
-     </property>
-     <property name="flat">
-      <bool>true</bool>
-     </property>
-     <layout class="QHBoxLayout" name="horizontalLayout_3">
-      <property name="topMargin">
-       <number>5</number>
-      </property>
-      <property name="bottomMargin">
-       <number>0</number>
-      </property>
-      <item>
-       <spacer name="horizontalSpacer_4">
-        <property name="orientation">
-         <enum>Qt::Horizontal</enum>
-        </property>
-        <property name="sizeHint" stdset="0">
-         <size>
-          <width>40</width>
-          <height>20</height>
-         </size>
-        </property>
-       </spacer>
-      </item>
-      <item>
-       <widget class="QSpinBox" name="x">
-        <property name="toolTip">
-         <string>X mouse position</string>
-        </property>
-        <property name="wrapping">
-         <bool>false</bool>
-        </property>
-        <property name="frame">
-         <bool>false</bool>
-        </property>
-        <property name="alignment">
-         <set>Qt::AlignCenter</set>
-        </property>
-        <property name="readOnly">
-         <bool>true</bool>
-        </property>
-        <property name="buttonSymbols">
-         <enum>QAbstractSpinBox::NoButtons</enum>
-        </property>
-        <property name="prefix">
-         <string>X: </string>
-        </property>
-        <property name="minimum">
-         <number>0</number>
-        </property>
-        <property name="maximum">
-         <number>65535</number>
-        </property>
-        <property name="value">
-         <number>0</number>
-        </property>
-       </widget>
-      </item>
-      <item>
-       <widget class="QSpinBox" name="y">
-        <property name="toolTip">
-         <string>Y mouse position</string>
-        </property>
-        <property name="wrapping">
-         <bool>false</bool>
-        </property>
-        <property name="frame">
-         <bool>false</bool>
-        </property>
-        <property name="alignment">
-         <set>Qt::AlignCenter</set>
-        </property>
-        <property name="readOnly">
-         <bool>true</bool>
-        </property>
-        <property name="buttonSymbols">
-         <enum>QAbstractSpinBox::NoButtons</enum>
-        </property>
-        <property name="prefix">
-         <string>Y: </string>
-        </property>
-        <property name="minimum">
-         <number>0</number>
-        </property>
-        <property name="maximum">
-         <number>65535</number>
-        </property>
-       </widget>
-      </item>
-      <item>
-       <widget class="QDoubleSpinBox" name="data">
-        <property name="toolTip">
-         <string>Data in &quot;pixel&quot;</string>
-        </property>
-        <property name="frame">
-         <bool>false</bool>
-        </property>
-        <property name="alignment">
-         <set>Qt::AlignCenter</set>
-        </property>
-        <property name="readOnly">
-         <bool>true</bool>
-        </property>
-        <property name="buttonSymbols">
-         <enum>QAbstractSpinBox::NoButtons</enum>
-        </property>
-        <property name="prefix">
-         <string>Data: </string>
-        </property>
-        <property name="minimum">
-         <double>-10000000000000000213204190094543968723012578712679649467743338496.000000000000000</double>
-        </property>
-        <property name="maximum">
-         <double>9999999999999999932209486743616279764617084419440640.000000000000000</double>
-        </property>
-       </widget>
-      </item>
-      <item>
-       <widget class="QSpinBox" name="width">
-        <property name="toolTip">
-         <string>width of picture</string>
-        </property>
-        <property name="wrapping">
-         <bool>true</bool>
-        </property>
-        <property name="frame">
-         <bool>false</bool>
-        </property>
-        <property name="alignment">
-         <set>Qt::AlignCenter</set>
-        </property>
-        <property name="readOnly">
-         <bool>true</bool>
-        </property>
-        <property name="buttonSymbols">
-         <enum>QAbstractSpinBox::NoButtons</enum>
-        </property>
-        <property name="prefix">
-         <string>width: </string>
-        </property>
-        <property name="minimum">
-         <number>0</number>
-        </property>
-        <property name="maximum">
-         <number>65535</number>
-        </property>
-       </widget>
-      </item>
-      <item>
-       <widget class="QSpinBox" name="heigth">
-        <property name="toolTip">
-         <string>height of picture</string>
-        </property>
-        <property name="frame">
-         <bool>false</bool>
-        </property>
-        <property name="alignment">
-         <set>Qt::AlignCenter</set>
-        </property>
-        <property name="readOnly">
-         <bool>true</bool>
-        </property>
-        <property name="buttonSymbols">
-         <enum>QAbstractSpinBox::NoButtons</enum>
-        </property>
-        <property name="showGroupSeparator" stdset="0">
-         <bool>false</bool>
-        </property>
-        <property name="prefix">
-         <string>height: </string>
-        </property>
-        <property name="maximum">
-         <number>65535</number>
-        </property>
-       </widget>
-      </item>
-      <item>
-       <spacer name="horizontalSpacer_3">
-        <property name="orientation">
-         <enum>Qt::Horizontal</enum>
-        </property>
-        <property name="sizeHint" stdset="0">
-         <size>
-          <width>40</width>
-          <height>20</height>
-         </size>
-        </property>
-       </spacer>
-      </item>
-     </layout>
-    </widget>
-   </item>
-   <item row="3" column="0" colspan="3">
-    <widget class="QGroupBox" name="button_panel">
-     <property name="enabled">
-      <bool>true</bool>
-     </property>
-     <property name="title">
-      <string/>
-     </property>
-     <property name="alignment">
-      <set>Qt::AlignCenter</set>
-     </property>
-     <property name="flat">
-      <bool>true</bool>
-     </property>
-     <property name="checkable">
-      <bool>false</bool>
-     </property>
-     <layout class="QHBoxLayout" name="horizontalLayout">
-      <property name="topMargin">
-       <number>5</number>
-      </property>
-      <property name="bottomMargin">
-       <number>0</number>
-      </property>
-      <item>
-       <widget class="QPushButton" name="save_bmp">
-        <property name="enabled">
-         <bool>true</bool>
-        </property>
-        <property name="toolTip">
-         <string>save picture to BMP file</string>
-        </property>
-        <property name="text">
-         <string>Save to BMP</string>
-        </property>
-       </widget>
-      </item>
-      <item>
-       <widget class="QPushButton" name="save_txt">
-        <property name="enabled">
-         <bool>true</bool>
-        </property>
-        <property name="toolTip">
-         <string>save picture to TXT file</string>
-        </property>
-        <property name="text">
-         <string>Save to TXT</string>
-        </property>
-       </widget>
-      </item>
-      <item>
-       <spacer name="horizontalSpacer">
-        <property name="orientation">
-         <enum>Qt::Horizontal</enum>
-        </property>
-        <property name="sizeHint" stdset="0">
-         <size>
-          <width>40</width>
-          <height>20</height>
-         </size>
-        </property>
-       </spacer>
-      </item>
-      <item>
-       <widget class="QPushButton" name="horizontal_mirror">
-        <property name="enabled">
-         <bool>true</bool>
-        </property>
-        <property name="toolTip">
-         <string>horizontal_mirror</string>
-        </property>
-        <property name="text">
-         <string/>
-        </property>
-        <property name="icon">
-         <iconset resource="../img.qrc">
-          <normaloff>:/horizontal</normaloff>:/horizontal</iconset>
-        </property>
-       </widget>
-      </item>
-      <item>
-       <widget class="QPushButton" name="vertical_mirror">
-        <property name="enabled">
-         <bool>true</bool>
-        </property>
-        <property name="toolTip">
-         <string>vertical_mirror</string>
-        </property>
-        <property name="text">
-         <string/>
-        </property>
-        <property name="icon">
-         <iconset resource="../img.qrc">
-          <normaloff>:/vertical</normaloff>:/vertical</iconset>
-        </property>
-       </widget>
-      </item>
-      <item>
-       <widget class="QPushButton" name="rotate_plus">
-        <property name="enabled">
-         <bool>true</bool>
-        </property>
-        <property name="toolTip">
-         <string>+90º</string>
-        </property>
-        <property name="text">
-         <string/>
-        </property>
-        <property name="icon">
-         <iconset resource="../img.qrc">
-          <normaloff>:/rotate_plus</normaloff>:/rotate_plus</iconset>
-        </property>
-       </widget>
-      </item>
-      <item>
-       <widget class="QDoubleSpinBox" name="angle">
-        <property name="enabled">
-         <bool>false</bool>
-        </property>
-        <property name="wrapping">
-         <bool>false</bool>
-        </property>
-        <property name="frame">
-         <bool>true</bool>
-        </property>
-        <property name="alignment">
-         <set>Qt::AlignCenter</set>
-        </property>
-        <property name="specialValueText">
-         <string/>
-        </property>
-        <property name="suffix">
-         <string> °</string>
-        </property>
-        <property name="decimals">
-         <number>3</number>
-        </property>
-        <property name="minimum">
-         <double>-360.000000000000000</double>
-        </property>
-        <property name="maximum">
-         <double>360.000000000000000</double>
-        </property>
-        <property name="singleStep">
-         <double>0.100000000000000</double>
-        </property>
-       </widget>
-      </item>
-      <item>
-       <widget class="QPushButton" name="rotate_minus">
-        <property name="enabled">
-         <bool>true</bool>
-        </property>
-        <property name="toolTip">
-         <string>-90º</string>
-        </property>
-        <property name="text">
-         <string/>
-        </property>
-        <property name="icon">
-         <iconset resource="../img.qrc">
-          <normaloff>:/rotate_minus</normaloff>:/rotate_minus</iconset>
-        </property>
-       </widget>
-      </item>
-      <item>
-       <widget class="Line" name="line_4">
-        <property name="orientation">
-         <enum>Qt::Vertical</enum>
-        </property>
-       </widget>
-      </item>
-      <item>
-       <widget class="QPushButton" name="reset_transform">
-        <property name="enabled">
-         <bool>false</bool>
-        </property>
-        <property name="toolTip">
-         <string>reset transformation</string>
-        </property>
-        <property name="text">
-         <string/>
-        </property>
-        <property name="icon">
-         <iconset resource="../img.qrc">
-          <normaloff>:/reset</normaloff>:/reset</iconset>
-        </property>
-       </widget>
-      </item>
-      <item>
-       <widget class="Line" name="line_2">
-        <property name="orientation">
-         <enum>Qt::Vertical</enum>
-        </property>
-       </widget>
-      </item>
-      <item>
-       <widget class="QPushButton" name="scaled_plus">
-        <property name="enabled">
-         <bool>true</bool>
-        </property>
-        <property name="font">
-         <font>
-          <pointsize>8</pointsize>
-          <weight>50</weight>
-          <bold>false</bold>
-         </font>
-        </property>
-        <property name="toolTip">
-         <string>scale +1.1</string>
-        </property>
-        <property name="text">
-         <string/>
-        </property>
-        <property name="icon">
-         <iconset resource="../img.qrc">
-          <normaloff>:/plus</normaloff>:/plus</iconset>
-        </property>
-       </widget>
-      </item>
-      <item>
-       <widget class="QPushButton" name="scaled_minus">
-        <property name="enabled">
-         <bool>true</bool>
-        </property>
-        <property name="font">
-         <font>
-          <pointsize>8</pointsize>
-         </font>
-        </property>
-        <property name="toolTip">
-         <string>scale -1.1</string>
-        </property>
-        <property name="text">
-         <string/>
-        </property>
-        <property name="icon">
-         <iconset resource="../img.qrc">
-          <normaloff>:/minus</normaloff>:/minus</iconset>
-        </property>
-       </widget>
-      </item>
-      <item>
-       <spacer name="horizontalSpacer_2">
-        <property name="orientation">
-         <enum>Qt::Horizontal</enum>
-        </property>
-        <property name="sizeHint" stdset="0">
-         <size>
-          <width>40</width>
-          <height>20</height>
-         </size>
-        </property>
-       </spacer>
-      </item>
-     </layout>
-    </widget>
-   </item>
-   <item row="0" column="3" rowspan="2">
-    <widget class="QTabWidget" name="tabWidgetRight">
-     <property name="maximumSize">
-      <size>
-       <width>16777215</width>
-       <height>16777215</height>
-      </size>
-     </property>
-     <property name="tabPosition">
-      <enum>QTabWidget::North</enum>
-     </property>
-     <property name="tabShape">
-      <enum>QTabWidget::Rounded</enum>
-     </property>
-     <property name="currentIndex">
-      <number>0</number>
-     </property>
-     <property name="movable">
-      <bool>false</bool>
-     </property>
-     <widget class="QWidget" name="twrProperty">
-      <attribute name="title">
-       <string>Pic Property</string>
-      </attribute>
-      <layout class="QVBoxLayout" name="verticalLayout_5">
-       <item>
-        <widget class="ToolsPanel" name="edit_panel" native="true"/>
-       </item>
-       <item>
-        <widget class="QGroupBox" name="data_panel_selection">
-         <property name="enabled">
-          <bool>true</bool>
-         </property>
-         <property name="title">
-          <string>Selection property:</string>
-         </property>
-         <layout class="QGridLayout" name="gridLayout_2">
-          <item row="0" column="1">
-           <widget class="QSpinBox" name="x_selection">
-            <property name="toolTip">
-             <string>X cordinate of frame</string>
-            </property>
-            <property name="wrapping">
-             <bool>false</bool>
-            </property>
-            <property name="readOnly">
-             <bool>false</bool>
-            </property>
-            <property name="buttonSymbols">
-             <enum>QAbstractSpinBox::UpDownArrows</enum>
-            </property>
-            <property name="specialValueText">
-             <string/>
-            </property>
-            <property name="showGroupSeparator" stdset="0">
-             <bool>false</bool>
-            </property>
-            <property name="suffix">
-             <string/>
-            </property>
-            <property name="minimum">
-             <number>-65535</number>
-            </property>
-            <property name="maximum">
-             <number>65535</number>
-            </property>
-           </widget>
-          </item>
-          <item row="3" column="1">
-           <widget class="QSpinBox" name="width_selection">
-            <property name="toolTip">
-             <string>width of frame</string>
-            </property>
-            <property name="frame">
-             <bool>true</bool>
-            </property>
-            <property name="readOnly">
-             <bool>false</bool>
-            </property>
-            <property name="minimum">
-             <number>0</number>
-            </property>
-            <property name="maximum">
-             <number>65535</number>
-            </property>
-            <property name="singleStep">
-             <number>1</number>
-            </property>
-            <property name="value">
-             <number>0</number>
-            </property>
-           </widget>
-          </item>
-          <item row="4" column="1">
-           <widget class="QSpinBox" name="heigth_selection">
-            <property name="toolTip">
-             <string>height of frame</string>
-            </property>
-            <property name="readOnly">
-             <bool>false</bool>
-            </property>
-            <property name="accelerated">
-             <bool>false</bool>
-            </property>
-            <property name="showGroupSeparator" stdset="0">
-             <bool>false</bool>
-            </property>
-            <property name="minimum">
-             <number>0</number>
-            </property>
-            <property name="maximum">
-             <number>65535</number>
-            </property>
-            <property name="singleStep">
-             <number>1</number>
-            </property>
-            <property name="value">
-             <number>0</number>
-            </property>
-           </widget>
-          </item>
-          <item row="1" column="0">
-           <widget class="QLabel" name="label_9">
-            <property name="text">
-             <string>Y:</string>
-            </property>
-           </widget>
-          </item>
-          <item row="1" column="1">
-           <widget class="QSpinBox" name="y_selection">
-            <property name="toolTip">
-             <string>Y cordinate of frame</string>
-            </property>
-            <property name="readOnly">
-             <bool>false</bool>
-            </property>
-            <property name="minimum">
-             <number>-65535</number>
-            </property>
-            <property name="maximum">
-             <number>65535</number>
-            </property>
-           </widget>
-          </item>
-          <item row="2" column="0" colspan="2">
-           <widget class="Line" name="line_3">
-            <property name="orientation">
-             <enum>Qt::Horizontal</enum>
-            </property>
-           </widget>
-          </item>
-          <item row="0" column="0">
-           <widget class="QLabel" name="label_7">
-            <property name="text">
-             <string>X:</string>
-            </property>
-           </widget>
-          </item>
-          <item row="3" column="0">
-           <widget class="QLabel" name="label_8">
-            <property name="text">
-             <string>width:</string>
-            </property>
-           </widget>
-          </item>
-          <item row="4" column="0">
-           <widget class="QLabel" name="label_6">
-            <property name="text">
-             <string>heigth:</string>
-            </property>
-           </widget>
-          </item>
-         </layout>
-        </widget>
-       </item>
-       <item>
-        <spacer name="verticalSpacer_2">
-         <property name="orientation">
-          <enum>Qt::Vertical</enum>
-         </property>
-         <property name="sizeHint" stdset="0">
-          <size>
-           <width>20</width>
-           <height>40</height>
-          </size>
-         </property>
-        </spacer>
-       </item>
-      </layout>
-     </widget>
-     <widget class="QWidget" name="twrFilter">
-      <attribute name="title">
-       <string>Filters</string>
-      </attribute>
-      <layout class="QVBoxLayout" name="verticalLayout_6">
-       <item>
-        <widget class="ClogFilterPanel" name="clogFilterPanel" native="true"/>
-       </item>
-       <item>
-        <spacer name="verticalSpacer">
-         <property name="orientation">
-          <enum>Qt::Vertical</enum>
-         </property>
-         <property name="sizeHint" stdset="0">
-          <size>
-           <width>116</width>
-           <height>15</height>
-          </size>
-         </property>
-        </spacer>
-       </item>
-      </layout>
-     </widget>
-    </widget>
-   </item>
-   <item row="0" column="0">
-    <widget class="QCheckBox" name="inversion">
-     <property name="sizePolicy">
-      <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
-       <horstretch>0</horstretch>
-       <verstretch>0</verstretch>
-      </sizepolicy>
-     </property>
-     <property name="toolTip">
-      <string>negative of  image</string>
-     </property>
-     <property name="text">
-      <string>Inversion</string>
-     </property>
-    </widget>
-   </item>
-   <item row="0" column="2">
-    <widget class="QPushButton" name="button_settings">
-     <property name="minimumSize">
-      <size>
-       <width>24</width>
-       <height>24</height>
-      </size>
-     </property>
-     <property name="maximumSize">
-      <size>
-       <width>24</width>
-       <height>24</height>
-      </size>
-     </property>
-     <property name="text">
-      <string/>
-     </property>
-    </widget>
+   <item>
+    <layout class="QHBoxLayout" name="layout_graphicView_and_Pix_filter_panel">
+     <item>
+      <widget class="QGraphicsView" name="graphicsView">
+       <property name="frameShape">
+        <enum>QFrame::StyledPanel</enum>
+       </property>
+       <property name="frameShadow">
+        <enum>QFrame::Sunken</enum>
+       </property>
+       <property name="midLineWidth">
+        <number>0</number>
+       </property>
+       <property name="backgroundBrush">
+        <brush brushstyle="SolidPattern">
+         <color alpha="255">
+          <red>200</red>
+          <green>200</green>
+          <blue>200</blue>
+         </color>
+        </brush>
+       </property>
+       <property name="foregroundBrush">
+        <brush brushstyle="NoBrush">
+         <color alpha="255">
+          <red>0</red>
+          <green>0</green>
+          <blue>0</blue>
+         </color>
+        </brush>
+       </property>
+       <property name="interactive">
+        <bool>true</bool>
+       </property>
+       <property name="sceneRect">
+        <rectf>
+         <x>0.000000000000000</x>
+         <y>0.000000000000000</y>
+         <width>0.000000000000000</width>
+         <height>0.000000000000000</height>
+        </rectf>
+       </property>
+       <property name="renderHints">
+        <set>QPainter::Antialiasing|QPainter::HighQualityAntialiasing|QPainter::SmoothPixmapTransform|QPainter::TextAntialiasing</set>
+       </property>
+       <property name="cacheMode">
+        <set>QGraphicsView::CacheNone</set>
+       </property>
+       <property name="transformationAnchor">
+        <enum>QGraphicsView::AnchorUnderMouse</enum>
+       </property>
+       <property name="resizeAnchor">
+        <enum>QGraphicsView::AnchorUnderMouse</enum>
+       </property>
+       <property name="viewportUpdateMode">
+        <enum>QGraphicsView::FullViewportUpdate</enum>
+       </property>
+       <property name="rubberBandSelectionMode">
+        <enum>Qt::IntersectsItemShape</enum>
+       </property>
+      </widget>
+     </item>
+    </layout>
    </item>
   </layout>
  </widget>
- <customwidgets>
-  <customwidget>
-   <class>ClogFilterPanel</class>
-   <extends>QWidget</extends>
-   <header>../WTF_Viewer/viewer/clogfilterpanel.h</header>
-   <container>1</container>
-  </customwidget>
-  <customwidget>
-   <class>ToolsPanel</class>
-   <extends>QWidget</extends>
-   <header>../WTF_Viewer/viewer/toolspanel.h</header>
-   <container>1</container>
-  </customwidget>
- </customwidgets>
- <resources>
-  <include location="../img.qrc"/>
- </resources>
+ <resources/>
  <connections/>
 </ui>
