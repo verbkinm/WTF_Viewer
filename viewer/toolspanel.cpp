@@ -4,15 +4,14 @@
 
 ToolsPanel::ToolsPanel(QWidget *parent) :
     QWidget(parent),
-    ui(new Ui::ToolsPanel)
+    ui(new Ui::ToolsPanel), _value(0)
 {
     ui->setupUi(this);
 
-    m_color.setRgb(0,0,0);
-    m_value = 0;
+    _color.setRgb(0,0,0);
 
     QPixmap pix(16, 16);
-    pix.fill(m_color);
+    pix.fill(_color);
     ui->color_button->setIcon(pix);
 
     connect(ui->edit_button, SIGNAL(toggled(bool)),
@@ -66,9 +65,9 @@ void ToolsPanel::finishSelection()
     ui->selection_button->setChecked(false);
 }
 
-QColor ToolsPanel::getPenColor()
+QColor ToolsPanel::getPenColor() const
 {
-    return m_color;
+    return _color;
 }
 
 int ToolsPanel::getPenValue()
@@ -78,13 +77,13 @@ int ToolsPanel::getPenValue()
 
 void ToolsPanel::slotSetColor()
 {
-    QColor color = QColorDialog::getColor(this->m_color);
+    QColor color = QColorDialog::getColor(this->_color);
     if(color.spec())
     {
         QPixmap pix(16, 16);
         pix.fill(color);
         ui->color_button->setIcon(QIcon(pix));
-        m_color = color;
+        _color = color;
     }
 }
 
@@ -105,5 +104,5 @@ void ToolsPanel::slotPenToggle(bool value)
 
 void ToolsPanel::slotPenValueChanged(int value)
 {
-    m_value = value;
+    _value = value;
 }

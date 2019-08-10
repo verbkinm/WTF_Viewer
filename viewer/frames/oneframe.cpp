@@ -5,12 +5,12 @@ OneFrame::OneFrame(int number)
     this->number = number;
 }
 
-void OneFrame::setThreshold_energy(const double &value)
+void OneFrame::setThreshold_energy(double value)
 {
     threshold_energy = value;
 }
 
-void OneFrame::setExposure_time(const double& value)
+void OneFrame::setExposure_time(double value)
 {
     exposure_time = value;
 }
@@ -20,7 +20,7 @@ void OneFrame::appendEPoint(const ePoint& point)
     list.last().append(point);
 }
 
-void OneFrame::appendEPoint(const int& x, const int& y, const double& tot)
+void OneFrame::appendEPoint(int x, int y, double tot)
 {
     appendEPoint({x, y, tot});
 }
@@ -31,7 +31,7 @@ void OneFrame::addCluster()
     list.append(newClaster);
 }
 
-void OneFrame::addEPoint(cluster& inClaster, const int &x, const int &y, const double &tot)
+void OneFrame::addEPoint(cluster& inClaster, int x, int y, double tot)
 {
     inClaster.append({x,y,tot});
 }
@@ -40,12 +40,12 @@ int OneFrame::getClusterCount() const
     return int(list.length());
 }
 
-int OneFrame::getClusterLenght(const int& clusterNumber) const
+int OneFrame::getClusterLenght(int clusterNumber) const
 {
     return  int(list.at(int(clusterNumber)).length());
 }
 
-int OneFrame::getEventCountInCluster(const int& clusterNumber) const
+int OneFrame::getEventCountInCluster(int clusterNumber) const
 {
     if(clusterNumber > list.length() - 1)
     {
@@ -61,7 +61,7 @@ const QList<cluster> &OneFrame::getList() const
     return list;
 }
 
-const ePoint& OneFrame::getEPoint(const int &clusterNumber, const int &eventNumber) const
+const ePoint& OneFrame::getEPoint(int clusterNumber, int eventNumber) const
 {
     if(clusterNumber > list.length() - 1 ||
            eventNumber > list.at(clusterNumber).length())

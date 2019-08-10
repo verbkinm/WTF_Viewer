@@ -13,10 +13,9 @@ Frames::Frames(QObject *parent) : QObject(parent)
 
 }
 
-void Frames::addFrame(const int &number)
+void Frames::addFrame(int number)
 {
-    OneFrame newFrame(number);
-    list.append(newFrame);
+    list.append(OneFrame(number));
 }
 
 void Frames::appendCluster()
@@ -28,7 +27,7 @@ void Frames::appendEPoint(const ePoint& point)
     list.last().appendEPoint(point);
 }
 
-void Frames::appendEPoint(const int &x, const int &y, const double &tot)
+void Frames::appendEPoint(int x, int y, double tot)
 {
     list.last().appendEPoint(x, y, tot);
 }
@@ -38,7 +37,7 @@ int Frames::getFrameCount() const
     return list.length();
 }
 
-int Frames::getClusterCount(const int &frameNumber) const
+int Frames::getClusterCount(int frameNumber) const
 {
     if(frameNumber > list.length() - 1)
     {
@@ -50,19 +49,19 @@ int Frames::getClusterCount(const int &frameNumber) const
     return frame.getClusterCount();
 }
 
-int Frames::getClusterLenght(const int& frameNumber, const int& clusterNumber) const
+int Frames::getClusterLenght(int frameNumber, int clusterNumber) const
 {
     OneFrame frame = list.at(frameNumber);
     return frame.getClusterLenght(clusterNumber);
 }
 
-int Frames::getEventCountInCluster(const int &frameNumber, const int &clusterNumber) const
+int Frames::getEventCountInCluster(int frameNumber, int clusterNumber) const
 {
     OneFrame frame = list.at(frameNumber);
     return frame.getEventCountInCluster(clusterNumber);
 }
 
-const ePoint& Frames::getEPoint(const int &frameNumber, const int &clusterNumber, const int &eventNumber) const
+const ePoint& Frames::getEPoint(int frameNumber, int clusterNumber, int eventNumber) const
 {
     OneFrame frame = list.at(frameNumber);
     return frame.getEPoint(clusterNumber, eventNumber);
@@ -131,7 +130,7 @@ const QList<OneFrame> &Frames::getList() const
     return list;
 }
 
-bool Frames::clusterInRange(const int &clusterLength, const int &clusterRangeBegin, const int &clusterRangeEnd)
+bool Frames::isClusterInRange(int clusterLength, int clusterRangeBegin, int clusterRangeEnd) const
 {
     if(clusterLength >= clusterRangeBegin && clusterLength <= clusterRangeEnd)
         return true;
@@ -139,7 +138,7 @@ bool Frames::clusterInRange(const int &clusterLength, const int &clusterRangeBeg
     return false;
 }
 
-bool Frames::totInRange(const int& frameNumber, const int& clusterNumber, const int& totRangeBegin, const int& totRangeEnd)
+bool Frames::isTotInRange(int frameNumber, int clusterNumber, int totRangeBegin, int totRangeEnd) const
 {
     OneFrame frame = list.at(frameNumber);
     for (const auto &point : frame.getList().at(clusterNumber))
@@ -149,8 +148,8 @@ bool Frames::totInRange(const int& frameNumber, const int& clusterNumber, const 
     return false;
 }
 
-QList<ePoint> Frames::getListTotInRange(const int &frameNumber, const int &clusterNumber,
-                                        const int &totRangeBegin, const int &totRangeEnd) const
+QList<ePoint> Frames::getListTotInRange(int frameNumber, int clusterNumber,
+                                        int totRangeBegin, int totRangeEnd) const
 {
     OneFrame frame = list.at(frameNumber);
     QList<ePoint> listePoint;

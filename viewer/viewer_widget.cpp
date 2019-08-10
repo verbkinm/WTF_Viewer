@@ -1,9 +1,3 @@
-#include "viewer_widget.h"
-#include "ui_viewer_widget.h"
-#include "checkFile/checkfile.h"
-#include "../progressbar.h"
-
-
 #include <QPushButton>
 #include <QTransform>
 #include <QFileDialog>
@@ -16,15 +10,18 @@
 #include <QDebug>
 #include <QTime>
 
+#include "viewer_widget.h"
+#include "ui_viewer_widget.h"
+#include "checkFile/checkfile.h"
+#include "../progressbar.h"
 
 Viewer_widget::Viewer_widget(QSettings &setting, QWidget *parent) :
-    QWidget(parent),
+    QWidget(parent), _settings(&setting),
     ui(new Ui::Viewer_widget)
 {
     ui->setupUi(this);
 
-    pSettings = &setting;
-    ui->graphicsView->setSettings(*pSettings);
+    ui->graphicsView->setSettings(_settings);
     ui->graphicsView_origin->setScene(ui->graphicsView->getScene());
 
     ui->graphicsView_origin->hideAllPanel();

@@ -323,11 +323,11 @@ void Viewer::applyClogFilter(QImage& image)
     for (int frameNumber = 0; frameNumber < frames.getFrameCount(); ++frameNumber)
         for (int clusterNumber = 0; clusterNumber < frames.getClusterCount(frameNumber); ++clusterNumber)
         {
-            if( frames.clusterInRange(frames.getClusterLenght(frameNumber, clusterNumber),
+            if( frames.isClusterInRange(frames.getClusterLenght(frameNumber, clusterNumber),
                                       ui->clogFilterPanel->getClusterBegin(),
                                       ui->clogFilterPanel->getClusterEnd())
                                       &&
-                frames.totInRange(frameNumber, clusterNumber,
+                frames.isTotInRange(frameNumber, clusterNumber,
                                   ui->clogFilterPanel->getTotBegin(),
                                   ui->clogFilterPanel->getTotEnd()) )
             {
@@ -616,6 +616,7 @@ void Viewer::slotI()
 void Viewer::slotSW()
 {   
     Viewer* SW = new Viewer;
+    SW->setWindowTitle(filePath);
     SW->show();
     SW->setSettings(*pSettings);
 

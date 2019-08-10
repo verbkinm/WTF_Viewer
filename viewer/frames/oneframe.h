@@ -10,7 +10,7 @@ struct evPoint
     int y = 0;
     double tot = 0;
 
-    evPoint(const int& x, const int& y, const double& tot)
+    evPoint(int x, int y, double tot)
     {
         this->x = x;
         this->y = y;
@@ -26,21 +26,21 @@ class OneFrame
 public:
     OneFrame(int number);
 
-    void setThreshold_energy        (const double& value);
-    void setExposure_time           (const double& value);
+    void setThreshold_energy        (double value);
+    void setExposure_time           (double value);
 
     void appendEPoint(const ePoint &point);
-    void appendEPoint(const int &x, const int &y, const double &tot);
+    void appendEPoint(int x, int y, double tot);
 
     void addCluster();
-    void addEPoint(cluster& inClaster, const int& x, const int& y, const double &tot);
+    void addEPoint(cluster& inClaster, int x, int y, double tot);
 
     int getClusterCount() const;
-    int getClusterLenght(const int& clusterNumber) const;
-    int getEventCountInCluster(const int& clusterNumber) const;
+    int getClusterLenght(int clusterNumber) const;
+    int getEventCountInCluster(int clusterNumber) const;
     const QList<cluster>& getList() const;
 
-    const ePoint &getEPoint(const int& clusterNumber, const int& eventNumber) const;
+    const ePoint &getEPoint(int clusterNumber, int eventNumber) const;
 
     void    clear();
 

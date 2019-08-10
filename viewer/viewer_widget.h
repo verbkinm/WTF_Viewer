@@ -11,7 +11,6 @@
 #include "../eventfilter/fingerslide.h"
 #include "frames/frames.h"
 
-
 namespace Ui {
 class Viewer_widget;
 }
@@ -25,12 +24,12 @@ public:
     explicit Viewer_widget(QSettings& setting, QWidget *parent = nullptr);
     ~Viewer_widget();
 
-    QSettings*  pSettings = nullptr;
-
+    QSettings   _settings;
 
     void        setImageFile(QString path);
     Frames*     getFrames();
     QImage      getImageFromTxtFile(QString file);
+
 private:
     Ui::Viewer_widget *ui;
 

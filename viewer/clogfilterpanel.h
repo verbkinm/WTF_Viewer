@@ -27,11 +27,11 @@ public:
     int     getTotBegin() const;
     int     getTotEnd() const;
 
-    bool    isClusterEnable();
-    bool    isTotEnable();
-    bool    isAllTotInCluster();
+    bool    isClusterEnable() const;
+    bool    isTotEnable() const;
+    bool    isAllTotInCluster() const;
 
-    bool    isMediPix();
+    bool    isMediPix() const;
 
     void    setClusterBegin(int v);
     void    setClusterEnd(int v);
@@ -54,8 +54,8 @@ private:
     QStringList totListModel, totListBegin, totListEnd;
     QString totBeginLast, totEndLast;
 
-    void    disconnectSignals       ();
-    void    connectSignals          ();
+    void    disconnectSignals       () const;
+    void    connectSignals          () const;
 
 private slots:
     void    slotEnableRange         ();

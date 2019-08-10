@@ -28,22 +28,22 @@ public:
     MainWindow(QWidget *parent = nullptr);
     ~MainWindow();
 
-    QSplitter*          pSplitter       = nullptr;
-    QFileSystemModel*   pFSModel        = nullptr;
-    QTreeView*          pTreeView       = nullptr;
+    QSplitter           _splitter;
+    QFileSystemModel    _fs_model;
+    QTreeView           _treeView;
 
     Viewer_widget*      pViewerWidget   = nullptr;
-    EventFilter*        pEventFilter    = nullptr;
+    EventFilter         _eventFilter;
 
     SettingsImage*      pSettingsImage  = nullptr;
 
 private:
 
-    QMenu*              pMenuFile       = nullptr;
-    QMenu*              pMenuGraph      = nullptr;
-    QMenu*              pMenuAbout      = nullptr;
-    QMenu*              pMenuSettings   = nullptr;
-    QMenu*              pMenuCalibration= nullptr;
+    QMenu               _menuFile;
+    QMenu               _menuGraph;
+    QMenu               _menuAbout;
+    QMenu               _menuSettings;
+    QMenu               _menuCalibration;
 
 
     QList<CentralWidget*> graphWindowList;

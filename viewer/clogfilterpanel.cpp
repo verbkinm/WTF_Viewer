@@ -1,8 +1,8 @@
-#include "clogfilterpanel.h"
-#include "ui_clogfilterpanel.h"
-
 #include <QKeyEvent>
 #include <QDebug>
+
+#include "clogfilterpanel.h"
+#include "ui_clogfilterpanel.h"
 
 ClogFilterPanel::ClogFilterPanel(QWidget *parent) :
     QWidget(parent),
@@ -230,22 +230,22 @@ int ClogFilterPanel::getTotEnd() const
     return int(ui->totRangeEnd->currentText().toInt());
 }
 
-bool ClogFilterPanel::isClusterEnable()
+bool ClogFilterPanel::isClusterEnable() const
 {
     return ui->clusterRangeGroup->isChecked();
 }
 
-bool ClogFilterPanel::isTotEnable()
+bool ClogFilterPanel::isTotEnable() const
 {
     return ui->totRangeGroup->isChecked();
 }
 
-bool ClogFilterPanel::isAllTotInCluster()
+bool ClogFilterPanel::isAllTotInCluster() const
 {
     return ui->allTotInCluster->isChecked();
 }
 
-bool ClogFilterPanel::isMediPix()
+bool ClogFilterPanel::isMediPix() const
 {
     return ui->midiPixRadioButton->isChecked();
 }
@@ -295,7 +295,7 @@ void ClogFilterPanel::setTimePix(bool b)
     ui->timePixRadioButton->setChecked(b);
 }
 
-void ClogFilterPanel::disconnectSignals()
+void ClogFilterPanel::disconnectSignals() const
 {
     disconnect(ui->clusterRangeBegin,  SIGNAL(currentTextChanged(QString)), this, SLOT(slotDates(QString)));
     disconnect(ui->clusterRangeEnd,    SIGNAL(currentTextChanged(QString)), this, SLOT(slotDates(QString)));
@@ -304,7 +304,7 @@ void ClogFilterPanel::disconnectSignals()
     disconnect(ui->totRangeEnd,    SIGNAL(currentTextChanged(QString)), this, SLOT(slotDates(QString)));
 }
 
-void ClogFilterPanel::connectSignals()
+void ClogFilterPanel::connectSignals() const
 {
     connect(ui->clusterRangeBegin,  SIGNAL(currentTextChanged(QString)), this, SLOT(slotDates(QString)));
     connect(ui->clusterRangeEnd,  SIGNAL(currentTextChanged(QString)), this, SLOT(slotDates(QString)));

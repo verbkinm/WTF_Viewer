@@ -24,7 +24,7 @@ private:
 
     // QWidget interface
 protected:
-    virtual void resizeEvent(QResizeEvent *event);
+    virtual void resizeEvent(QResizeEvent *);
 };
 
 #endif // TABLE_H

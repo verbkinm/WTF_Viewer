@@ -6,14 +6,8 @@
 #include "export\export.h"
 #include "graph/graphdialog.h"
 #include "calibration/generalcalibration.h"
-const QString VERSION =  "0.9.8.1";
 
-#ifdef Q_OS_Linux
-    #define SPLITTER_PATH "/"
-#endif
-#ifdef Q_OS_WIN
-    #define SPLITTER_PATH "\\"
-#endif
+const static QString VERSION =  "0.9.8.2";
 
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent), settings(QSettings::IniFormat, QSettings::UserScope, "WTF.org", "WTF")
@@ -22,77 +16,68 @@ MainWindow::MainWindow(QWidget *parent)
 
     createMenu();
 
-    pSplitter       = new QSplitter(Qt::Horizontal);
-    pFSModel        = new QFileSystemModel;
-    pTreeView       = new QTreeView;
-    pViewerWidget   = new Viewer_widget(settings, this);
-    pEventFilter    = new EventFilter(pTreeView);
-    pTreeView->installEventFilter(pEventFilter);
+    _splitter.setOrientation(Qt::Horizontal);
+    pViewerWidget = new Viewer_widget(settings, this);
+    _eventFilter.setParent(&_treeView);
+    _treeView.installEventFilter(&_eventFilter);
 
-
-    pFSModel->setRootPath(QDir::rootPath());
+    _fs_model.setRootPath(QDir::rootPath());
     QStringList filter;
     filter << "*.txt" << "*.clog";
-    pFSModel->setNameFilters(filter);
-    pFSModel->setNameFilterDisables(false);
+    _fs_model.setNameFilters(filter);
+    _fs_model.setNameFilterDisables(false);
 
-    pTreeView->setModel(pFSModel);
-    pTreeView->header()->hideSection(1);
-    pTreeView->header()->hideSection(2);
-    pTreeView->header()->hideSection(3);
-    pTreeView->setAnimated(true);
+    _treeView.setModel(&_fs_model);
+    _treeView.header()->hideSection(1);
+    _treeView.header()->hideSection(2);
+    _treeView.header()->hideSection(3);
+    _treeView.setAnimated(true);
 
-    pSplitter->addWidget(pTreeView);
-    pSplitter->addWidget(pViewerWidget);
+    _splitter.addWidget(&_treeView);
+    _splitter.addWidget(pViewerWidget);
 
-    this->setCentralWidget(pSplitter);
+    this->setCentralWidget(&_splitter);
 
-    connect(pTreeView, SIGNAL(clicked(const QModelIndex&)), this, SLOT(slotSelectFile(const QModelIndex&)));
-    connect(pTreeView, SIGNAL(activated(const QModelIndex&)), this, SLOT(slotSelectFile(const QModelIndex&)));
+    connect(&_treeView, SIGNAL(clicked(const QModelIndex&)), this, SLOT(slotSelectFile(const QModelIndex&)));
+    connect(&_treeView, SIGNAL(activated(const QModelIndex&)), this, SLOT(slotSelectFile(const QModelIndex&)));
 
     this->setWindowIcon(QIcon(":/atom"));
-
     this->setWindowTitle("WTF_Viewer " + VERSION);
-
-//    QString lastPath = settings.value("Path/lastDir", 0).toString();
-//    pTreeView->setCurrentIndex(pFSModel->index(lastPath));
-//    pTreeView->clicked(pTreeView->currentIndex());
-
 }
 void MainWindow::createMenu()
 {
-    pMenuFile = new QMenu("File");
-    pMenuFile->addAction(QIcon(":/save_as"), "Export files", this, SLOT(slotExportFile()));
+    _menuFile.setTitle("File");
+    _menuFile.addAction(QIcon(":/save_as"), "Export files", this, SLOT(slotExportFile()));
 
-    pMenuFile->addSeparator();
+    _menuFile.addSeparator();
 
-    pMenuFile->addAction(QIcon(":/exit"), "Exit", QApplication::instance(), SLOT(quit()));
+    _menuFile.addAction(QIcon(":/exit"), "Exit", QApplication::instance(), SLOT(quit()));
 
-    pMenuSettings = new QMenu("Settings");
-    pMenuSettings->addAction(QIcon(":/image"), "Image", this, SLOT(slotSettingsImage()));
+    _menuSettings.setTitle("Settings");
+    _menuSettings.addAction(QIcon(":/image"), "Image", this, SLOT(slotSettingsImage()));
 
-    pMenuGraph = new QMenu("Graph");
-    pMenuGraph->addAction(QIcon(":/graph"), "Plot the graph", this, SLOT(slotPlotGraph()));
-    pMenuGraph->setDisabled(true);
+    _menuGraph.setTitle("Graph");
+    _menuGraph.addAction(QIcon(":/graph"), "Plot the graph", this, SLOT(slotPlotGraph()));
+    _menuGraph.setDisabled(true);
 
-    pMenuAbout= new QMenu("About");
-    pMenuAbout->addAction(QIcon(":/author"),"Author", this, SLOT(slotAuthor()));
-    pMenuAbout->addAction(QIcon(":/qt_logo"), "About Qt", QApplication::instance(), SLOT(aboutQt()));
+    _menuAbout.setTitle("About");
+    _menuAbout.addAction(QIcon(":/author"),"Author", this, SLOT(slotAuthor()));
+    _menuAbout.addAction(QIcon(":/qt_logo"), "About Qt", QApplication::instance(), SLOT(aboutQt()));
 
-    pMenuCalibration= new QMenu("Calibration");
-    pMenuCalibration->addAction(QIcon(":/"),"General calibration", this, SLOT(slotGeneralCalibration()));
-    pMenuCalibration->addAction(QIcon(":/"),"Pixel masturbation calibration", this, SLOT(slotPixelCalibration()));
+    _menuCalibration.setTitle("Calibration");
+    _menuCalibration.addAction(QIcon(":/"),"General calibration", this, SLOT(slotGeneralCalibration()));
+    _menuCalibration.addAction(QIcon(":/"),"Pixel masturbation calibration", this, SLOT(slotPixelCalibration()));
 
 
-    this->menuBar()->addMenu(pMenuFile);
-    this->menuBar()->addMenu(pMenuSettings);
-    this->menuBar()->addMenu(pMenuGraph);
-    this->menuBar()->addMenu(pMenuCalibration);
-    this->menuBar()->addMenu(pMenuAbout);
+    this->menuBar()->addMenu(&_menuFile);
+    this->menuBar()->addMenu(&_menuSettings);
+    this->menuBar()->addMenu(&_menuGraph);
+    this->menuBar()->addMenu(&_menuCalibration);
+    this->menuBar()->addMenu(&_menuAbout);
 }
 void MainWindow::slotExportFile()
 {
-    QFileInfo file(pFSModel->filePath(pTreeView->currentIndex()));
+    QFileInfo file(_fs_model.filePath(_treeView.currentIndex()));
     QString path;
     if(file.isDir())
         path = file.absoluteFilePath();
@@ -103,53 +88,48 @@ void MainWindow::slotExportFile()
     if(exportWindow.exec() == QDialog::Accepted)
     {
         QApplication::setOverrideCursor(Qt::WaitCursor);
-
         int correct = 0;
         int error   = 0;
         QStringList listFiles = exportWindow.getFileNames();
 
-        foreach (QString fileName, listFiles) {
+        for (auto &fileName : listFiles)
+        {
             QImage image(pViewerWidget->getImageFromTxtFile(fileName));
             if(image.format() != QImage::Format_Invalid)
             {
                 QFileInfo fileInfo(fileName);
-                QString fullName = exportWindow.getPath() + SPLITTER_PATH + fileInfo.baseName();
+                QFileInfo resultFile(QDir(exportWindow.getPath()), fileInfo.baseName());
+                QString fullName = resultFile.absoluteFilePath();
                 switch (exportWindow.getOption())
                 {
-                case (Export::BW) :
-                    if(image.save(fullName+".bmp", "BMP"))
-                        correct++;
-                    else
-                        error++;
-
-                    break;
-                case (Export::WB) :
-                    image.invertPixels();
-                    if(image.save(fullName+"_INVERSION.bmp", "BMP"))
-                        correct++;
-                    else
-                        error++;
-
-                    break;
-                case (Export::BW_AND_WB) :
-                    if(image.save(fullName+".bmp", "BMP"))
-                        correct++;
-
-                    image.invertPixels();
-
-                    if(image.save(fullName+"_INVERSION.bmp", "BMP"))
-                        correct++;
-
-                    break;
+                    case (Export::BW) :
+                        if(image.save(fullName+".bmp", "BMP"))
+                            correct++;
+                        else
+                            error++;
+                        break;
+                    case (Export::WB) :
+                        image.invertPixels();
+                        if(image.save(fullName+"_INVERSION.bmp", "BMP"))
+                            correct++;
+                        else
+                            error++;
+                        break;
+                    case (Export::BW_AND_WB) :
+                        if(image.save(fullName+".bmp", "BMP"))
+                            correct++;
+                        image.invertPixels();
+                        if(image.save(fullName+"_INVERSION.bmp", "BMP"))
+                            correct++;
+                        break;
                 }
             }
             else
                 error++;
         }
         QApplication::restoreOverrideCursor();
-
-        QMessageBox::information(this, "Export", "Export " + QString::number(correct) + " file(s)<br>"
-                                                                                        "Error export " + QString::number(error) + " file(s)");
+        QMessageBox::information(this, "Export", "Export " + QString::number(correct) +
+                                 " file(s)<br>Error export " + QString::number(error) + " file(s)");
     }
 }
 
@@ -165,7 +145,7 @@ void MainWindow::slotGrapgWindowCheck(QString value)
 
     gd->clearWindow();
 
-    foreach (CentralWidget* cw, graphWindowList)
+    for (auto *cw : graphWindowList)
     {
         if(cw->getDataXType() != value)
             continue;
@@ -290,24 +270,24 @@ void MainWindow::slotSettingsImage()
 }
 void MainWindow::slotSelectFile(const QModelIndex& index)
 {
-    QFileInfo file(pFSModel->filePath(index));
+    QFileInfo file(_fs_model.filePath(index));
     currentActiveFile = file.fileName();
 
-    this->statusBar()->showMessage(pFSModel->filePath(index));
-    pViewerWidget->setImageFile(pFSModel->filePath(index));
-    if(pTreeView->isExpanded(index))
-        pTreeView->collapse(index);
+    this->statusBar()->showMessage(_fs_model.filePath(index));
+    pViewerWidget->setImageFile(_fs_model.filePath(index));
+    if(_treeView.isExpanded(index))
+        _treeView.collapse(index);
     else
-        pTreeView->expand(index);
+        _treeView.expand(index);
 
     if(file.suffix() == "clog")
-        pMenuGraph->setEnabled(true);
+        _menuGraph.setEnabled(true);
     else
-        pMenuGraph->setDisabled(true);
+        _menuGraph.setDisabled(true);
 
 //Начало тормозить  дерево - использовать QAbstractProxyModel
-    if(pFSModel->isDir(index))
-        settings.setValue("Path/lastDir", pFSModel->filePath(index) );
+    if(_fs_model.isDir(index))
+        settings.setValue("Path/lastDir", _fs_model.filePath(index) );
 }
 
 bool MainWindow::event(QEvent *event)
@@ -318,13 +298,6 @@ bool MainWindow::event(QEvent *event)
 MainWindow::~MainWindow()
 {
     delete pViewerWidget;
-    delete pFSModel;
-    delete pEventFilter;
-    delete pTreeView;
-    delete pSplitter;
-
-    delete pMenuFile;
-    delete pMenuAbout;
 
     foreach (CentralWidget* cw, graphWindowList)
         delete cw;

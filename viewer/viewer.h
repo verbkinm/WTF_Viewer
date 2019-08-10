@@ -12,7 +12,6 @@
 #include "../eventfilter/fingerslide.h"
 #include "frames/frames.h"
 
-
 namespace Ui {
 class Viewer;
 }
@@ -225,7 +224,7 @@ private slots:
     void        slotDP();
     void        slotBP();
     void        slotI();
-    void        slotSW();
+    void        slotSW(); //siparate window
 
 protected:
 };

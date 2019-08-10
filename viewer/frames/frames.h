@@ -13,31 +13,31 @@ class Frames : public QObject
 public:
     Frames(QObject *parent = nullptr);
 
-    void    addFrame        (const int& number);
+    void    addFrame        (int number);
     void    appendCluster   ();
 
     void    appendEPoint    (const ePoint& point);
-    void    appendEPoint    (const int& x, const int& y, const double &tot);
+    void    appendEPoint    (int x, int y, double tot);
 
     int getFrameCount() const;
-    int getClusterCount(const int& frameNumber) const;
-    int getClusterLenght(const int& frameNumber, const int& clusterNumber) const;
-    int getEventCountInCluster(const int& frameNumber, const int& clusterNumber) const;
+    int getClusterCount(int frameNumber) const;
+    int getClusterLenght(int frameNumber, int clusterNumber) const;
+    int getEventCountInCluster(int frameNumber, int clusterNumber) const;
 
-    const ePoint& getEPoint(const int& frameNumber, const int& clusterNumber, const int& eventNumber) const;
+    const ePoint& getEPoint(int frameNumber, int clusterNumber, int eventNumber) const;
 
     void    setFile         (const QString& path);
     void    clear           ();
     const QList<OneFrame>&  getList() const;
 
-    bool    clusterInRange  (const int& clusterLength,
-                             const int& clusterRangeBegin,
-                             const int& clusterRangeEnd);
-    bool    totInRange      (const int& frameNumber, const int& clusterNumber,
-                             const int& totRangeBegin, const int& totRangeEnd);
+    bool    isClusterInRange  (int clusterLength,
+                             int clusterRangeBegin,
+                             int clusterRangeEnd) const;
+    bool    isTotInRange      (int frameNumber, int clusterNumber,
+                             int totRangeBegin, int totRangeEnd) const;
 
-    QList<ePoint> getListTotInRange(const int& frameNumber, const int& clusterNumber,
-                                    const int& totRangeBegin, const int& totRangeEnd) const;
+    QList<ePoint> getListTotInRange(int frameNumber, int clusterNumber,
+                                    int totRangeBegin, int totRangeEnd) const;
 
     QVector<int> getClustersLenghtList() const;
     //получение вектора кол-ва тотов с кластера заданного размера

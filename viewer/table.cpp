@@ -14,8 +14,10 @@ Table::Table(int size, double **array, QWidget *parent) :
     ui->tableWidget->setRowCount(size);
     ui->tableWidget->setColumnCount(size);
 
-    for (int row = 0; row < ui->tableWidget->rowCount(); ++row) {
-        for (int column = 0; column < ui->tableWidget->columnCount(); ++column) {
+    for (int row = 0; row < ui->tableWidget->rowCount(); ++row)
+    {
+        for (int column = 0; column < ui->tableWidget->columnCount(); ++column)
+        {
             QDoubleSpinBox* spinbox = new QDoubleSpinBox;
             spinbox->setRange(-256.00, 256.00);
             spinbox->setSingleStep(0.01);
@@ -55,10 +57,8 @@ void Table::saveData()
             arrayBin[row][column] = qobject_cast<QDoubleSpinBox*>(ui->tableWidget->cellWidget(row, column))->value();
 }
 
-void Table::resizeEvent(QResizeEvent *event)
+void Table::resizeEvent(QResizeEvent *)
 {
-    Q_UNUSED(event);
-
     // растягиваем ширину столбцов до предела, если ширина всех столбцов меньше ширины тыблицы
     int widthColumns_TableLessonData = 0;
     for (int column = 0; column < ui->tableWidget->columnCount(); ++column)
@@ -72,7 +72,8 @@ void Table::resizeEvent(QResizeEvent *event)
     int heightRows_TableLessonData = 0;
     for (int row = 0; row < ui->tableWidget->rowCount(); ++row)
         heightRows_TableLessonData += ui->tableWidget->rowHeight(row);
-    if(heightRows_TableLessonData < ui->tableWidget->height()){
+    if(heightRows_TableLessonData < ui->tableWidget->height())
+    {
         for (int row = 0; row < ui->tableWidget->rowCount(); ++row){
             ui->tableWidget->verticalHeader()->setSectionResizeMode(row, QHeaderView::Stretch);
         }
