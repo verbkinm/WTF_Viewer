@@ -13,7 +13,7 @@ class SettingsImage : public QDialog
     Q_OBJECT
 
 public:
-    explicit SettingsImage(QSettings& settings, QWidget *parent = nullptr);
+    explicit SettingsImage(QSettings& pSettings, QWidget *parent = nullptr);
     ~SettingsImage();
 
     void    writeSettings();
@@ -27,7 +27,7 @@ private slots:
     void on_actionsetColor_triggered();
 
 private:
-    QSettings* settings;
+    QSettings* pSettings;
     Ui::SettingsImage *ui;
 
 

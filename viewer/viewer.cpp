@@ -413,8 +413,6 @@ void Viewer::imageSettingsForImage(QImage &image)
     {
         if(pSettings->value("SettingsImage/MasquradingGroupBox").toBool())
         {
-            qDebug() << "MasquradingGroupBox";
-
             //рисуем маскированые пиксели выбраным цветом
             for (size_t  x = 0; x < column; ++x)
                 for (size_t  y = 0; y < row; ++y)
@@ -451,23 +449,22 @@ void Viewer::calibrationSettingsForArray()
 }
 void Viewer::imageSettingsForArray()
 {
-    if(pSettings != nullptr){
-        pSettings->beginGroup("SettingsImage");
-
+    if(pSettings != nullptr)
+    {
         //если в настройка включено рисование рамки то рисуем её
-        if(pSettings->value("FrameGroupBox").toBool())
+        if(pSettings->value("SettingsImage/FrameGroupBox").toBool())
             createFrameInArray();
-
         //если в настройка включено маскирование пискелей то маскируем их
-        if(pSettings->value("MasquradingGroupBox").toBool())
+        if(pSettings->value("SettingsImage/MasquradingGroupBox").toBool())
             createMaskInArray();
-
-        pSettings->endGroup();
     }
 }
 void Viewer::createFrameInArray()
 {
-    if(pSettings != nullptr){
+    if(pSettings != nullptr)
+    {
+        pSettings->beginGroup("SettingsImage");
+
         size_t  width = size_t(pSettings->value("frameWidth").toInt());
         if(width > column || width > row) width = 0;
 
@@ -489,11 +486,15 @@ void Viewer::createFrameInArray()
         for (size_t  y = 0; y < row; ++y)
             for (size_t  x = column - 1; x >= column - width; --x)
                 arrayOrigin[x][y] = value;
+
+        pSettings->endGroup();
+
     }
 }
 void Viewer::createMaskInArray()
 {
-    if(pSettings != nullptr){
+    if(pSettings != nullptr)
+    {
         //выделяем память для массива маскирования пикселей, удаляем его в функции imageSettingsForImage
         arrayMask = new double *[column];
         for (size_t  i = 0; i < column; ++i)
@@ -503,9 +504,13 @@ void Viewer::createMaskInArray()
             for (size_t  y = 0; y < row; ++y)
                 arrayMask[x][y] = 0;
 
+        pSettings->beginGroup("SettingsImage")        ;
+
         int value       = pSettings->value("maskValue").toInt();
         int newValue    = pSettings->value("maskNewValue").toInt();
         bool after      = pSettings->value("maskAfter").toBool();
+
+        pSettings->endGroup();
 
         //пробегаемся по всему массиву
         for (size_t  x = 0; x < column; ++x)
@@ -863,11 +868,13 @@ QImage Viewer::createArrayImage(const QString& fileName)
     //Заполнение матрицы данными из файла
     int iterrator = 0;
     double value = 0;
-    for (size_t  y = 0; y < row; ++y)
-        for (size_t  x = 0; x < column; ++x) {
+    for(size_t  y = 0; y < row; ++y)
+    {
+        for(size_t  x = 0; x < column; ++x) {
             value =  data.list.at(iterrator++);
             arrayOrigin[x][y] = value;
         }
+    }
 
     //проверяем настройки для картинки такие как рамка и маскирование пикселей
     imageSettingsForArray();

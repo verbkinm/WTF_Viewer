@@ -27,7 +27,7 @@ public:
     explicit Viewer_widget(QSettings& setting, QWidget *parent = nullptr);
     ~Viewer_widget();
 
-    QSettings   _settings;
+    QSettings*   _pSettings;
 
     void        setImageFile(QString path);
     Frames*     getFrames();

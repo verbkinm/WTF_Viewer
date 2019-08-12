@@ -6,7 +6,7 @@
 #include <QColorDialog>
 
 SettingsImage::SettingsImage(QSettings &settings, QWidget *parent) :
-    QDialog(parent), settings(&settings),
+    QDialog(parent), pSettings(&settings),
     ui(new Ui::SettingsImage)
 {
     ui->setupUi(this);
@@ -23,20 +23,20 @@ SettingsImage::~SettingsImage()
 
 void SettingsImage::writeSettings()
 {
-    settings->beginGroup("SettingsImage");
+    pSettings->beginGroup("SettingsImage");
 
-    settings->setValue("FrameGroupBox", ui->FrameGroupBox->isChecked());
-    settings->setValue("frameWidth",    ui->frameWidth->value());
-    settings->setValue("frameValue",    ui->frameValue->value());
+    pSettings->setValue("FrameGroupBox", ui->FrameGroupBox->isChecked());
+    pSettings->setValue("frameWidth",    ui->frameWidth->value());
+    pSettings->setValue("frameValue",    ui->frameValue->value());
 
-    settings->setValue("MasquradingGroupBox",   ui->MasquradingGroupBox->isChecked());
-    settings->setValue("maskBefore",            ui->maskBefore->isChecked());
-    settings->setValue("maskAfter",             ui->maskAfter->isChecked());
-    settings->setValue("maskValue",             ui->maskValue->value());
-    settings->setValue("maskNewValue",          ui->maskNewValue->value());
-    settings->setValue("maskColor",             ui->maskColor->icon().pixmap(16, 16).toImage().pixelColor(0,0).name());
+    pSettings->setValue("MasquradingGroupBox",   ui->MasquradingGroupBox->isChecked());
+    pSettings->setValue("maskBefore",            ui->maskBefore->isChecked());
+    pSettings->setValue("maskAfter",             ui->maskAfter->isChecked());
+    pSettings->setValue("maskValue",             ui->maskValue->value());
+    pSettings->setValue("maskNewValue",          ui->maskNewValue->value());
+    pSettings->setValue("maskColor",             ui->maskColor->icon().pixmap(16, 16).toImage().pixelColor(0,0).name());
 
-    settings->endGroup();
+    pSettings->endGroup();
 }
 
 void SettingsImage::on_actionAccepted_triggered()
@@ -51,22 +51,22 @@ void SettingsImage::on_actionReject_triggered()
 
 void SettingsImage::readSettings()
 {
-    settings->beginGroup("SettingsImage");
+    pSettings->beginGroup("SettingsImage");
 
-    ui->FrameGroupBox->setChecked(settings->value("FrameGroupBox", false).toBool());
-    ui->frameWidth->setValue(settings->value("frameWidth", 0).toInt());
-    ui->frameValue->setValue(settings->value("frameValue", 0).toInt());
+    ui->FrameGroupBox->setChecked(pSettings->value("FrameGroupBox", false).toBool());
+    ui->frameWidth->setValue(pSettings->value("frameWidth", 0).toInt());
+    ui->frameValue->setValue(pSettings->value("frameValue", 0).toInt());
 
-    ui->MasquradingGroupBox->setChecked(settings->value("MasquradingGroupBox", false).toBool());
-    ui->maskBefore->setChecked(settings->value("maskBefore", false).toBool());
-    ui->maskAfter->setChecked(settings->value("maskAfter", false).toBool());
-    ui->maskValue->setValue(settings->value("maskValue", 0).toInt());
-    ui->maskNewValue->setValue(settings->value("maskNewValue", 0).toInt());
+    ui->MasquradingGroupBox->setChecked(pSettings->value("MasquradingGroupBox", false).toBool());
+    ui->maskBefore->setChecked(pSettings->value("maskBefore", false).toBool());
+    ui->maskAfter->setChecked(pSettings->value("maskAfter", false).toBool());
+    ui->maskValue->setValue(pSettings->value("maskValue", 0).toInt());
+    ui->maskNewValue->setValue(pSettings->value("maskNewValue", 0).toInt());
     QPixmap pix(16, 16);
-    pix.fill(QColor(settings->value("maskColor", "#00ff15").toString()));
+    pix.fill(QColor(pSettings->value("maskColor", "#00ff15").toString()));
     ui->maskColor->setIcon(pix);
 
-    settings->endGroup();
+    pSettings->endGroup();
 }
 
 void SettingsImage::on_actionsetColor_triggered()

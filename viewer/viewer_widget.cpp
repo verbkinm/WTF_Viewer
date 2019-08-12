@@ -16,14 +16,15 @@
 #include "../progressbar.h"
 
 Viewer_widget::Viewer_widget(QSettings &setting, QWidget *parent) :
-    QWidget(parent), _settings(&setting),
+    QWidget(parent), /*_settings(&setting)*/
     ui(new Ui::Viewer_widget)
 {
+    _pSettings = &setting;
     ui->setupUi(this);
 
     makeMaskTab();
 
-    ui->graphicsView->setSettings(_settings);
+    ui->graphicsView->setSettings(setting);
     graphicsView_origin.setScene(ui->graphicsView->getScene());
 
     graphicsView_origin.hideAllPanel();

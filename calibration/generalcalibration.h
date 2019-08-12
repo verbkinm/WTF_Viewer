@@ -13,7 +13,7 @@ class GeneralCalibration : public QDialog
     Q_OBJECT
 
 public:
-    explicit GeneralCalibration(QSettings& settings, QWidget *parent = nullptr);
+    explicit GeneralCalibration(QSettings& pSettings, QWidget *parent = nullptr);
     ~GeneralCalibration();
 
     double getA();
@@ -27,7 +27,7 @@ public:
 
 private:
     Ui::GeneralCalibration *ui;
-    QSettings* settings = nullptr;
+    QSettings* pSettings = nullptr;
 
     void    readSettings();
 };
