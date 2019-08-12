@@ -8,6 +8,7 @@
 #include <QGraphicsScene>
 #include <QSettings>
 #include <QMenu>
+#include <QFlags>
 
 #include "../eventfilter/fingerslide.h"
 #include "frames/frames.h"
@@ -29,6 +30,16 @@ public:
     //For cursor with Pen
     const static int X_HOT = 2;
     const static int Y_HOT = 23;
+
+    enum marker
+    {
+        NO_MARKERS = 0x0,
+        BORDER = 0x1,
+        MASKING = 0x2,
+        GENERAL_CALIBRATION = 0x4
+    };
+    Q_DECLARE_FLAGS(Markers_Flags, marker)
+    Viewer::Markers_Flags _markers;
 
     explicit Viewer(QWidget *parent = nullptr);
     ~Viewer();
@@ -139,19 +150,14 @@ private:
 
     //действия при не правильном файле
     void        incorrectFile           ();
-
     //вывести вместо изображения надпись - "Select file!"
     void        selectFile              ();
-
     //включени\отключение кнопок на панелях
     void        setEnableButtonPanel    (bool);
-
     //очистка динамического массива arrayOrigin
     void        clearArrayOrigin        ();
-
     //включени\отключение кнопок на панели Data
     void        setEnableDataPanelSelection(bool);
-
     //состояние readonly на панели Data
     void        setReadOnlyDataPanelSelection(bool);
 
@@ -166,12 +172,17 @@ private:
     void        imageSettingsForArray();
     void        imageSettingsForImage(QImage& image);
 
-    void        calibrationSettingsForArray();
-
+    void        generalCalibrationSettingsForArray(ePoint &point);
     //создаёт рамку согласно настройкам
     void        createFrameInArray();
     //маскируем выбранные пиксели
     void        createMaskInArray();
+
+    void showMarkers();
+//    void appendMarker(QString);
+    void clearMarkers();
+
+//    void
 
     QMenu*      pMenuFile               = nullptr;
     void        createButtonMenu        ();
@@ -243,5 +254,8 @@ private slots:
 
 protected:
 };
+
+Q_DECLARE_OPERATORS_FOR_FLAGS(Viewer::Markers_Flags)
+
 
 #endif // VIEWER_H

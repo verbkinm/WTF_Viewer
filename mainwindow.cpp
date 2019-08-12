@@ -7,7 +7,7 @@
 #include "graph/graphdialog.h"
 #include "calibration/generalcalibration.h"
 
-const static QString VERSION =  "0.9.8.4";
+const static QString VERSION =  "0.9.8.5";
 
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent), settings(QSettings::IniFormat, QSettings::UserScope, "WTF.org", "WTF")
@@ -43,6 +43,8 @@ MainWindow::MainWindow(QWidget *parent)
 
     this->setWindowIcon(QIcon(":/atom"));
     this->setWindowTitle("WTF_Viewer " + VERSION);
+
+    openLastDir();
 }
 void MainWindow::createMenu()
 {
@@ -74,6 +76,20 @@ void MainWindow::createMenu()
     this->menuBar()->addMenu(&_menuGraph);
     this->menuBar()->addMenu(&_menuCalibration);
     this->menuBar()->addMenu(&_menuAbout);
+}
+
+void MainWindow::openLastDir()
+{
+    QModelIndex lastDirIndex = _fs_model.index(settings.value("Path/lastDir").toString());
+    _treeView.expand(lastDirIndex);
+
+    QModelIndex index = lastDirIndex;
+    while (index.parent().isValid())
+    {
+        QModelIndex parent = index.parent();
+        _treeView.expand(parent);
+        index = parent;
+    }
 }
 void MainWindow::slotExportFile()
 {
@@ -288,6 +304,8 @@ void MainWindow::slotSelectFile(const QModelIndex& index)
 //Начало тормозить  дерево - использовать QAbstractProxyModel
     if(_fs_model.isDir(index))
         settings.setValue("Path/lastDir", _fs_model.filePath(index) );
+    else
+        settings.setValue("Path/lastDir", _fs_model.filePath(index.parent()) );
 }
 
 bool MainWindow::event(QEvent *event)
@@ -299,6 +317,6 @@ MainWindow::~MainWindow()
 {
     delete pViewerWidget;
 
-    foreach (CentralWidget* cw, graphWindowList)
+    for (auto *cw : graphWindowList)
         delete cw;
 }

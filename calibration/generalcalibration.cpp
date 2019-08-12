@@ -44,10 +44,6 @@ bool GeneralCalibration::getApply()
 
 void GeneralCalibration::writeSettings()
 {
-    qDebug() << pSettings->status();
-    qDebug() << pSettings->organizationName();
-    qDebug() << pSettings->applicationName();
-
     pSettings->beginGroup("GeneralCalibration");
 
     pSettings->setValue("A", ui->A->value());

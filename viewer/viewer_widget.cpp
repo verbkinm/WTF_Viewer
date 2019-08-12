@@ -38,7 +38,7 @@ Viewer_widget::Viewer_widget(QSettings &setting, QWidget *parent) :
 
     connect(ui->tabWidget, SIGNAL(currentChanged(int)), this, SLOT(slotTabChanged(int)));
 
-    //следующие две строчки - что бы сразу отлавливались сигналы при перемещении курсора над View
+    //следующие две строчки - чтобы сразу отлавливались сигналы при перемещении курсора над View
     ui->tabWidget->setCurrentIndex(1);
     ui->tabWidget->setCurrentIndex(0);
 }
@@ -79,6 +79,8 @@ void Viewer_widget::makeMaskTab()
 
     ui->tab_2->layout()->addWidget(&main_splitter);
     graphicsView_Result.hideAllPanel();
+
+    main_splitter.setStretchFactor(0,1);
 }
 
 void Viewer_widget::slotTabChanged(int value)

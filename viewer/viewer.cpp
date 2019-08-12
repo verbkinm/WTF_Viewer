@@ -19,9 +19,8 @@
 
 Viewer::Viewer(QWidget *parent) :
     QWidget(parent),
-    ui(new Ui::Viewer)
+    ui(new Ui::Viewer), fType(fileType::UNDEFINED)
 { 
-
     this->setAttribute(Qt::WA_DeleteOnClose);
 
     currentScene = &defaultScene;
@@ -145,6 +144,7 @@ void Viewer::clearArrayOrigin()
         itemForeground = nullptr;
         itemRect       = nullptr;
     }
+    clearMarkers();
 }
 void Viewer::setEnableDataPanelSelection(bool state)
 {
@@ -175,6 +175,7 @@ void Viewer::setEnableButtonPanel(bool state)
     if(pViewerDataPanel)
         pViewerDataPanel->setEnabled(state);
 
+    ui->button_settings->setEnabled(state);
     ui->inversion->setEnabled(state);
 
     if(pPixFilterPanel)
@@ -193,7 +194,6 @@ void Viewer::setEnableButtonPanel(bool state)
         pPixFilterPanel->setTotRange(frames.getTotLenghtList());
     }
 
-    //state
     setEnableDataPanelSelection(false);
 }
 void Viewer::setImage(QImage image)
@@ -202,6 +202,12 @@ void Viewer::setImage(QImage image)
 
     if(image.format() != QImage::Format_Invalid)
     {
+        //проверяем настройки для картинки такие как рамка и маскирование пикселей
+        imageSettingsForArray();
+        //цвет пикселей, к которым применилась маска
+        imageSettingsForImage(imageOrigin);
+        this->showMarkers();
+
         setEnableButtonPanel(true);
 
 //        angle = 0;
@@ -262,6 +268,7 @@ void Viewer::setImageFile(QString fileName)
 
     if(file.suffix() == "txt")
     {
+        pMenuFile->actions()[PIX_AND_FILTER_PANEL]->setDisabled(false);
         fType = fileType::TXT;
         setImage(getImageFromTxtFile(filePath));
     }
@@ -273,6 +280,7 @@ void Viewer::setImageFile(QString fileName)
             QMessageBox::critical(this, "Error", "Please, enable \"pix. & filter panel\"!");
             return;
         }
+        pMenuFile->actions()[PIX_AND_FILTER_PANEL]->setDisabled(true);
         fType = fileType::CLOG;
         setImage(getImageFromClogFile(filePath));
     }
@@ -320,6 +328,8 @@ void Viewer::connectPixFilterPanelSelectionBox()
 
 void Viewer::applyClogFilter(QImage& image)
 {
+    QApplication::setOverrideCursor(QCursor(Qt::WaitCursor));
+
     if(!pPixFilterPanel)
     {
         pMenuFile->actions()[PIX_AND_FILTER_PANEL]->trigger();
@@ -357,16 +367,12 @@ void Viewer::applyClogFilter(QImage& image)
             }
         }
 
-    //проверяем настройки для картинки такие как рамка и маскирование пикселей
-    imageSettingsForArray();
-
-
-
     double max = findMaxInArrayOrigin();
     double min = findMinInArrayOrigin();
 
     //наполнение объекта QImage
     for (size_t  x = 0; x < column; ++x)
+    {
         for (size_t  y = 0; y < row; ++y) {
             double value = convert(arrayOrigin[x][y], \
                                             min, \
@@ -376,9 +382,8 @@ void Viewer::applyClogFilter(QImage& image)
             QColor color(qRound(value), qRound(value), qRound(value));
             image.setPixelColor(int(x), int(y), color);
         }
-    //цвет пикселей, к которым применилась маска
-    imageSettingsForImage(image);
-
+    }
+    QApplication::restoreOverrideCursor();
 }
 //для меньшего кол-ва строк исполбзуем эту функцию
 void Viewer::applyClogFilterAdditionalFunction(ePoint &point)
@@ -388,75 +393,76 @@ void Viewer::applyClogFilterAdditionalFunction(ePoint &point)
         return;
     //Выбор режима - MediPix or TimePix
     if(pPixFilterPanel->isMediPix())
+    {
         arrayOrigin[point.x][point.y] = arrayOrigin[point.x][point.y] + 1;
+        _markers &= ~GENERAL_CALIBRATION;
+    }
     else
     {
         if(pSettings != nullptr && pSettings->value("GeneralCalibration/apply").toBool())
         {
-            double A = (pSettings->value("GeneralCalibration/A").toDouble());
-            double B = (pSettings->value("GeneralCalibration/B").toDouble());
-            double C = (pSettings->value("GeneralCalibration/C").toDouble());
-            double T = (pSettings->value("GeneralCalibration/T").toDouble());
-
-            double parA = A;
-            double parB = B - point.tot - A * T;
-            double parC = point.tot * T - B * T - C;
-
-            point.tot = ( -parB + ( qSqrt(parB * parB - 4 * parA * parC)) ) / (2 * parA);
+            generalCalibrationSettingsForArray(point);
+            _markers |= GENERAL_CALIBRATION;
         }
+        else
+            _markers &= ~GENERAL_CALIBRATION;
         arrayOrigin[point.x][point.y] = arrayOrigin[point.x][point.y] + point.tot;
     }
 }
 void Viewer::imageSettingsForImage(QImage &image)
 {
-    if(pSettings != nullptr)
+    if(pSettings != nullptr && pSettings->value("SettingsImage/MasquradingGroupBox").toBool())
     {
-        if(pSettings->value("SettingsImage/MasquradingGroupBox").toBool())
-        {
-            //рисуем маскированые пиксели выбраным цветом
-            for (size_t  x = 0; x < column; ++x)
-                for (size_t  y = 0; y < row; ++y)
-                    if(arrayMask[x][y] > 0)
-                        image.setPixelColor(int(x), int(y), QColor(pSettings->value("SettingsImage/maskColor").toString()));
-            //удаляем массив для маскирования пикселей
-            for (size_t  i = 0; i < column; ++i)
-                delete[] arrayMask[i];
-            delete[] arrayMask;
-            arrayMask = nullptr;
-        }
+        //рисуем маскированые пиксели выбраным цветом
+        for (size_t  x = 0; x < column; ++x)
+            for (size_t  y = 0; y < row; ++y)
+                if(arrayMask[x][y] > 0)
+                    image.setPixelColor(int(x), int(y), QColor(pSettings->value("SettingsImage/maskColor").toString()));
+        //удаляем массив для маскирования пикселей
+        for (size_t  i = 0; i < column; ++i)
+            delete[] arrayMask[i];
+        delete[] arrayMask;
+        arrayMask = nullptr;
     }
 }
 
-void Viewer::calibrationSettingsForArray()
+void Viewer::generalCalibrationSettingsForArray(ePoint &point)
 {
     if(pSettings != nullptr)
     {
-//        pSettings->beginGroup("SettingsImage");
+        double A = (pSettings->value("GeneralCalibration/A").toDouble());
+        double B = (pSettings->value("GeneralCalibration/B").toDouble());
+        double C = (pSettings->value("GeneralCalibration/C").toDouble());
+        double T = (pSettings->value("GeneralCalibration/T").toDouble());
 
-//        //если в настройка включено рисование рамки то рисуем её
-//        if(pSettings->value("FrameGroupBox").toBool())
-//            createFrameInArray();
+        double parA = A;
+        double parB = B - point.tot - A * T;
+        double parC = point.tot * T - B * T - C;
 
-//        //если в настройка включено маскирование пискелей то маскируем их
-//        if(pSettings->value("MasquradingGroupBox").toBool())
-//            createMaskInArray();
-
-//        pSettings->endGroup();
+        point.tot = ( -parB + ( qSqrt(parB * parB - 4 * parA * parC)) ) / (2 * parA);
     }
-
-
-
 }
 void Viewer::imageSettingsForArray()
 {
     if(pSettings != nullptr)
     {
-        //если в настройка включено рисование рамки то рисуем её
+        //если в настройка включено рисование рамки то переписываем наш основной массив
         if(pSettings->value("SettingsImage/FrameGroupBox").toBool())
+        {
             createFrameInArray();
-        //если в настройка включено маскирование пискелей то маскируем их
+            _markers |= BORDER;
+        }
+        else
+            _markers &= ~BORDER;
+
+        //если в настройка включено маскирование пискелей то переписываем наш основной массив
         if(pSettings->value("SettingsImage/MasquradingGroupBox").toBool())
+        {
             createMaskInArray();
+            _markers |= MASKING;
+        }
+        else
+            _markers &= ~MASKING;
     }
 }
 void Viewer::createFrameInArray()
@@ -486,9 +492,7 @@ void Viewer::createFrameInArray()
         for (size_t  y = 0; y < row; ++y)
             for (size_t  x = column - 1; x >= column - width; --x)
                 arrayOrigin[x][y] = value;
-
         pSettings->endGroup();
-
     }
 }
 void Viewer::createMaskInArray()
@@ -514,6 +518,7 @@ void Viewer::createMaskInArray()
 
         //пробегаемся по всему массиву
         for (size_t  x = 0; x < column; ++x)
+        {
             for (size_t  y = 0; y < row; ++y)
             {
                 if(after)
@@ -530,7 +535,43 @@ void Viewer::createMaskInArray()
                     arrayMask[x][y] = 1;
                 }
             }
+        }
     }
+}
+
+void Viewer::showMarkers()
+{
+    QString border = "Border; ";
+    QString mask = "Mask; ";
+    QString generalCalibration = "General calibration; ";
+
+    switch (_markers.operator unsigned int())
+    {
+        case 0x0: ui->marker_label->clear();
+        break;
+        case 0x1: ui->marker_label->setText(border);
+        break;
+        case 0x2: ui->marker_label->setText(mask);
+        break;
+        case 0x3: ui->marker_label->setText(border + mask);
+        break;
+        case 0x4: ui->marker_label->setText(generalCalibration);
+        break;
+        case 0x5: ui->marker_label->setText(border + generalCalibration);
+        break;
+        case 0x6: ui->marker_label->setText(generalCalibration + mask);
+        break;
+        case 0x7: ui->marker_label->setText(border + mask + generalCalibration);
+        break;
+        default: ui->marker_label->setText("Invalid flag");
+        break;
+    }
+}
+
+void Viewer::clearMarkers()
+{
+    _markers = Viewer::NO_MARKERS;
+    ui->marker_label->clear();
 }
 
 void Viewer::createButtonMenu()
@@ -578,7 +619,7 @@ void Viewer::createButtonPanel()
     //повороты
     connect(pViewerButtonPanel, SIGNAL(signalRotatePlus()), this, SLOT(slotRotatePlus()));
     connect(pViewerButtonPanel, SIGNAL(signalRotateMinus()), this, SLOT(slotRotateMinus()));
-//    connect(pViewerButtonPanel, SIGNAL(valueChanged(double)), this, SLOT(slotRotatePlus()));
+//   ANGLE  connect(pViewerButtonPanel, SIGNAL(valueChanged(double)), this, SLOT(slotRotate()));
     //зеркальное отражение
     connect(pViewerButtonPanel, SIGNAL(signalMirrorHorizontal()), this, SLOT(slotMirrorHorizontal()));
     connect(pViewerButtonPanel, SIGNAL(signalMirrorVertical()), this, SLOT(slotMirrorVertical()));
@@ -615,6 +656,9 @@ void Viewer::createPixFilterPanel()
 
     ui->layout_graphicView_and_Pix_filter_panel->addWidget(pPixFilterPanel);
     ui->layout_graphicView_and_Pix_filter_panel->setStretch(0,1);
+
+    if(fType != fileType::CLOG)
+        pPixFilterPanel->setTabEnable(Pix_Filter_Panel::CLOG_FILTER_TAB, false);
 
     connectPixFilterPanel();
 }
@@ -668,12 +712,6 @@ void Viewer::slotRepaint()
 
 void Viewer::slotPFP()
 {
-    if(fType == fileType::CLOG)
-    {
-        QMessageBox::critical(this, "Error", "You cannot disable this panel when viewing this type of file!");
-        return;
-    }
-
     if(action_array[PIX_AND_FILTER_PANEL])
     {
         objectDelete(pPixFilterPanel);
@@ -725,28 +763,14 @@ void Viewer::slotSW()
     Viewer* SW = new Viewer;
     SW->setWindowTitle(filePath);
     SW->setSettings(*pSettings);
+    SW->show();
 
-    if(fType == fileType::TXT){
+    if(fType == fileType::TXT)
         SW->setImageFile(filePath);
-        for (size_t  x = 0; x < column; ++x)
-            for (size_t  y = 0; y < row; ++y)
-                SW->arrayOrigin[x][y] = arrayOrigin[x][y];
-
-        SW->slotRepaint();
-    }
     else if(fType == fileType::CLOG)
-    {
         SW->setImageFile(filePath);
-//        SW->pPixFilterPanel = pPixFilterPanel;
-        SW->slotApplyClogFilter();
-
-//        for (size_t  x = 0; x < column; ++x)
-//            for (size_t  y = 0; y < row; ++y)
-//                SW->arrayOrigin[x][y] = arrayOrigin[x][y];
-
-//        SW->slotRepaint();
-    }
-    else{
+    else
+    {
         QTemporaryFile tmpFile;
         QString pref = ".txt";
         tmpFile.open();
@@ -770,7 +794,6 @@ void Viewer::slotSW()
 
         file.close();
     }
-    SW->show();
 }
 
 void Viewer::slotViewSelectionMovePos(QPoint point)
@@ -870,14 +893,12 @@ QImage Viewer::createArrayImage(const QString& fileName)
     double value = 0;
     for(size_t  y = 0; y < row; ++y)
     {
-        for(size_t  x = 0; x < column; ++x) {
+        for(size_t  x = 0; x < column; ++x)
+        {
             value =  data.list.at(iterrator++);
             arrayOrigin[x][y] = value;
         }
     }
-
-    //проверяем настройки для картинки такие как рамка и маскирование пикселей
-    imageSettingsForArray();
 
     double max = findMaxInArrayOrigin();
     double min = findMinInArrayOrigin();
@@ -886,17 +907,14 @@ QImage Viewer::createArrayImage(const QString& fileName)
     for (size_t  x = 0; x < column; ++x)
         for (size_t  y = 0; y < row; ++y) {
             double value = convert(arrayOrigin[x][y], \
-                                            min, \
-                                            max, \
-                                            double(0), \
-                                            double(255) );
+                                    min, \
+                                    max, \
+                                    double(0), \
+                                    double(255) );
 
             QColor color(qRound(value), qRound(value), qRound(value));
             image.setPixelColor(int(x), int(y), color);
         }
-
-    imageSettingsForImage(image);
-
     return image;
 }
 
@@ -1046,7 +1064,6 @@ void Viewer::slotCut()
         return;
     }
 
-
     size_t column  = size_t(pPixFilterPanel->getWidth());
     size_t row     = size_t(pPixFilterPanel->getHeight());
 
@@ -1068,6 +1085,7 @@ void Viewer::slotCut()
         exit(1);
     }
     for (int x = pPixFilterPanel->getX(), tmpX = 0; tmpX < int(column); ++x, ++tmpX)
+    {
         for (int y = pPixFilterPanel->getY(), tmpY = 0; tmpY < int(row); ++y, ++tmpY) {
             if( (x < 0) || (x >= int(this->column)) || (y < 0) || (y >= int(this->row)) )
                 value = 0;
@@ -1075,6 +1093,7 @@ void Viewer::slotCut()
                 value = arrayOrigin[x][y];
             array[tmpX][tmpY] = value;
         }
+    }
 
     //очищаем основной массив и переписываем переменные column и row
     clearArrayOrigin();
@@ -1101,20 +1120,22 @@ void Viewer::slotCut()
     for (size_t x = 0; x < column; ++x)
         for (size_t y = 0; y < row; ++y) {
             double value = convert(arrayOrigin[x][y], \
-                                            min, \
-                                            max, \
-                                            double(0), \
-                                            double(255) );
+                                    min, \
+                                    max, \
+                                    double(0), \
+                                    double(255) );
             array[x][y] = value;
         }
 
     //наполнение объекта QImage
     for (size_t x = 0; x < column; ++x)
+    {
         for (size_t y = 0; y < row; ++y) {
             double value = array[x][y];
             QColor color(qRound(value), qRound(value), qRound(value));
             image.setPixelColor(int(x), int(y), color);
         }
+    }
 
     //удаление временного массива
     for (size_t i = 0; i < column; ++i)
@@ -1249,17 +1270,17 @@ void Viewer::slotSaveTXT()
                                                     "TXT (*.txt);;All files (*.*)");
 
     QFile file(fileName);
-    QTextStream writeStrime(&file);
+    QTextStream writeStreame(&file);
     if (file.open(QIODevice::WriteOnly | QIODevice::Text))
     for (size_t x = 0; x < row; ++x)
     {
         for (size_t y = 0; y < column; ++y) {
             if(y != 0)
-                writeStrime << " ";
-            writeStrime << QString::number(arrayOrigin[y][x]);
+                writeStreame << " ";
+            writeStreame << QString::number(arrayOrigin[y][x]);
         }
-        writeStrime << "\n";
-        writeStrime.flush();
+        writeStreame << "\n";
+        writeStreame.flush();
     }
     file.close();
 }

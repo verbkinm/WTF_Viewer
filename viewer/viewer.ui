@@ -43,8 +43,11 @@
      </item>
      <item>
       <widget class="QLabel" name="marker_label">
+       <property name="styleSheet">
+        <string notr="true">color: rgb(255, 0, 0);</string>
+       </property>
        <property name="text">
-        <string>marker</string>
+        <string/>
        </property>
        <property name="alignment">
         <set>Qt::AlignCenter</set>

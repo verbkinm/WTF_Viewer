@@ -54,6 +54,8 @@ private:
 
     QSettings           settings;
 
+    void openLastDir();
+
 protected:
     virtual bool        event(QEvent *event);
 
