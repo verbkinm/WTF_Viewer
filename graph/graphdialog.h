@@ -2,7 +2,7 @@
 #define GRAPHDIALOG_H
 
 #include <QDialog>
-#include "../viewer/frames/frames.h"
+#include "../viewer_widget/frames/frames.h"
 
 namespace Ui {
 class GraphDialog;

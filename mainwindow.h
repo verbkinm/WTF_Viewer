@@ -15,7 +15,7 @@
 #include <QDir>
 #include <QSettings>
 
-#include "viewer\viewer_widget.h"
+#include "viewer_widget\viewer_widget.h"
 #include "eventfilter\eventfilter.h"
 #include "graph/centralwidget.h"
 #include "settings/settingsimage.h"

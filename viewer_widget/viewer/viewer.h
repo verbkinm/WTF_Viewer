@@ -10,8 +10,8 @@
 #include <QMenu>
 #include <QFlags>
 
-#include "../eventfilter/fingerslide.h"
-#include "frames/frames.h"
+#include "../../eventfilter/fingerslide.h"
+#include "../frames/frames.h"
 #include "viewer_button_panel.h"
 #include "viewer_data_panel.h"
 #include "pix_filter_panel.h"
@@ -44,17 +44,34 @@ public:
     explicit Viewer(QWidget *parent = nullptr);
     ~Viewer();
 
-    QSettings*  pSettings = nullptr;
-    //получение Qimage из txt файла
-    QImage      getImageFromTxtFile     (QString fileName);
-    //получение Qimage из clog файла
-    QImage      getImageFromClogFile     (QString fileName);
-    //установка картинки на виджет из файла
-    void        setImageFile            (QString fileName);
-    void        setImage                (QImage image);
-
     void        setSettings             (QSettings &settings);
     void        setScene                (QGraphicsScene* scene);
+    void        setReadOnly             (bool value = true);
+    //установка картинки на виджет из файла
+    void        setImageFile            (QString fileName);
+
+
+    QGraphicsScene* getScene();
+    Frames*     getFrames();
+    //получение Qimage из txt файла
+    QImage      getImageFromTxtFile     (QString fileName);
+
+
+    void        hideAllPanel            ();
+    void        hideSettingsButton      (bool value = true);
+
+
+
+
+
+private:
+    QSettings*  pSettings = nullptr;
+
+    //получение Qimage из clog файла
+    QImage      getImageFromClogFile     (QString fileName);
+
+    void        setImage                (QImage image);
+
     void        setSceneDefault         ();
 
     QImage      getImage                ();
@@ -67,15 +84,10 @@ public:
     QGraphicsScene*                     currentScene = nullptr;
     QGraphicsScene                      defaultScene;
 
-    QGraphicsScene*                     getScene();
     size_t      getColumnFromFile       (QString fileName) const;
     size_t      getRowFromFile          (QString fileName) const;
 
-    void        setReadOnly             (bool value = true);
-    void        hideAllPanel            ();
-    void        hideSettingsButton      (bool value = true);
 
-    Frames*     getFrames();
 
 signals:
 
@@ -179,10 +191,7 @@ private:
     void        createMaskInArray();
 
     void showMarkers();
-//    void appendMarker(QString);
     void clearMarkers();
-
-//    void
 
     QMenu*      pMenuFile               = nullptr;
     void        createButtonMenu        ();

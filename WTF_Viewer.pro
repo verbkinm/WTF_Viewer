@@ -37,18 +37,18 @@ SOURCES += \
     graph/graphdialog.cpp \
     graph/panelwidget.cpp \
     settings/settingsimage.cpp \
-    viewer/checkFile/checkfile.cpp \
-    viewer/frames/frames.cpp \
-    viewer/frames/oneframe.cpp \
-    viewer/clogfilterpanel.cpp \
-    viewer/masksettings.cpp \
-    viewer/pix_filter_panel.cpp \
-    viewer/table.cpp \
-    viewer/toolspanel.cpp \
-    viewer/viewer.cpp \
-    viewer/viewer_button_panel.cpp \
-    viewer/viewer_data_panel.cpp \
-    viewer/viewer_widget.cpp \
+    viewer_widget/checkFile/checkfile.cpp \
+    viewer_widget/frames/frames.cpp \
+    viewer_widget/frames/oneframe.cpp \
+    viewer_widget/viewer/clogfilterpanel.cpp \
+    viewer_widget/masksettings.cpp \
+    viewer_widget/viewer/pix_filter_panel.cpp \
+    viewer_widget/table.cpp \
+    viewer_widget/viewer/toolspanel.cpp \
+    viewer_widget/viewer/viewer.cpp \
+    viewer_widget/viewer/viewer_button_panel.cpp \
+    viewer_widget/viewer/viewer_data_panel.cpp \
+    viewer_widget/viewer_widget.cpp \
     main.cpp \
     mainwindow.cpp \
     progressbar.cpp
@@ -66,18 +66,18 @@ HEADERS += \
     graph/graphdialog.h \
     graph/panelwidget.h \
     settings/settingsimage.h \
-    viewer/checkFile/checkfile.h \
-    viewer/frames/frames.h \
-    viewer/frames/oneframe.h \
-    viewer/clogfilterpanel.h \
-    viewer/masksettings.h \
-    viewer/pix_filter_panel.h \
-    viewer/table.h \
-    viewer/toolspanel.h \
-    viewer/viewer.h \
-    viewer/viewer_button_panel.h \
-    viewer/viewer_data_panel.h \
-    viewer/viewer_widget.h \
+    viewer_widget/checkFile/checkfile.h \
+    viewer_widget/frames/frames.h \
+    viewer_widget/frames/oneframe.h \
+    viewer_widget/viewer/clogfilterpanel.h \
+    viewer_widget/masksettings.h \
+    viewer_widget/viewer/pix_filter_panel.h \
+    viewer_widget/table.h \
+    viewer_widget/viewer/toolspanel.h \
+    viewer_widget/viewer/viewer.h \
+    viewer_widget/viewer/viewer_button_panel.h \
+    viewer_widget/viewer/viewer_data_panel.h \
+    viewer_widget/viewer_widget.h \
     mainwindow.h \
     progressbar.h
 
@@ -94,15 +94,15 @@ FORMS += \
     graph/panelwidget.ui \
     loadcalibrationfiles.ui \
     settings/settingsimage.ui \
-    viewer/clogfilterpanel.ui \
-    viewer/masksettings.ui \
-    viewer/pix_filter_panel.ui \
-    viewer/table.ui \
-    viewer/toolspanel.ui \
-    viewer/viewer.ui \
-    viewer/viewer_button_panel.ui \
-    viewer/viewer_data_panel.ui \
-    viewer/viewer_widget.ui \
+    viewer_widget/viewer/clogfilterpanel.ui \
+    viewer_widget/masksettings.ui \
+    viewer_widget/viewer/pix_filter_panel.ui \
+    viewer_widget/table.ui \
+    viewer_widget/viewer/toolspanel.ui \
+    viewer_widget/viewer/viewer.ui \
+    viewer_widget/viewer/viewer_button_panel.ui \
+    viewer_widget/viewer/viewer_data_panel.ui \
+    viewer_widget/viewer_widget.ui \
     progressbar.ui
 
 RESOURCES += \

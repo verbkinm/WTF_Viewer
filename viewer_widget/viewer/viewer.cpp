@@ -14,8 +14,8 @@
 
 #include "viewer.h"
 #include "ui_viewer.h"
-#include "checkFile/checkfile.h"
-#include "../progressbar.h"
+#include "../checkFile/checkfile.h"
+#include "../../progressbar.h"
 
 Viewer::Viewer(QWidget *parent) :
     QWidget(parent),
@@ -411,6 +411,21 @@ void Viewer::applyClogFilterAdditionalFunction(ePoint &point)
 }
 void Viewer::imageSettingsForImage(QImage &image)
 {
+    //Border
+    double max = findMaxInArrayOrigin();
+    double min = findMinInArrayOrigin();
+    //наполнение объекта QImage
+    for (size_t  x = 0; x < column; ++x)
+        for (size_t  y = 0; y < row; ++y) {
+            double value = convert(arrayOrigin[x][y], \
+                                            min, \
+                                            max, \
+                                            double(0), \
+                                            double(255) );
+            QColor color(qRound(value), qRound(value), qRound(value));
+            image.setPixelColor(int(x), int(y), color);
+        }
+
     if(pSettings != nullptr && pSettings->value("SettingsImage/MasquradingGroupBox").toBool())
     {
         //рисуем маскированые пиксели выбраным цветом

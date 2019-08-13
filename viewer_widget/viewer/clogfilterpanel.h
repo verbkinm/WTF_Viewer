@@ -4,7 +4,7 @@
 #include <QWidget>
 #include <QEvent>
 
-#include "frames/frames.h"
+#include "../frames/frames.h"
 
 namespace Ui {
 class ClogFilterPanel;

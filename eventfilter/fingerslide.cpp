@@ -1,5 +1,5 @@
 #include "fingerslide.h"
-#include "../viewer/viewer.h"
+#include "../viewer_widget/viewer/viewer.h"
 
 #include <QDebug>
 #include <QObject>

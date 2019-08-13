@@ -17,7 +17,7 @@
    <item row="0" column="0">
     <widget class="QTabWidget" name="tabWidget">
      <property name="currentIndex">
-      <number>1</number>
+      <number>0</number>
      </property>
      <property name="usesScrollButtons">
       <bool>true</bool>
@@ -49,7 +49,7 @@
   <customwidget>
    <class>Viewer</class>
    <extends>QWidget</extends>
-   <header>../WTF_Viewer/viewer/viewer.h</header>
+   <header>../WTF_Viewer/viewer_widget/viewer/viewer.h</header>
    <container>1</container>
   </customwidget>
  </customwidgets>
