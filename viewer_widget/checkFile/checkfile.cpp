@@ -3,11 +3,11 @@
 #include <QTemporaryFile>
 #include <QDebug>
 
-ListData::ListData(QString fileName)
+VectorFromTxtFile::VectorFromTxtFile(const QString &fileName)
 {
      this->checkFile(fileName);
 }
-QList<double> ListData::checkFile(QString fileName)
+QVector<double> VectorFromTxtFile::checkFile(const QString &fileName)
 {
     QFile originFile(fileName);
     originFile.open(QIODevice::ReadOnly);
@@ -48,25 +48,25 @@ QList<double> ListData::checkFile(QString fileName)
             int countInLine = splitString.length();
 
             foreach (QString element, splitString)
-                list.append(element.toDouble());
+                _vector.append(element.toDouble());
 
             //если в текущей строке элементов меньше чем в максимальной строке - добавляем нули
             while (int(countInLine )!= maxCountElement)
             {
-                list.append(0);
+                _vector.append(0);
                 countInLine++;
             }
 
         }
-        column = size_t(maxCountElement);
-        row    = size_t(countString);
+        _column = size_t(maxCountElement);
+        _row    = size_t(countString);
         file.close();
     }
     else {
-        qDebug() << "file " << fileName << " can't open";
+        qDebug() << "file " << file.fileName() << " can't open";
     }
 
     originFile.close();
 
-    return list;
+    return _vector;
 }

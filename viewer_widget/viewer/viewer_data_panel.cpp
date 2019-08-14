@@ -13,7 +13,7 @@ Viewer_Data_Panel::~Viewer_Data_Panel()
     delete ui;
 }
 
-void Viewer_Data_Panel::setAllData(int x, int y, double data, int width, int height)
+void Viewer_Data_Panel::setData(int x, int y, double data, int width, int height)
 {
     ui->x->setValue(x);
     ui->y->setValue(y);
@@ -32,7 +32,7 @@ void Viewer_Data_Panel::setY(int value)
     ui->y->setValue(value);
 }
 
-void Viewer_Data_Panel::setAllData(double value)
+void Viewer_Data_Panel::setData(double value)
 {
     ui->data->setValue(value);
 }

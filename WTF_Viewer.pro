@@ -48,6 +48,7 @@ SOURCES += \
     viewer_widget/viewer/viewer.cpp \
     viewer_widget/viewer/viewer_button_panel.cpp \
     viewer_widget/viewer/viewer_data_panel.cpp \
+    viewer_widget/viewer/viewer_processor.cpp \
     viewer_widget/viewer_widget.cpp \
     main.cpp \
     mainwindow.cpp \
@@ -77,6 +78,7 @@ HEADERS += \
     viewer_widget/viewer/viewer.h \
     viewer_widget/viewer/viewer_button_panel.h \
     viewer_widget/viewer/viewer_data_panel.h \
+    viewer_widget/viewer/viewer_processor.h \
     viewer_widget/viewer_widget.h \
     mainwindow.h \
     progressbar.h

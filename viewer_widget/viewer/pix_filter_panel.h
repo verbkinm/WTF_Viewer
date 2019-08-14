@@ -46,7 +46,7 @@ public:
     int getHeight() const;
 
     QColor getPenColor() const;
-    int getPenValue() const;
+    double getPenValue() const;
 
     bool isAllTotInCluster() const;
     bool isMediPix() const;

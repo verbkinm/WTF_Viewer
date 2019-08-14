@@ -42,7 +42,7 @@ public:
 
     const ePoint &getEPoint(int clusterNumber, int eventNumber) const;
 
-    void    clear();
+    void clear();
 
 private:
     int number              = 0;

@@ -15,10 +15,10 @@ public:
     explicit Viewer_Data_Panel(QWidget *parent = nullptr);
     ~Viewer_Data_Panel();
 
-    void setAllData(int x, int y, double data, int width, int height);
+    void setData(int x, int y, double data, int width, int height);
     void setX(int);
     void setY(int);
-    void setAllData(double);
+    void setData(double);
 
 public slots:
     void slotSetX(int);

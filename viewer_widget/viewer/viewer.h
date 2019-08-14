@@ -12,6 +12,7 @@
 
 #include "../../eventfilter/fingerslide.h"
 #include "../frames/frames.h"
+#include "viewer_processor.h"
 #include "viewer_button_panel.h"
 #include "viewer_data_panel.h"
 #include "pix_filter_panel.h"
@@ -56,17 +57,13 @@ public:
     //получение Qimage из txt файла
     QImage      getImageFromTxtFile     (QString fileName);
 
-
     void        hideAllPanel            ();
     void        hideSettingsButton      (bool value = true);
 
-
-
-
-
 private:
+    // !
     QSettings*  pSettings = nullptr;
-
+    // !
     //получение Qimage из clog файла
     QImage      getImageFromClogFile     (QString fileName);
 
@@ -74,11 +71,11 @@ private:
 
     void        setSceneDefault         ();
 
-    QImage      getImage                ();
-    QImage      getImageInversion       ();
+    QImage      getImage                () const;
+    QImage      getImageInversion       () const;
 
     void        resetTransform          ();
-    QWidget*    viewport                ();
+    QWidget*    getViewport() const;
 
     //объект сцены
     QGraphicsScene*                     currentScene = nullptr;
@@ -94,9 +91,12 @@ signals:
 private:
     Ui::Viewer *ui;
 
+    // панели
     Viewer_Button_Panel *pViewerButtonPanel = nullptr;
     Viewer_Data_Panel *pViewerDataPanel = nullptr;
     Pix_Filter_Panel *pPixFilterPanel = nullptr;
+
+    Viewer_Processor viewerProcessor;
 
     void createButtonPanel();
     void createDataPanel();
@@ -122,7 +122,7 @@ private:
     QString  filePath;
 
 //используется для нормального вращения QGraphicsView без сложных(для меня) модификаций QTransform
-    double angle = 0;
+//    double angle = 0;
 
 //объект, который хранит сам рисунок
     QImage      imageOrigin;
@@ -134,14 +134,16 @@ private:
     //рамка при выделении
     QGraphicsRectItem*   itemRect       = nullptr;
 
+    // !
     //объект для хранения данных для работы с файлами clog
     Frames frames;
-
+    // !
     //двумерный массив с данными из файла
     double**       arrayOrigin             = nullptr;
     //массив для нанесения маски из настроек Settings -Image
     double**       arrayMask               = nullptr;
 
+    // !
     //переменные для хранения кол-ва строк и столбцов файла
     size_t column  = 0;
     size_t row     = 0;
@@ -149,12 +151,14 @@ private:
     //фильтр событий для сцены и представления
     FingerSlide* eventFilterScene = nullptr;
 
+    // ! TXT
     //возвращает рисунок из файла или QImage::Format_Invalid
     QImage      createArrayImage        (const QString& fileName);
 
+    // !
     double      findMaxInArrayOrigin();
     double      findMinInArrayOrigin();
-
+    // !
     //преобразование диапазонов
     double      convert                 (double value,
                                          double From1, double From2,
@@ -166,6 +170,7 @@ private:
     void        selectFile              ();
     //включени\отключение кнопок на панелях
     void        setEnableButtonPanel    (bool);
+    // !
     //очистка динамического массива arrayOrigin
     void        clearArrayOrigin        ();
     //включени\отключение кнопок на панели Data
@@ -175,16 +180,18 @@ private:
 
     void        disconnectPixFilterPanelSelectionBox ();
 
-    void        connectPixFilterPanel();
+    void connectPixFilterPanel();
     void connectPixFilterPanelSelectionBox();
 
-    void        applyClogFilter(QImage& image);
-    void        applyClogFilterAdditionalFunction(ePoint &point);
+    // !
+    void applyClogFilter(QImage& image);
+    void applyClogFilterAdditionalFunction(ePoint &point);
+    // !
+    void imageSettingsForArray();
+    void imageSettingsForImage(QImage& image);
 
-    void        imageSettingsForArray();
-    void        imageSettingsForImage(QImage& image);
-
-    void        generalCalibrationSettingsForArray(ePoint &point);
+    // !
+    void generalCalibrationSettingsForArray(ePoint &point);
     //создаёт рамку согласно настройкам
     void        createFrameInArray();
     //маскируем выбранные пиксели
@@ -260,8 +267,6 @@ private slots:
     void        slotBP(); // button panel
     void        slotI(); // inversion chekbox
     void        slotSW(); //siparate window
-
-protected:
 };
 
 Q_DECLARE_OPERATORS_FOR_FLAGS(Viewer::Markers_Flags)

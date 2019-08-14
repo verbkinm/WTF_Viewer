@@ -1,17 +1,17 @@
 #ifndef CHECKFILE_H
 #define CHECKFILE_H
 
-#include <QList>
+#include <QVector>
 
-struct ListData
+struct VectorFromTxtFile
 {
-    size_t  row     = 0;
-    size_t  column  = 0;
-    QList<double>  list;
+    size_t  _row = 0;
+    size_t  _column = 0;
+    QVector<double> _vector;
 
-    ListData(QString fileName);
+    VectorFromTxtFile(const QString &fileName);
 
-    QList<double> checkFile(QString fileName);
+    QVector<double> checkFile(const QString &fileName);
 };
 
 

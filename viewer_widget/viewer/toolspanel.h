@@ -28,13 +28,13 @@ public:
     void finishSelection        ();
 
     QColor  getPenColor         () const;
-    int     getPenValue         ();
+    double getPenValue();
 
 private:
     Ui::ToolsPanel *ui;
 
-    QColor  _color;
-    int     _value;
+    QColor _color;
+    double _value;
 
 private slots:
     void slotSetColor           ();
@@ -42,7 +42,7 @@ private slots:
     void slotSelectionToggle    (bool value);
     void slotPenToggle          (bool value);
 
-    void slotPenValueChanged    (int value);
+    void slotPenValueChanged    (double value);
 
 signals:
     void signalPenToggle        (bool);

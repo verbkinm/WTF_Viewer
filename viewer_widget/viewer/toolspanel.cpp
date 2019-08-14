@@ -24,8 +24,8 @@ ToolsPanel::ToolsPanel(QWidget *parent) :
     connect(ui->color_button, SIGNAL(clicked()),
             this, SLOT(slotSetColor()));
 
-    connect(ui->pen_value_Spin, SIGNAL(valueChanged(int)),
-            this, SLOT(slotPenValueChanged(int)));
+    connect(ui->pen_value_Spin, SIGNAL(valueChanged(double)),
+            this, SLOT(slotPenValueChanged(double)));
 
     connect(ui->repaint, SIGNAL(clicked(bool)),
             this, SIGNAL(signalRepaint()));
@@ -70,7 +70,7 @@ QColor ToolsPanel::getPenColor() const
     return _color;
 }
 
-int ToolsPanel::getPenValue()
+double ToolsPanel::getPenValue()
 {
     return ui->pen_value_Spin->value();
 }
@@ -102,7 +102,7 @@ void ToolsPanel::slotPenToggle(bool value)
 
 }
 
-void ToolsPanel::slotPenValueChanged(int value)
+void ToolsPanel::slotPenValueChanged(double value)
 {
     _value = value;
 }

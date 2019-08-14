@@ -149,7 +149,7 @@ QColor Pix_Filter_Panel::getPenColor() const
     return ui->edit_panel->getPenColor();
 }
 
-int Pix_Filter_Panel::getPenValue() const
+double Pix_Filter_Panel::getPenValue() const
 {
     return ui->edit_panel->getPenValue();
 }
