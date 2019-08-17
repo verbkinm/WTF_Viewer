@@ -12,7 +12,7 @@ GraphDialog::GraphDialog(Frames *frames, QWidget *parent) :
 //    QApplication::setOverrideCursor(QCursor(Qt::WaitCursor));
 
     ui->DataY->addItem("All ");
-    foreach(auto &value, frames->getClustersLenghtList())
+    foreach(auto &value, frames->getClustersLengthVector())
         ui->DataY->addItem(QString::number(value));
 
 //    QApplication::restoreOverrideCursor();

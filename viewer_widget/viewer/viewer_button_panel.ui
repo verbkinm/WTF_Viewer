@@ -92,7 +92,7 @@
       <item>
        <widget class="QPushButton" name="horizontal_mirror">
         <property name="enabled">
-         <bool>true</bool>
+         <bool>false</bool>
         </property>
         <property name="toolTip">
          <string>horizontal_mirror</string>
@@ -101,7 +101,7 @@
          <string/>
         </property>
         <property name="icon">
-         <iconset resource="../img.qrc">
+         <iconset resource="../../img.qrc">
           <normaloff>:/horizontal</normaloff>:/horizontal</iconset>
         </property>
        </widget>
@@ -109,7 +109,7 @@
       <item>
        <widget class="QPushButton" name="vertical_mirror">
         <property name="enabled">
-         <bool>true</bool>
+         <bool>false</bool>
         </property>
         <property name="toolTip">
          <string>vertical_mirror</string>
@@ -118,7 +118,7 @@
          <string/>
         </property>
         <property name="icon">
-         <iconset resource="../img.qrc">
+         <iconset resource="../../img.qrc">
           <normaloff>:/vertical</normaloff>:/vertical</iconset>
         </property>
        </widget>
@@ -126,7 +126,7 @@
       <item>
        <widget class="QPushButton" name="rotate_plus">
         <property name="enabled">
-         <bool>true</bool>
+         <bool>false</bool>
         </property>
         <property name="toolTip">
          <string>+90º</string>
@@ -135,7 +135,7 @@
          <string/>
         </property>
         <property name="icon">
-         <iconset resource="../img.qrc">
+         <iconset resource="../../img.qrc">
           <normaloff>:/rotate_plus</normaloff>:/rotate_plus</iconset>
         </property>
        </widget>
@@ -177,7 +177,7 @@
       <item>
        <widget class="QPushButton" name="rotate_minus">
         <property name="enabled">
-         <bool>true</bool>
+         <bool>false</bool>
         </property>
         <property name="toolTip">
          <string>-90º</string>
@@ -186,7 +186,7 @@
          <string/>
         </property>
         <property name="icon">
-         <iconset resource="../img.qrc">
+         <iconset resource="../../img.qrc">
           <normaloff>:/rotate_minus</normaloff>:/rotate_minus</iconset>
         </property>
        </widget>
@@ -210,7 +210,7 @@
          <string/>
         </property>
         <property name="icon">
-         <iconset resource="../img.qrc">
+         <iconset resource="../../img.qrc">
           <normaloff>:/reset</normaloff>:/reset</iconset>
         </property>
        </widget>
@@ -241,7 +241,7 @@
          <string/>
         </property>
         <property name="icon">
-         <iconset resource="../img.qrc">
+         <iconset resource="../../img.qrc">
           <normaloff>:/plus</normaloff>:/plus</iconset>
         </property>
        </widget>
@@ -263,7 +263,7 @@
          <string/>
         </property>
         <property name="icon">
-         <iconset resource="../img.qrc">
+         <iconset resource="../../img.qrc">
           <normaloff>:/minus</normaloff>:/minus</iconset>
         </property>
        </widget>
@@ -287,7 +287,7 @@
   </layout>
  </widget>
  <resources>
-  <include location="../img.qrc"/>
+  <include location="../../img.qrc"/>
  </resources>
  <connections/>
 </ui>

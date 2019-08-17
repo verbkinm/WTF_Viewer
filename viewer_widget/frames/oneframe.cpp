@@ -1,80 +1,128 @@
 #include "oneframe.h"
 
-OneFrame::OneFrame(int number)
+OneFrame::OneFrame() : empty_ePoint({0,0,0}), _number(-1), _threshold_energy(-1), _exposure_time(-1)
 {
-    this->number = number;
+
+}
+
+bool OneFrame::createFromStrings(QStringList buff)
+{
+    for(auto &string : buff)
+    {
+        if(string.startsWith("Frame"))
+            setFrameProperties(string);
+        else if(string.startsWith("["))
+        {
+            appendCluster();
+            setClusterProperies(string);
+        }
+    }
+    if(_number == -1)
+    {
+        _vectorOfCluster.clear();
+        return false;
+    }
+    return  true;
 }
 
 void OneFrame::setThreshold_energy(double value)
 {
-    threshold_energy = value;
+    _threshold_energy = value;
 }
-
 void OneFrame::setExposure_time(double value)
 {
-    exposure_time = value;
+    _exposure_time = value;
+}
+void OneFrame::setFrameNumber(int number)
+{
+    _number = number;
 }
 
-void OneFrame::appendEPoint(const ePoint& point)
+void OneFrame::appendEPoint(const ePoint &point)
 {
-    list.last().append(point);
+    _vectorOfCluster.at(_vectorOfCluster.size() - 1).push_back(point);
 }
 
-void OneFrame::appendEPoint(int x, int y, double tot)
+void OneFrame::appendCluster()
 {
-    appendEPoint({x, y, tot});
+    _vectorOfCluster.push_back(cluster());
 }
 
-void OneFrame::addCluster()
+size_t OneFrame::getClusterCount() const
 {
-    cluster newClaster;
-    list.append(newClaster);
+    return _vectorOfCluster.size();
 }
 
-void OneFrame::addEPoint(cluster& inClaster, int x, int y, double tot)
+size_t OneFrame::getClusterLenght(size_t clusterNumber) const
 {
-    inClaster.append({x,y,tot});
-}
-int OneFrame::getClusterCount() const
-{
-    return int(list.length());
-}
-
-int OneFrame::getClusterLenght(int clusterNumber) const
-{
-    return  int(list.at(int(clusterNumber)).length());
-}
-
-int OneFrame::getEventCountInCluster(int clusterNumber) const
-{
-    if(clusterNumber > list.length() - 1)
+    try
     {
-        qDebug() << "error in " << Q_FUNC_INFO << __FILE__ << "line: " << __LINE__;
-        exit(1);
+        return _vectorOfCluster.at(clusterNumber).size();
+    }
+    catch (std::out_of_range&)
+    {
+        return 0;
+    }
+}
+
+size_t OneFrame::getEventCountInCluster(size_t clusterNumber) const
+{
+    try
+    {
+        return _vectorOfCluster.at(clusterNumber).size();
+    }
+    catch (std::out_of_range&)
+    {
+        return 0;
+    }
+}
+
+const std::vector<OneFrame::cluster> &OneFrame::getClustersVector() const
+{
+    return _vectorOfCluster;
+}
+
+const OneFrame::ePoint &OneFrame::getEPoint(size_t clusterNumber, size_t eventNumber) const
+{
+    try
+    {
+        return _vectorOfCluster.at(clusterNumber).at(eventNumber);
+    }
+    catch (std::out_of_range&)
+    {
+        return empty_ePoint;
     }
 
-    return list.at(clusterNumber).length();
 }
 
-const QList<cluster> &OneFrame::getList() const
+void OneFrame::setFrameProperties(QString &string)
 {
-    return list;
-}
-
-const ePoint& OneFrame::getEPoint(int clusterNumber, int eventNumber) const
-{
-    if(clusterNumber > list.length() - 1 ||
-           eventNumber > list.at(clusterNumber).length())
+    QStringList stringSplit = string.split(' ');
+    try
     {
-        qDebug() << "error in " << Q_FUNC_INFO << __FILE__ << "line: " << __LINE__;
-        exit(1);
+        setFrameNumber(stringSplit.at(1).toInt());
     }
-
-    return list.at(clusterNumber).at(eventNumber);
+    catch(std::out_of_range&)
+    {
+        return;
+    }
 }
 
-void OneFrame::clear()
+void OneFrame::setClusterProperies(QString &string)
 {
-    foreach (cluster clust, list)
-        clust.clear();
+    string.remove(" ");
+    string.remove("\r\n");
+    string.remove(0, 1);
+    string.chop(1);
+
+    QStringList listFromString;
+    for (auto &str : string.split("]["))
+        listFromString << str;
+
+    for(auto &str : listFromString)
+    {
+        QStringList point = str.split(",");
+        if(point.length() == 3)
+            appendEPoint({point[0].toULongLong(), point[1].toULongLong(), point[2].toDouble()});
+    }
 }

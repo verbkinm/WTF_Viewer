@@ -2,12 +2,12 @@
 #define VIEWER_PROCESSOR_H
 
 #include <QSettings>
-#include "viewer_widget/frames/frames.h"
 
-class Viewer_Processor : public QObject
+class Viewer_Processor
 {
 public:
     Viewer_Processor();
+    virtual ~Viewer_Processor();
 
     enum marker
     {
@@ -19,26 +19,30 @@ public:
     Q_DECLARE_FLAGS(Markers_Flags, marker)
     Viewer_Processor::Markers_Flags _markers;
 
-    QString getFileName() const;
-    double getDataInVec2D(size_t column, size_t row);
-    size_t getColumns();
-    size_t getRows();
+    enum  class fileType {UNDEFINED, TXT, CLOG};
 
-    void setDataInVec2D(size_t column, size_t row, double value);
+    fileType getFileType() const;
+    QString getFileName() const;
+    size_t getColumns() const;
+    size_t getRows() const;
+    double getDataInVec2D(size_t column, size_t row);
+    const std::vector<std::vector<double> > &getVec2D() const;
+
+
+
     void setFileName(const QString &fileName);
     void setSettings(QSettings* const settings);
+    void setDataInVec2D(size_t column_number, size_t row_number, double value);
 
-    QImage getImage();
-    void   cutVec2D(int cutX, int cutY, size_t width, size_t height);
+    std::vector<std::vector<double> > cutVec2D(size_t fromColumn, size_t fromRow, size_t width, size_t height);
 
-private:
-    enum class fileType {UNDEFINED, TXT, CLOG};
+    virtual QImage getImage() = 0;
+    virtual QImage getRedrawnImage() = 0;
+
+protected:
     fileType _fileType;
-
-    QSettings* _settings = nullptr;
-
+    QSettings* _pSettings;
     QString _fileName;
-    Frames _frames;
 
     std::vector<std::vector<double>> _vec2D;
     std::vector<std::vector<double>> _vec2DMask;
@@ -46,23 +50,9 @@ private:
     size_t _rows;
     size_t _columns;
 
-
-    double findMaxInArrayOrigin();
-    double findMinInArrayOrigin();
-
-    double convert(double value,
-                   double From1, double From2,
-                   double To1, double To2);
-
-
-
-    //void applyClogFilter(QImage& image);
-    //void applyClogFilterAdditionalFunction(ePoint &point);
-
-    void rebuildVec2DAccordingToSettings();
-    void rebuildImageAccordingToSettings(QImage &image);
-
-//    void generalCalibrationSettingsForArray(ePoint &point);
+    double findMaxInVec2D();
+    double findMinInVec2D();
+    double rangeConverter(double value, double From1, double From2, double To1, double To2);
     void createFrameInVec2D();
     void createMaskInVec2D();
 
@@ -72,15 +62,13 @@ private:
 
     void setFileType(const QString &fileName);
     void allocateEmptyVec2D(std::vector<std::vector<double> > &vec2D, size_t columns, size_t rows);
-    void createVec2D();
-    void createVec2DFromTXT();
-    void createVec2DFromCLOG();
-    void resetDataToDefault();
-
     QImage getImageFromVec2D();
-
     bool checkSettingsPtr();
 
+    virtual void createVec2D() = 0;
+    virtual void resetDataToDefault() = 0;
+    void rebuildVec2DAccordingToSettings();
+    void rebuildImageAccordingToSettings(QImage &image);
 };
 Q_DECLARE_OPERATORS_FOR_FLAGS(Viewer_Processor::Markers_Flags)
 

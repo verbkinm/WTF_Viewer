@@ -94,32 +94,32 @@ void Pix_Filter_Panel::setTabEnable(int number, bool state)
 
 }
 
-void Pix_Filter_Panel::setClusterRange(const QVector<int> &vector)
+void Pix_Filter_Panel::setClusterRange(const std::vector<size_t> &vector)
 {
     ui->clogFilterPanel->setClusterRange(vector);
 }
 
-void Pix_Filter_Panel::setTotRange(const QVector<double> &vector)
+void Pix_Filter_Panel::setTotRange(const std::vector<double> &vector)
 {
     ui->clogFilterPanel->setTotRange(vector);
 }
 
-int Pix_Filter_Panel::getClusterBegin() const
+size_t Pix_Filter_Panel::getClusterBegin() const
 {
     return ui->clogFilterPanel->getClusterBegin();
 }
 
-int Pix_Filter_Panel::getClusterEnd() const
+size_t Pix_Filter_Panel::getClusterEnd() const
 {
     return ui->clogFilterPanel->getClusterEnd();
 }
 
-int Pix_Filter_Panel::getTotBegin() const
+size_t Pix_Filter_Panel::getTotBegin() const
 {
     return ui->clogFilterPanel->getTotBegin();
 }
 
-int Pix_Filter_Panel::getTotEnd() const
+size_t Pix_Filter_Panel::getTotEnd() const
 {
     return ui->clogFilterPanel->getTotEnd();
 }

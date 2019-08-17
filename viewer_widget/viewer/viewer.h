@@ -12,7 +12,9 @@
 
 #include "../../eventfilter/fingerslide.h"
 #include "../frames/frames.h"
-#include "viewer_processor.h"
+#include "viewer_processor/viewer_processor.h"
+#include "viewer_processor/viewer_clog_processor.h"
+#include "viewer_processor/viewer_txt_processor.h"
 #include "viewer_button_panel.h"
 #include "viewer_data_panel.h"
 #include "pix_filter_panel.h"
@@ -26,85 +28,34 @@ class Viewer : public QWidget
     Q_OBJECT
 
 public:
-    const static int CLOG_SIZE = 256;
-
     //For cursor with Pen
     const static int X_HOT = 2;
     const static int Y_HOT = 23;
 
-    enum marker
-    {
-        NO_MARKERS = 0x0,
-        BORDER = 0x1,
-        MASKING = 0x2,
-        GENERAL_CALIBRATION = 0x4
-    };
-    Q_DECLARE_FLAGS(Markers_Flags, marker)
-    Viewer::Markers_Flags _markers;
-
     explicit Viewer(QWidget *parent = nullptr);
     ~Viewer();
 
-    void        setSettings             (QSettings &settings);
-    void        setScene                (QGraphicsScene* scene);
-    void        setReadOnly             (bool value = true);
-    //установка картинки на виджет из файла
-    void        setImageFile            (QString fileName);
-
+    void setSettings(QSettings&);
+    void setScene(QGraphicsScene*);
+    void setReadOnly(bool);
+    void setImageFile(QString);
 
     QGraphicsScene* getScene();
-    Frames*     getFrames();
-    //получение Qimage из txt файла
-    QImage      getImageFromTxtFile     (QString fileName);
 
-    void        hideAllPanel            ();
-    void        hideSettingsButton      (bool value = true);
-
-private:
-    // !
-    QSettings*  pSettings = nullptr;
-    // !
-    //получение Qimage из clog файла
-    QImage      getImageFromClogFile     (QString fileName);
-
-    void        setImage                (QImage image);
-
-    void        setSceneDefault         ();
-
-    QImage      getImage                () const;
-    QImage      getImageInversion       () const;
-
-    void        resetTransform          ();
-    QWidget*    getViewport() const;
-
-    //объект сцены
-    QGraphicsScene*                     currentScene = nullptr;
-    QGraphicsScene                      defaultScene;
-
-    size_t      getColumnFromFile       (QString fileName) const;
-    size_t      getRowFromFile          (QString fileName) const;
-
-
-
-signals:
+    void hideAllPanel();
+    void hideSettingsButton(bool);
 
 private:
     Ui::Viewer *ui;
-
+    Viewer_Processor* _pViewerProcessor; // обработчик данных
     // панели
-    Viewer_Button_Panel *pViewerButtonPanel = nullptr;
-    Viewer_Data_Panel *pViewerDataPanel = nullptr;
-    Pix_Filter_Panel *pPixFilterPanel = nullptr;
+    Viewer_Button_Panel *_pViewerButtonPanel;
+    _Viewer_Data_Panel *pViewerDataPanel;
+    Pix_Filter_Panel *_pPixFilterPanel;
 
-    Viewer_Processor viewerProcessor;
+    QSettings* _pSettings;
+    bool _readOnly;
 
-    void createButtonPanel();
-    void createDataPanel();
-    void createPixFilterPanel();
-
-    bool    readOnly = false;
-
-    enum {PIX_AND_FILTER_PANEL, DATA_PANEL, BUTTONS_PANEL, INVERSION, SINGLE_WINDOW};
     /*
     [0 - pix. && filter pnael]
     [1 - data paNel]
@@ -113,163 +64,92 @@ private:
     [4 - single window]
     видимость панелей
     */
-    bool    action_array[5];
-
-    enum class fileType {UNDEFINED, TXT, CLOG};
-
-    //текущий тип файла
-    fileType fType;
-    QString  filePath;
-
-//используется для нормального вращения QGraphicsView без сложных(для меня) модификаций QTransform
-//    double angle = 0;
-
-//объект, который хранит сам рисунок
-    QImage      imageOrigin;
-//фон
-//    QImage      imageBackground;
-
-//указатели на item`ы
-    QGraphicsPixmapItem* itemForeground = nullptr;
+    enum
+    {
+          PIX_AND_FILTER_PANEL,
+          DATA_PANEL,
+          BUTTONS_PANEL,
+          INVERSION,
+          SINGLE_WINDOW
+    };
+    std::array<bool, 5>  _state_of_the_menu_items;
+    QString  _filePath;
+    QImage _currentImage;
+    //указатели на item`ы
+    QGraphicsPixmapItem* _itemForeground ;
     //рамка при выделении
-    QGraphicsRectItem*   itemRect       = nullptr;
-
-    // !
-    //объект для хранения данных для работы с файлами clog
-    Frames frames;
-    // !
-    //двумерный массив с данными из файла
-    double**       arrayOrigin             = nullptr;
-    //массив для нанесения маски из настроек Settings -Image
-    double**       arrayMask               = nullptr;
-
-    // !
-    //переменные для хранения кол-ва строк и столбцов файла
-    size_t column  = 0;
-    size_t row     = 0;
-
+    QGraphicsRectItem* _itemRect;
     //фильтр событий для сцены и представления
-    FingerSlide* eventFilterScene = nullptr;
+    FingerSlide* _eventFilterScene;
+    QMenu* _pMenuFile;
 
-    // ! TXT
-    //возвращает рисунок из файла или QImage::Format_Invalid
-    QImage      createArrayImage        (const QString& fileName);
+    QWidget* getViewport() const;
 
-    // !
-    double      findMaxInArrayOrigin();
-    double      findMinInArrayOrigin();
-    // !
-    //преобразование диапазонов
-    double      convert                 (double value,
-                                         double From1, double From2,
-                                         double To1, double To2);
+    //объект сцены
+    QGraphicsScene* _pCurrentScene;
+    QGraphicsScene _defaultScene;
 
-    //действия при не правильном файле
-    void        incorrectFile           ();
-    //вывести вместо изображения надпись - "Select file!"
-    void        selectFile              ();
-    //включени\отключение кнопок на панелях
-    void        setEnableButtonPanel    (bool);
-    // !
-    //очистка динамического массива arrayOrigin
-    void        clearArrayOrigin        ();
-    //включени\отключение кнопок на панели Data
-    void        setEnableDataPanelSelection(bool);
-    //состояние readonly на панели Data
-    void        setReadOnlyDataPanelSelection(bool);
+    void setImage(QImage image);
 
-    void        disconnectPixFilterPanelSelectionBox ();
+    void setSceneDefault();
+    void resetTransform();
 
+    void createButtonPanel();
+    void createDataPanel();
+    void createPixFilterPanel();
+
+    void incorrectFile();  //действия при не правильном файле
+    void selectFile();     //вывести вместо изображения надпись - "Select file!"
+    void setEnableButtonPanel(bool);    //включени\отключение кнопок на панелях
+    void setEnableDataPanelSelection(bool);    //включени\отключение кнопок на панели Data
+    void setReadOnlyDataPanelSelection(bool);    //состояние readonly на панели Data
+
+    void disconnectPixFilterPanelSelectionBox ();
     void connectPixFilterPanel();
     void connectPixFilterPanelSelectionBox();
-
-    // !
-    void applyClogFilter(QImage& image);
-    void applyClogFilterAdditionalFunction(ePoint &point);
-    // !
-    void imageSettingsForArray();
-    void imageSettingsForImage(QImage& image);
-
-    // !
-    void generalCalibrationSettingsForArray(ePoint &point);
-    //создаёт рамку согласно настройкам
-    void        createFrameInArray();
-    //маскируем выбранные пиксели
-    void        createMaskInArray();
+    void connectEventFilter();
 
     void showMarkers();
-    void clearMarkers();
 
-    QMenu*      pMenuFile               = nullptr;
-    void        createButtonMenu        ();
+    void createButtonMenu();
+    Filter_Clog createFilterFromPixFilterPanel();
 
     template <typename T>
-    void        objectDelete(T* obj);
+    void objectDelete(T* obj);
 
 public slots:
-    void        slotSetImageFile(QString file);
-    //сохранинеие в bmp
-    void        slotSaveBMP             ();
-    //сохранинеие в txt
-    void        slotSaveTXT             ();
+    void slotSetImageFile(QString file);
+    void slotSaveBMP();
+    void slotSaveTXT();
 
 private slots:
-    //поворот
-    void        slotRotatePlus();
-    void        slotRotateMinus();
-    // отражение по горизонтали
-    void        slotMirrorHorizontal();
-    void        slotMirrorVertical();
-    //сброс трансформации
-    void        slotResetTransform      ();
-    //масштаб при нажатии на виджете кнопок + и -
-    void        slotScaledPlus();
-    void        slotScaledMinus();
-    // масштаб колёсиком мышки
-    void        slotScaleWheel          (int);
+    void slotRotatePlus();       //поворот по часовой стрелке
+    void slotRotateMinus();      //поворот против часовой стрелке
+    void slotMirrorHorizontal(); // отражение по горизонтали
+    void slotMirrorVertical();   // отражение по горизонтали
+    void slotResetTransform();   //сброс трансформации
+    void slotScaledPlus();       //масштаб при нажатии на виджете кнопок +
+    void slotScaledMinus();      //масштаб при нажатии на виджете кнопок -
+    void slotScaleWheel(int);    // масштаб колёсиком мышки
+    void slotInversionCheckBox(int);//отрисовка _currentImage в зависимости от значения checkBox'а Inversion
+    void slotViewPosition(QPointF); //позиция курсора и значение "пикселя" на сцене
+    void slotViewSelectionPos(QRect);//позиция выделения
+    void slotViewSelectionMovePos(QPoint);//позиция выделения при перетаскивании мышкой
+    void slotDrawPoint(QPointF); //рисование точек карандашем
+    void slotSelectionFrame(bool);
+    void slotPen(bool);
+    void slotCut();
+    void slotFinishSelection();    //действия при окончании выделения(отпускание кнопки мышки)
+    void slotMoveRectFromKey();    // изменение выделения с помощью спинбоксов на панели
+    void slotCreateRectItem(QGraphicsRectItem*);
+    void slotApplyClogFilter();
+    void slotRepaint();
 
-    //отрисовка imageOrigin в зависимости от значения checkBox'а Inversion
-    void        slotInversionCheckBox   (int state);
-
-    //позиция курсора и значение "пикселя" на сцене
-    void        slotViewPosition        (QPointF);
-    //позиция выделения
-    void        slotViewSelectionPos    (QRect);
-    //позиция выделения при перетаскивании мышкой
-    void        slotViewSelectionMovePos(QPoint);
-    void        slotDrawPoint           (QPointF point);
-
-    //действия при нажатии кнопки на панели инструментов
-    void        slotSelectionFrame      (bool state);
-    void        slotPen                 (bool value);
-    void        slotCut                 ();
-
-    //действия при окончании выделения(отпускание кнопки мышки)
-    void        slotFinishSelection     ();
-
-    // изменение выделения с помощью спинбоксов на панели
-    void        slotMoveRectFromKey     ();
-
-    void        slotCreateRectItem(QGraphicsRectItem* item);
-
-    void        slotApplyClogFilter     ();
-
-    void        slotRepaint             ();
-
-//    [0 - pix. && filter pnael]
-//                [1 - data pnael]
-//                [2 - buttons panel]
-//                [3 - inversion]
-//                [4 - single window]
     //действия для каждого пункта меню кнопки button_settings
-    void        slotPFP(); //pix and filter panel
-    void        slotDP(); // data panel
-    void        slotBP(); // button panel
-    void        slotI(); // inversion chekbox
-    void        slotSW(); //siparate window
+    void slotPixAndFilterPanelMenuToggle();
+    void slotDataPanelMenuToggle();
+    void slotButtonPanelMenuToggle();
+    void slotInversionMenuToggle();
+    void slotSeparateWindowMenuToggle();
 };
-
-Q_DECLARE_OPERATORS_FOR_FLAGS(Viewer::Markers_Flags)
-
-
 #endif // VIEWER_H

@@ -31,14 +31,14 @@ public:
 
     void setTabEnable(int, bool);
 
-    void setClusterRange(const QVector<int>&);
-    void setTotRange(const QVector<double>&);
+    void setClusterRange(const std::vector<size_t> &);
+    void setTotRange(const std::vector<double> &);
 
-    int getClusterBegin() const;
-    int getClusterEnd() const;
+    size_t getClusterBegin() const;
+    size_t getClusterEnd() const;
 
-    int getTotBegin() const;
-    int getTotEnd() const;
+    size_t getTotBegin() const;
+    size_t getTotEnd() const;
 
     int getX() const;
     int getY() const;

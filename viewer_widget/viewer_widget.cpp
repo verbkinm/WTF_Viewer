@@ -28,8 +28,8 @@ Viewer_widget::Viewer_widget(QSettings &setting, QWidget *parent) :
     graphicsView_origin.setScene(ui->graphicsView->getScene());
 
     graphicsView_origin.hideAllPanel();
-    graphicsView_origin.setReadOnly();
-    graphicsView_origin.hideSettingsButton();
+    graphicsView_origin.setReadOnly(true);
+    graphicsView_origin.hideSettingsButton(true);
     mask_viewer.hideAllPanel();
 
     connect(&mask_settings, SIGNAL(signalOpenTXT(QString)), &mask_viewer, SLOT(slotSetImageFile(QString)));
@@ -55,12 +55,12 @@ void Viewer_widget::setImageFile(QString path)
 
 Frames* Viewer_widget::getFrames()
 {
-    return ui->graphicsView->getFrames();
+//    return ui->graphicsView->getFrames();
 }
 
 QImage Viewer_widget::getImageFromTxtFile(QString file)
 {
-    return ui->graphicsView->getImageFromTxtFile(file);
+//    return ui->graphicsView->getImageFromTxtFile(file);
 }
 
 void Viewer_widget::makeMaskTab()
@@ -89,7 +89,7 @@ void Viewer_widget::slotTabChanged(int value)
      * нельзя было рисовать, создавать и перемещать рамку
      */
     if(value == 1)
-        ui->graphicsView->setReadOnly();
+        ui->graphicsView->setReadOnly(true);
     else if(value == 0)
         ui->graphicsView->setReadOnly(false);
 }

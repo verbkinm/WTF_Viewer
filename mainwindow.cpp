@@ -7,7 +7,7 @@
 #include "graph/graphdialog.h"
 #include "calibration/generalcalibration.h"
 
-const static QString VERSION =  "0.9.8.7";
+const static QString VERSION =  "0.9.8.8";
 
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent), settings(QSettings::IniFormat, QSettings::UserScope, "WTF.org", "WTF")
@@ -211,7 +211,7 @@ void MainWindow::slotPlotGraph()
         if(gd->getCurrentX() == "Tots")
         {
 
-            vector = frames->getClusterVectorTot(gd->getCurrentClusterLenght());
+//            vector = frames->getVectorOfLengthsOfTots()gd->getCurrentClusterLenght());
 
             legendText = gd->getCurrentY() + "px";
 
@@ -222,7 +222,7 @@ void MainWindow::slotPlotGraph()
         }
         if(gd->getCurrentX() == "Clusters")
         {
-            vector = frames->getClusterVector();
+//            vector = frames->getClusterVector();
             legendText = currentActiveFile;
         }
         if(gd->getCurrentX() == "Energy")

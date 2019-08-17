@@ -18,14 +18,14 @@ public:
     explicit ClogFilterPanel(QWidget *parent = nullptr);
     ~ClogFilterPanel();
 
-    void    setClusterRange(const QVector<int> &vector);
-    void    setTotRange(const QVector<double> &vector);
+    void    setClusterRange(const std::vector<size_t> &vector);
+    void    setTotRange(const std::vector<double> &vector);
 
-    int     getClusterBegin() const;
-    int     getClusterEnd() const;
+    size_t getClusterBegin() const;
+    size_t getClusterEnd() const;
 
-    int     getTotBegin() const;
-    int     getTotEnd() const;
+    size_t getTotBegin() const;
+    size_t getTotEnd() const;
 
     bool    isClusterEnable() const;
     bool    isTotEnable() const;

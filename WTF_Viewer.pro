@@ -22,7 +22,7 @@ DEFINES += QT_DEPRECATED_WARNINGS
 # You can also select to disable deprecated APIs only up to a certain version of Qt.
 #DEFINES += QT_DISABLE_DEPRECATED_BEFORE=0x060000    # disables all the APIs deprecated before Qt 6.0.0
 
-CONFIG += c++11
+CONFIG += c++17
 
 SOURCES += \
     calibration/generalcalibration.cpp \
@@ -44,11 +44,15 @@ SOURCES += \
     viewer_widget/masksettings.cpp \
     viewer_widget/viewer/pix_filter_panel.cpp \
     viewer_widget/table.cpp \
+    viewer_widget/viewer/saver.cpp \
     viewer_widget/viewer/toolspanel.cpp \
     viewer_widget/viewer/viewer.cpp \
     viewer_widget/viewer/viewer_button_panel.cpp \
     viewer_widget/viewer/viewer_data_panel.cpp \
-    viewer_widget/viewer/viewer_processor.cpp \
+    viewer_widget/viewer/viewer_processor/filter_clog.cpp \
+    viewer_widget/viewer/viewer_processor/viewer_clog_processor.cpp \
+    viewer_widget/viewer/viewer_processor/viewer_processor.cpp \
+    viewer_widget/viewer/viewer_processor/viewer_txt_processor.cpp \
     viewer_widget/viewer_widget.cpp \
     main.cpp \
     mainwindow.cpp \
@@ -74,11 +78,15 @@ HEADERS += \
     viewer_widget/masksettings.h \
     viewer_widget/viewer/pix_filter_panel.h \
     viewer_widget/table.h \
+    viewer_widget/viewer/saver.h \
     viewer_widget/viewer/toolspanel.h \
     viewer_widget/viewer/viewer.h \
     viewer_widget/viewer/viewer_button_panel.h \
     viewer_widget/viewer/viewer_data_panel.h \
-    viewer_widget/viewer/viewer_processor.h \
+    viewer_widget/viewer/viewer_processor/filter_clog.h \
+    viewer_widget/viewer/viewer_processor/viewer_clog_processor.h \
+    viewer_widget/viewer/viewer_processor/viewer_processor.h \
+    viewer_widget/viewer/viewer_processor/viewer_txt_processor.h \
     viewer_widget/viewer_widget.h \
     mainwindow.h \
     progressbar.h

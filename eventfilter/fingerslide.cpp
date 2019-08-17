@@ -18,7 +18,10 @@ FingerSlide::FingerSlide(QObject *parent) : QObject(parent)
 bool FingerSlide::eventFilterScene(QObject* object, QEvent* event)
 {
     QGraphicsScene *scene = static_cast<QGraphicsScene*>(object);
-    QGraphicsView* graphView = scene->views().at(0);
+    QGraphicsView* graphView = nullptr;
+    if(!scene->views().length())
+        return false;
+    graphView = scene->views().at(0);
 //    QGraphicsView* graphView1 = scene->views().at(1);
 
 // Движение

@@ -1,16 +1,16 @@
 #ifndef ONEFRAME_H
 #define ONEFRAME_H
 
-#include <QList>
-#include <QDebug>
+#include <QStringList>
+#include <vector>
 
 struct evPoint
 {
-    int x = 0;
-    int y = 0;
-    double tot = 0;
+    size_t x;
+    size_t y;
+    double tot;
 
-    evPoint(int x, int y, double tot)
+    evPoint(size_t x, size_t y, double tot) : x(0), y(0), tot(0)
     {
         this->x = x;
         this->y = y;
@@ -18,38 +18,42 @@ struct evPoint
     }
 };
 
-typedef struct evPoint ePoint;
-typedef QList<ePoint> cluster;
-
 class OneFrame
 {
 public:
-    OneFrame(int number);
 
-    void setThreshold_energy        (double value);
-    void setExposure_time           (double value);
+    OneFrame();
 
-    void appendEPoint(const ePoint &point);
-    void appendEPoint(int x, int y, double tot);
+    typedef struct evPoint ePoint;
+    typedef std::vector<ePoint> cluster;
 
-    void addCluster();
-    void addEPoint(cluster& inClaster, int x, int y, double tot);
+    bool createFromStrings(QStringList buff);
 
-    int getClusterCount() const;
-    int getClusterLenght(int clusterNumber) const;
-    int getEventCountInCluster(int clusterNumber) const;
-    const QList<cluster>& getList() const;
+    size_t getClusterCount() const;
+    size_t getClusterLenght(size_t clusterNumber) const;
+    size_t getEventCountInCluster(size_t clusterNumber) const;
+    const std::vector<cluster> &getClustersVector() const;
 
-    const ePoint &getEPoint(int clusterNumber, int eventNumber) const;
+    const ePoint &getEPoint(size_t clusterNumber, size_t eventNumber) const;
 
-    void clear();
+    const ePoint empty_ePoint;
 
 private:
-    int number              = 0;
-    double threshold_energy = 0;
-    double exposure_time    = 0; //спросить у Влада за параметры в скобках
+    int _number;
+    double _threshold_energy;
+    double _exposure_time;
 
-    QList<cluster> list;
+    std::vector<cluster> _vectorOfCluster;
+
+    void appendCluster();
+    void appendEPoint(const ePoint &point);
+
+    void setFrameProperties(QString &string);
+    void setClusterProperies(QString &string);
+
+    void setThreshold_energy (double value);
+    void setExposure_time (double value);
+    void setFrameNumber(int);
 };
 
 #endif // ONEFRAME_H

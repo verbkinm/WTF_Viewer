@@ -21,7 +21,7 @@ ClogFilterPanel::~ClogFilterPanel()
     delete ui;
 }
 
-void ClogFilterPanel::setClusterRange(const QVector<int> &vector)
+void ClogFilterPanel::setClusterRange(const std::vector<size_t> &vector)
 {
     disconnectSignals();
 
@@ -167,7 +167,7 @@ void ClogFilterPanel::slotApplyFilter()
     emit signalApplyFilter();
 }
 
-void ClogFilterPanel::setTotRange(const QVector<double> &vector)
+void ClogFilterPanel::setTotRange(const std::vector<double> &vector)
 {
     disconnectSignals();
 
@@ -210,24 +210,24 @@ void ClogFilterPanel::setTotRange(const QVector<double> &vector)
     connectSignals();
 }
 
-int ClogFilterPanel::getClusterBegin() const
+size_t ClogFilterPanel::getClusterBegin() const
 {
-    return int(ui->clusterRangeBegin->currentText().toInt());
+    return ui->clusterRangeBegin->currentText().toULongLong();
 }
 
-int ClogFilterPanel::getClusterEnd() const
+size_t ClogFilterPanel::getClusterEnd() const
 {
-    return int(ui->clusterRangeEnd->currentText().toInt());
+    return ui->clusterRangeEnd->currentText().toULongLong();
 }
 
-int ClogFilterPanel::getTotBegin() const
+size_t ClogFilterPanel::getTotBegin() const
 {
-    return int(ui->totRangeBegin->currentText().toInt());
+    return ui->totRangeBegin->currentText().toULongLong();
 }
 
-int ClogFilterPanel::getTotEnd() const
+size_t ClogFilterPanel::getTotEnd() const
 {
-    return int(ui->totRangeEnd->currentText().toInt());
+    return ui->totRangeEnd->currentText().toULongLong();
 }
 
 bool ClogFilterPanel::isClusterEnable() const

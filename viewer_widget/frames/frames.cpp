@@ -1,250 +1,217 @@
-#include "frames.h"
-#include "../viewer_widget.h"
-
 #include <QFile>
-#include <QApplication>
-#include <QFileInfo>
-#include <QVector>
+#include <QPointF>
+#include <QDebug>
 
-#include "iostream"
+#include "frames.h"
 
 Frames::Frames(QObject *parent) : QObject(parent)
 {
 
 }
 
-void Frames::addFrame(int number)
+size_t Frames::getFrameCount() const
 {
-    list.append(OneFrame(number));
+    return _vectorOfFrames.size();
 }
 
-void Frames::appendCluster()
+size_t Frames::getClusterCount(size_t frameNumber) const
 {
-    list.last().addCluster();
-}
-void Frames::appendEPoint(const ePoint& point)
-{
-    list.last().appendEPoint(point);
-}
-
-void Frames::appendEPoint(int x, int y, double tot)
-{
-    list.last().appendEPoint(x, y, tot);
-}
-
-int Frames::getFrameCount() const
-{
-    return list.length();
-}
-
-int Frames::getClusterCount(int frameNumber) const
-{
-    if(frameNumber > list.length() - 1)
+    try
     {
-        std::cerr << "error in " << Q_FUNC_INFO << __FILE__ << "line: " << __LINE__;
-        exit(1);
+        return  _vectorOfFrames.at(frameNumber).getClusterCount();
     }
-
-    OneFrame frame = list.at(frameNumber);
-    return frame.getClusterCount();
+    catch (std::out_of_range&)
+    {
+        return 0;
+    }
 }
 
-int Frames::getClusterLenght(int frameNumber, int clusterNumber) const
+size_t Frames::getClusterLength(size_t frameNumber, size_t clusterNumber) const
 {
-    OneFrame frame = list.at(frameNumber);
-    return frame.getClusterLenght(clusterNumber);
+    try
+    {
+        return  _vectorOfFrames.at(frameNumber).getClusterLenght(clusterNumber);
+    }
+    catch (std::out_of_range&)
+    {
+        return 0;
+    }
 }
 
-int Frames::getEventCountInCluster(int frameNumber, int clusterNumber) const
+const OneFrame::ePoint& Frames::getEPoint(size_t frameNumber, size_t clusterNumber, size_t eventNumber) const
 {
-    OneFrame frame = list.at(frameNumber);
-    return frame.getEventCountInCluster(clusterNumber);
+    try
+    {
+        return _vectorOfFrames.at(frameNumber).getEPoint(clusterNumber, eventNumber);
+    }
+    catch (std::out_of_range&)
+    {
+        return _vectorOfFrames.at(frameNumber).empty_ePoint;
+    }
 }
 
-const ePoint& Frames::getEPoint(int frameNumber, int clusterNumber, int eventNumber) const
-{
-    OneFrame frame = list.at(frameNumber);
-    return frame.getEPoint(clusterNumber, eventNumber);
-}
-
-void Frames::setFile(const QString &path)
+void Frames::createFromFile(const QString &path)
 {
     QFile file(path);
-    file.open(QFile::ReadOnly);
-    QFileInfo fileInfo(path);
+    if(!file.open(QFile::ReadOnly))
+    {
+        qDebug() << "Can't open CLOG file \"" << path <<"\"";
+        return;
+    }
 
-    QString     line;
-    QStringList lineSplit;
-    int         countLine = 0;
-
+    QString line;
+    QStringList buff;
     while(!file.atEnd())
     {
         line = file.readLine();
-        countLine++;
-        QApplication::processEvents();
-
-        if(line.startsWith("Frame"))
+        if(isLineContainsWholeFrame(line, buff))
         {
-            lineSplit = line.split(' ');
-            addFrame(lineSplit.at(1).toInt());
-//            emit signalFrameCreated(countLine);
-
-        }
-        else if(line.startsWith("["))
-        {
-            //добавляем кластер
-            appendCluster();
-            line = line.remove(" ").remove("\r\n");
-            QStringList lineList;
-            foreach (QString str, line.split("]["))
-                lineList << str.remove('[').remove(']');
-
-            //заполняем кластер
-            int i = 0;
-            foreach (QString str, lineList)
-            {
-                i++;
-                QStringList point = str.split(",");
-                double tot = point.at(2).toDouble();
-
-                appendEPoint(point.at(0).toInt(),
-                             point.at(1).toInt(),
-                             tot);
-            }
+            OneFrame oneFrame;
+            oneFrame.createFromStrings(buff);
+            _vectorOfFrames.push_back(oneFrame);
+            buff.clear();
+            buff << line;
         }
     }
     file.close();
 
+    OneFrame oneFrame;
+    oneFrame.createFromStrings(buff);
+    _vectorOfFrames.push_back(oneFrame);
+
     emit signalFramesCreated();
 }
+
 void Frames::clear()
 {
-    foreach (OneFrame oneFrame, list)
-        oneFrame.clear();
-
-    list.clear();
+    _vectorOfFrames.clear();
 }
 
-const QList<OneFrame> &Frames::getList() const
+const std::vector<OneFrame> &Frames::getFramesVector() const
 {
-    return list;
+    return _vectorOfFrames;
 }
 
-bool Frames::isClusterInRange(int clusterLength, int clusterRangeBegin, int clusterRangeEnd) const
+bool Frames::isClusterInRange(size_t clusterLength, size_t clusterRangeBegin, size_t clusterRangeEnd) const
 {
     if(clusterLength >= clusterRangeBegin && clusterLength <= clusterRangeEnd)
         return true;
-
     return false;
 }
 
-bool Frames::isTotInRange(int frameNumber, int clusterNumber, int totRangeBegin, int totRangeEnd) const
+bool Frames::isTotInRange(size_t frameNumber, size_t clusterNumber, size_t totRangeBegin, size_t totRangeEnd) const
 {
-    OneFrame frame = list.at(frameNumber);
-    for (const auto &point : frame.getList().at(clusterNumber))
-        if(point.tot >= totRangeBegin && point.tot <= totRangeEnd)
-            return true;
-
+    try
+    {
+        for (auto &point : _vectorOfFrames.at(frameNumber).getClustersVector().at(clusterNumber))
+            if(point.tot >= totRangeBegin && point.tot <= totRangeEnd)
+                return true;
+    }
+    catch(std::out_of_range&)
+    {
+        return false;
+    }
     return false;
 }
 
-QList<ePoint> Frames::getListTotInRange(int frameNumber, int clusterNumber,
-                                        int totRangeBegin, int totRangeEnd) const
+bool Frames::isLineContainsWholeFrame(const QString &line, QStringList &buff)
 {
-    OneFrame frame = list.at(frameNumber);
-    QList<ePoint> listePoint;
-    listePoint.clear();
-
-    for (const auto &point : frame.getList().at(clusterNumber))
-        if(point.tot >= totRangeBegin && point.tot <= totRangeEnd)
-            listePoint << point;
-
-    return listePoint;
+    static bool firstStart = true;
+    if(line.startsWith("Frame") && firstStart)
+        firstStart = false;
+    else if(line.startsWith("Frame") && !firstStart)
+    {
+        return true;
+    }
+    buff << line;
+    return false;
 }
-QVector<int> Frames::getClustersLenghtList() const
+
+OneFrame::cluster Frames::getClusterTotInRange(size_t frameNumber, size_t clusterNumber, size_t totRangeBegin, size_t totRangeEnd) const
 {
-    QVector<int> lenghtList;
-    for (int frameNumber = 0; frameNumber < getFrameCount(); ++frameNumber)
-        for (int clusterNumber = 0; clusterNumber < getClusterCount(frameNumber); ++clusterNumber)
-        {
-            int lenght = getClusterLenght(frameNumber, clusterNumber);
-            if(!lenghtList.contains(lenght))
-                lenghtList << lenght;
-        }
+    std::vector<OneFrame::ePoint> ePointVector;
+    try
+    {
+        for (const auto &point : _vectorOfFrames.at(frameNumber).getClustersVector().at(clusterNumber))
+            if(point.tot >= totRangeBegin && point.tot <= totRangeEnd)
+                ePointVector.push_back(point);
+        return ePointVector;
+    }
+    catch(std::out_of_range&)
+    {
+        return  ePointVector;
+    }
+}
+std::vector<size_t> Frames::getClustersLengthVector() const
+{
+    std::vector<size_t> lenghtList;
+    for (size_t frameNumber = 0; frameNumber < getFrameCount(); ++frameNumber)
+        for (size_t clusterNumber = 0; clusterNumber < getClusterCount(frameNumber); ++clusterNumber)
+            lenghtList.push_back(getClusterLength(frameNumber, clusterNumber));
 
     std::sort(lenghtList.begin(), lenghtList.end());
+    auto last = std::unique(lenghtList.begin(), lenghtList.end());
+    lenghtList.erase(last, lenghtList.end());
 
     return lenghtList;
 }
 
-QVector<QPointF> Frames::getClusterVectorTot(const int &clusterLenght) const
+std::vector<QPointF> Frames::vectorOfPointsFromTots(size_t clusterLenght) const
 {
-    QVector<QPointF> vector;
     //key = tot, value = count
-    QMap<double, double> map;
+    std::map<double, double> map;
 
-    for (int frameNumber = 0; frameNumber < getFrameCount(); ++frameNumber)
-        for (int clusterNumber = 0; clusterNumber < getClusterCount(frameNumber); ++clusterNumber)
-            if(getClusterLenght(frameNumber, clusterNumber) == clusterLenght || clusterLenght == 0)
-                for (int eventNumber = 0; eventNumber < getEventCountInCluster(frameNumber, clusterNumber); ++eventNumber)
-                {
-                    double key = getEPoint(frameNumber, clusterNumber, eventNumber).tot;
-                    if(map.value(key) == 0.0)
-                        map.insert(key, 1);
-                    else
-                        map[key] = map.value(key) + 1;
+    for (size_t frameNumber = 0; frameNumber < getFrameCount(); ++frameNumber)
+        for (size_t clusterNumber = 0; clusterNumber < getClusterCount(frameNumber); ++clusterNumber)
+            countingTot(frameNumber, clusterNumber, clusterLenght, map);
 
-                }
-    QMapIterator<double, double> i(map);
-
-    while (i.hasNext())
-    {
-        i.next();
-        vector.append(QPointF(i.key(), i.value()));
-    }
+    std::vector<QPointF> vector;
+    for (auto &[key, value] : map)
+        vector.push_back(QPointF(key, value));
 
     return vector;
 }
 
-QVector<QPointF> Frames::getClusterVector() const
+void Frames::countingTot(size_t frameNumber, size_t clusterNumber, size_t clusterLenght, std::map<double, double> &map) const
 {
-    QVector<QPointF> vector;
-    //key = cluster, value = count
-    QMap<int, int> map;
-
-    for (int frameNumber = 0; frameNumber < getFrameCount(); ++frameNumber)
-        for (int clusterNumber = 0; clusterNumber < getClusterCount(frameNumber); ++clusterNumber)
+    if(getClusterLength(frameNumber, clusterNumber) == clusterLenght)
+        for (size_t eventNumber = 0; eventNumber < getClusterLength(frameNumber, clusterNumber); ++eventNumber)
         {
-            int key = getClusterLenght(frameNumber, clusterNumber);
-            if(map.value(key) == 0)
-                map.insert(key, 1);
-            else
-                map[key] = map.value(key) + 1;
+            double key = getEPoint(frameNumber, clusterNumber, eventNumber).tot;
+            map[key] = map[key] + 1;
+        }
+}
+
+std::vector<QPointF> Frames::getVectorOfPointsFromClusters() const
+{
+    //key = cluster, value = count
+    std::map<size_t, size_t> map;
+
+    for (size_t frameNumber = 0; frameNumber < getFrameCount(); ++frameNumber)
+        for (size_t clusterNumber = 0; clusterNumber < getClusterCount(frameNumber); ++clusterNumber)
+        {
+            size_t key = getClusterLength(frameNumber, clusterNumber);
+            map[key] = map[key] + 1;
         }
 
-    QMapIterator<int, int> i(map);
-
-    while (i.hasNext())
-    {
-        i.next();
-        vector.append(QPointF(i.key(), i.value()));
-    }
+    std::vector<QPointF> vector;
+    for (auto &[key, value] : map)
+        vector.push_back(QPointF(key, value));
 
     return vector;
 }
 
-QVector<double> Frames::getTotLenghtList() const
+std::vector<double> Frames::getVectorOfLengthsOfTots() const
 {
-    QVector<double> lenghtList;
-    for (int frameNumber = 0; frameNumber < getFrameCount(); ++frameNumber)
-        for (int clusterNumber = 0; clusterNumber < getClusterCount(frameNumber); ++clusterNumber)
-            for (int eventNumber = 0; eventNumber < getEventCountInCluster(frameNumber, clusterNumber); ++eventNumber) {
-                double tot = getEPoint(frameNumber, clusterNumber, eventNumber).tot;
-                if(!lenghtList.contains(tot))
-                    lenghtList << tot;
-            }
+    std::vector<double> lenghtList;
+    for (size_t frameNumber = 0; frameNumber < getFrameCount(); ++frameNumber)
+        for (size_t clusterNumber = 0; clusterNumber < getClusterCount(frameNumber); ++clusterNumber)
+            for (size_t eventNumber = 0; eventNumber < getClusterLength(frameNumber, clusterNumber); ++eventNumber)
+                lenghtList.push_back(getEPoint(frameNumber, clusterNumber, eventNumber).tot);
 
     std::sort(lenghtList.begin(), lenghtList.end());
+    auto last = std::unique(lenghtList.begin(), lenghtList.end());
+    lenghtList.erase(last, lenghtList.end());
 
     return lenghtList;
 }

@@ -1,10 +1,10 @@
 #ifndef FRAMES_H
 #define FRAMES_H
 
+#include <QObject>
+
 #include "oneframe.h"
 
-#include <limits>
-#include <QObject>
 
 class Frames : public QObject
 {
@@ -13,47 +13,38 @@ class Frames : public QObject
 public:
     Frames(QObject *parent = nullptr);
 
-    void    addFrame        (int number);
-    void    appendCluster   ();
+    size_t getFrameCount() const;
+    size_t getClusterCount(size_t frameNumber) const;
+    size_t getClusterLength(size_t frameNumber, size_t clusterNumber) const;
+    std::vector<size_t> getClustersLengthVector() const;
+    std::vector<double> getVectorOfLengthsOfTots() const;
+    OneFrame::cluster getClusterTotInRange(size_t frameNumber, size_t clusterNumber,
+                                            size_t totRangeBegin, size_t totRangeEnd) const;
 
-    void    appendEPoint    (const ePoint& point);
-    void    appendEPoint    (int x, int y, double tot);
+    bool isClusterInRange(size_t clusterLength, size_t clusterRangeBegin, size_t clusterRangeEnd) const;
+    bool isTotInRange (size_t frameNumber, size_t clusterNumber, size_t totRangeBegin, size_t totRangeEnd) const;
 
-    int getFrameCount() const;
-    int getClusterCount(int frameNumber) const;
-    int getClusterLenght(int frameNumber, int clusterNumber) const;
-    int getEventCountInCluster(int frameNumber, int clusterNumber) const;
+    const OneFrame::ePoint& getEPoint(size_t frameNumber, size_t clusterNumber, size_t eventNumber) const;
 
-    const ePoint& getEPoint(int frameNumber, int clusterNumber, int eventNumber) const;
+    void createFromFile(const QString& path);
 
-    void    setFile         (const QString& path);
-    void    clear           ();
-    const QList<OneFrame>&  getList() const;
-
-    bool    isClusterInRange  (int clusterLength,
-                             int clusterRangeBegin,
-                             int clusterRangeEnd) const;
-    bool    isTotInRange      (int frameNumber, int clusterNumber,
-                             int totRangeBegin, int totRangeEnd) const;
-
-    QList<ePoint> getListTotInRange(int frameNumber, int clusterNumber,
-                                    int totRangeBegin, int totRangeEnd) const;
-
-    QVector<int> getClustersLenghtList() const;
-    //получение вектора кол-ва тотов с кластера заданного размера
-    QVector<QPointF> getClusterVectorTot(const int& clusterLenght) const;
-    //получение вектора кол-ва кластеров
-    QVector<QPointF> getClusterVector() const;
-    QVector<double> getTotLenghtList() const;
+    void clear();
 
 private:
-    QList<OneFrame> list;
+    const std::vector<OneFrame>& getFramesVector() const;
 
-private slots:
+    bool isLineContainsWholeFrame(const QString &line, QStringList &buff);
 
+    void generalCalibrationSettingsForArray(OneFrame::ePoint &point);
+
+    std::vector<QPointF> vectorOfPointsFromTots(size_t clusterLenght) const;
+    void countingTot(size_t frameNumber, size_t clusterNumber, size_t clusterLenght, std::map<double, double> &map) const;
+    std::vector<QPointF> getVectorOfPointsFromClusters() const;
+
+private:
+    std::vector<OneFrame> _vectorOfFrames;
 
 signals:
-    void signalFrameCreated(int);
     void signalFramesCreated();
 };
 
