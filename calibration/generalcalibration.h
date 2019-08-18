@@ -3,6 +3,7 @@
 
 #include <QDialog>
 #include <QSettings>
+#include <memory>
 
 namespace Ui {
 class GeneralCalibration;
@@ -13,7 +14,7 @@ class GeneralCalibration : public QDialog
     Q_OBJECT
 
 public:
-    explicit GeneralCalibration(QSettings& pSettings, QWidget *parent = nullptr);
+    explicit GeneralCalibration(std::shared_ptr<QSettings> pSettings, QWidget *parent = nullptr);
     ~GeneralCalibration();
 
     double getA();
@@ -27,7 +28,7 @@ public:
 
 private:
     Ui::GeneralCalibration *ui;
-    QSettings* pSettings = nullptr;
+    std::shared_ptr<QSettings> pSettings;
 
     void    readSettings();
 };

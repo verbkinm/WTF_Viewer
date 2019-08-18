@@ -24,12 +24,12 @@ class Viewer_widget : public QWidget
 
 public:
 
-    explicit Viewer_widget(QSettings& setting, QWidget *parent = nullptr);
+    explicit Viewer_widget(std::shared_ptr<QSettings> pSharedSetting, QWidget *parent = nullptr);
     ~Viewer_widget();
 
-    QSettings*   _pSettings;
+    std::shared_ptr<QSettings>_pSettings;
 
-    void        setImageFile(QString path);
+    void        setImageFile(QString &path);
     Frames*     getFrames();
     QImage      getImageFromTxtFile(QString file);
 

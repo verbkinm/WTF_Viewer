@@ -2,10 +2,11 @@
 #include "ui_generalcalibration.h"
 
 #include <QDebug>
+#include <memory>
 
-GeneralCalibration::GeneralCalibration(QSettings& settings, QWidget *parent) :
+GeneralCalibration::GeneralCalibration(std::shared_ptr<QSettings> settings, QWidget *parent) :
     QDialog(parent),
-    ui(new Ui::GeneralCalibration), pSettings(&settings)
+    ui(new Ui::GeneralCalibration), pSettings(settings)
 {
     ui->setupUi(this);
 

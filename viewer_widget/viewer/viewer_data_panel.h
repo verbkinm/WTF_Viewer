@@ -7,13 +7,13 @@ namespace Ui {
 class Viewer_Data_Panel;
 }
 
-class _Viewer_Data_Panel : public QWidget
+class Viewer_Data_Panel : public QWidget
 {
     Q_OBJECT
 
 public:
-    explicit _Viewer_Data_Panel(QWidget *parent = nullptr);
-    ~_Viewer_Data_Panel();
+    explicit Viewer_Data_Panel(QWidget *parent = nullptr);
+    ~Viewer_Data_Panel();
 
     void setData(int x, int y, double data, size_t width, size_t height);
     void setX(int);

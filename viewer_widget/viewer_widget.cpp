@@ -15,16 +15,16 @@
 #include "checkFile/checkfile.h"
 #include "../progressbar.h"
 
-Viewer_widget::Viewer_widget(QSettings &setting, QWidget *parent) :
+Viewer_widget::Viewer_widget(std::shared_ptr<QSettings>pSharedSetting, QWidget *parent) :
     QWidget(parent), /*_settings(&setting)*/
     ui(new Ui::Viewer_widget)
 {
-    _pSettings = &setting;
+    _pSettings = pSharedSetting;
     ui->setupUi(this);
 
     makeMaskTab();
 
-    ui->graphicsView->setSettings(setting);
+    ui->graphicsView->setSettings(pSharedSetting);
     graphicsView_origin.setScene(ui->graphicsView->getScene());
 
     graphicsView_origin.hideAllPanel();
@@ -48,7 +48,7 @@ Viewer_widget::~Viewer_widget()
     delete ui;
 }
 
-void Viewer_widget::setImageFile(QString path)
+void Viewer_widget::setImageFile(QString &path)
 {
     ui->graphicsView->setImageFile(path);
 }

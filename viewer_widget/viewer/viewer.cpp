@@ -19,7 +19,7 @@
 
 Viewer::Viewer(QWidget *parent) :
     QWidget(parent),
-    ui(new Ui::Viewer), _pViewerProcessor(nullptr), _pViewerButtonPanel(nullptr), pViewerDataPanel(nullptr), _pPixFilterPanel(nullptr),
+    ui(new Ui::Viewer), _pViewerProcessor(nullptr), _pViewerButtonPanel(nullptr), _pViewerDataPanel(nullptr), _pPixFilterPanel(nullptr),
     _pSettings(nullptr),
     _readOnly(false),
     _itemForeground(nullptr), _itemRect(nullptr),
@@ -48,8 +48,8 @@ Viewer::Viewer(QWidget *parent) :
     _pCurrentScene->setObjectName("scene");
     ui->graphicsView->setScene(_pCurrentScene);
     //фильтр событий для сцены
-    _eventFilterScene = new FingerSlide(_pCurrentScene);
-    _pCurrentScene->installEventFilter(_eventFilterScene);
+    _eventFilterScene.reset(new FingerSlide(_pCurrentScene));
+    _pCurrentScene->installEventFilter(_eventFilterScene.get());
 
     //представление
     ui->graphicsView->viewport()->setObjectName("viewport");
@@ -90,7 +90,6 @@ void Viewer::hideAllPanel()
 }
 void Viewer::hideSettingsButton(bool state)
 {
-    objectDelete(_pMenuFile);
     _pMenuFile = nullptr;
     ui->button_settings->setVisible(!state);
     ui->marker_label->setVisible(!state);
@@ -120,23 +119,23 @@ void Viewer::setReadOnlyDataPanelSelection(bool state)
 }
 void Viewer::setEnableButtonPanel(bool state)
 {
-    if(_pViewerButtonPanel)
+    if(_pViewerButtonPanel )
         _pViewerButtonPanel->setEnabled(state);
-    if(pViewerDataPanel)
-        pViewerDataPanel->setEnabled(state);
+    if(_pViewerDataPanel)
+        _pViewerDataPanel->setEnabled(state);
 
     ui->button_settings->setEnabled(state);
     ui->inversion->setEnabled(state);
 
     if(_pPixFilterPanel)
         _pPixFilterPanel->setEnabled(state);
-    if(_pViewerProcessor && _pViewerProcessor->getFileType() == Viewer_Processor::fileType::TXT && _pPixFilterPanel)
+    if(_pViewerProcessor  && _pViewerProcessor->getFileType() == Viewer_Processor::fileType::TXT && _pPixFilterPanel)
         _pPixFilterPanel->setTabEnable(Pix_Filter_Panel::CLOG_FILTER_TAB, false);
-    else if(_pViewerProcessor && _pViewerProcessor->getFileType() == Viewer_Processor::fileType::CLOG && _pPixFilterPanel)
+    else if(_pViewerProcessor  && _pViewerProcessor->getFileType() == Viewer_Processor::fileType::CLOG && _pPixFilterPanel)
     {
         _pPixFilterPanel->setTabEnable(Pix_Filter_Panel::CLOG_FILTER_TAB, true);
-        _pPixFilterPanel->setClusterRange(static_cast<Viewer_Clog_Processor*>(_pViewerProcessor)->getClustersLengthVector());
-        _pPixFilterPanel->setTotRange(static_cast<Viewer_Clog_Processor*>(_pViewerProcessor)->getVectorOfLengthsOfTots());
+        _pPixFilterPanel->setClusterRange(std::static_pointer_cast<Viewer_Clog_Processor>(_pViewerProcessor).get()->getClustersLengthVector());
+        _pPixFilterPanel->setTotRange(std::static_pointer_cast<Viewer_Clog_Processor>(_pViewerProcessor).get()->getVectorOfLengthsOfTots());
     }
     setEnableDataPanelSelection(false);
 }
@@ -149,11 +148,11 @@ void Viewer::setImage(QImage image)
         showMarkers();
         ui->graphicsView->resetTransform();
         _pCurrentScene->setSceneRect(image.rect());
-        if(pViewerDataPanel)
+        if(_pViewerDataPanel)
         {
-            pViewerDataPanel->setData(0,0, 0.0, static_cast<int>(_pCurrentScene->width()), static_cast<int>(_pCurrentScene->height()) );
+            _pViewerDataPanel->setData(0,0, 0.0, static_cast<size_t>(_pCurrentScene->width()), static_cast<size_t>(_pCurrentScene->height()) );
             //Отображение на панели координаты курсора (x,y) относительно graphicsView
-            connect(_eventFilterScene, SIGNAL(signalMousePos(QPointF)), this, SLOT(slotViewPosition(QPointF)));
+            connect(_eventFilterScene.get(), SIGNAL(signalMousePos(QPointF)), this, SLOT(slotViewPosition(QPointF)));
         }
         ui->graphicsView->fitInView(image.rect(), Qt::KeepAspectRatio);
         _pCurrentScene->clear();
@@ -167,9 +166,9 @@ void Viewer::setImage(QImage image)
     else
         incorrectFile();
 }
-void Viewer::setSettings(QSettings &settings)
+void Viewer::setSettings(std::shared_ptr<QSettings> pShareSettings)
 {
-    _pSettings = &settings;
+    _pSettings = pShareSettings;
 }
 void Viewer::setScene(QGraphicsScene *scene)
 {
@@ -181,7 +180,7 @@ void Viewer::setSceneDefault()
     _pCurrentScene = &_defaultScene;
     ui->graphicsView->setScene(_pCurrentScene);
 }
-void Viewer::setImageFile(QString fileName)
+void Viewer::setImageFile(QString &fileName)
 {
     QApplication::setOverrideCursor(QCursor(Qt::WaitCursor));
     _filePath = fileName;
@@ -189,8 +188,7 @@ void Viewer::setImageFile(QString fileName)
 
     if(file.suffix() == "txt")
     {
-        objectDelete(_pViewerProcessor);
-        _pViewerProcessor = new Viewer_Txt_Processor;
+        _pViewerProcessor = std::make_shared<Viewer_Txt_Processor>();
 
         _pMenuFile->actions()[PIX_AND_FILTER_PANEL]->setDisabled(false);
         _pViewerProcessor->setSettings(_pSettings);
@@ -205,15 +203,14 @@ void Viewer::setImageFile(QString fileName)
             QMessageBox::critical(this, "Error", "Please, enable \"pix. & filter panel\"!");
             return;
         }
-        objectDelete(_pViewerProcessor);
-        _pViewerProcessor = new Viewer_Clog_Processor;
+        _pViewerProcessor = std::make_shared<Viewer_Clog_Processor>();
 
         _pMenuFile->actions()[PIX_AND_FILTER_PANEL]->setDisabled(true);
         _pViewerProcessor->setSettings(_pSettings);
         _pViewerProcessor->setFileName(fileName);
         setEnableButtonPanel(true);
 
-        static_cast<Viewer_Clog_Processor*>(_pViewerProcessor)->setFilter(createFilterFromPixFilterPanel());
+        std::static_pointer_cast<Viewer_Clog_Processor>(_pViewerProcessor).get()->setFilter(createFilterFromPixFilterPanel());
         setImage(_pViewerProcessor->getImage());
     }
     else
@@ -225,24 +222,24 @@ void Viewer::disconnectPixFilterPanelSelectionBox()
 {
     if(!_pPixFilterPanel)
         return;
-    disconnect(_pPixFilterPanel, SIGNAL(signalValueX_Changed(int)), this, SLOT(slotMoveRectFromKey()) );
-    disconnect(_pPixFilterPanel, SIGNAL(signalValueY_Changed(int)), this, SLOT(slotMoveRectFromKey()) );
-    disconnect(_pPixFilterPanel, SIGNAL(signalValueWidth_Changed(int)), this, SLOT(slotMoveRectFromKey()) );
-    disconnect(_pPixFilterPanel, SIGNAL(signalValueHeight_Changed(int)), this, SLOT(slotMoveRectFromKey()) );
+    disconnect(_pPixFilterPanel.get(), SIGNAL(signalValueX_Changed(int)), this, SLOT(slotMoveRectFromKey()) );
+    disconnect(_pPixFilterPanel.get(), SIGNAL(signalValueY_Changed(int)), this, SLOT(slotMoveRectFromKey()) );
+    disconnect(_pPixFilterPanel.get(), SIGNAL(signalValueWidth_Changed(int)), this, SLOT(slotMoveRectFromKey()) );
+    disconnect(_pPixFilterPanel.get(), SIGNAL(signalValueHeight_Changed(int)), this, SLOT(slotMoveRectFromKey()) );
 }
 
 void Viewer::connectPixFilterPanel()
 {
     //соединение сигналов высылаемых классом ToolsPanel
-    connect(_pPixFilterPanel, SIGNAL(signalSelectionToggle(bool)), this, SLOT(slotSelectionFrame(bool)));
-    connect(_pPixFilterPanel, SIGNAL(signalPenToggle(bool)), this, SLOT(slotPen(bool)));
-    connect(_pPixFilterPanel, SIGNAL(signalCutClicked(bool)), this, SLOT(slotCut()));
-    connect(_pPixFilterPanel, SIGNAL(signalRepaint()), this, SLOT(slotRepaint()));
+    connect(_pPixFilterPanel.get(), SIGNAL(signalSelectionToggle(bool)), this, SLOT(slotSelectionFrame(bool)));
+    connect(_pPixFilterPanel.get(), SIGNAL(signalPenToggle(bool)), this, SLOT(slotPen(bool)));
+    connect(_pPixFilterPanel.get(), SIGNAL(signalCutClicked(bool)), this, SLOT(slotCut()));
+    connect(_pPixFilterPanel.get(), SIGNAL(signalRepaint()), this, SLOT(slotRepaint()));
 
     connectPixFilterPanelSelectionBox();
 
 //    //Нажатия на кнопку Apply на панели фильтров clog
-    connect(_pPixFilterPanel, SIGNAL(signalApplyFilter()),       this, SLOT(slotApplyClogFilter()));
+    connect(_pPixFilterPanel.get(), SIGNAL(signalApplyFilter()),       this, SLOT(slotApplyClogFilter()));
 }
 
 void Viewer::connectPixFilterPanelSelectionBox()
@@ -250,23 +247,23 @@ void Viewer::connectPixFilterPanelSelectionBox()
     if(!_pPixFilterPanel)
         return;
     //изменение выделения с помощью спинбоксов
-    connect(_pPixFilterPanel, SIGNAL(signalValueX_Changed(int)), this, SLOT(slotMoveRectFromKey()) );
-    connect(_pPixFilterPanel, SIGNAL(signalValueY_Changed(int)), this, SLOT(slotMoveRectFromKey()) );
-    connect(_pPixFilterPanel, SIGNAL(signalValueWidth_Changed(int)), this, SLOT(slotMoveRectFromKey()) );
-    connect(_pPixFilterPanel, SIGNAL(signalValueHeight_Changed(int)), this, SLOT(slotMoveRectFromKey()) );
+    connect(_pPixFilterPanel.get(), SIGNAL(signalValueX_Changed(int)), this, SLOT(slotMoveRectFromKey()) );
+    connect(_pPixFilterPanel.get(), SIGNAL(signalValueY_Changed(int)), this, SLOT(slotMoveRectFromKey()) );
+    connect(_pPixFilterPanel.get(), SIGNAL(signalValueWidth_Changed(int)), this, SLOT(slotMoveRectFromKey()) );
+    connect(_pPixFilterPanel.get(), SIGNAL(signalValueHeight_Changed(int)), this, SLOT(slotMoveRectFromKey()) );
 }
 
 void Viewer::connectEventFilter()
 {
     //Отображение на панели данных о выделении(x,y,width,height)
-    connect(_eventFilterScene, SIGNAL(siganlRect(QRect)), this, SLOT(slotViewSelectionPos(QRect)));
+    connect(_eventFilterScene.get(), SIGNAL(siganlRect(QRect)), this, SLOT(slotViewSelectionPos(QRect)));
     //Отображение на панели координат выделения при перемещении(x,y)
-    connect(_eventFilterScene, SIGNAL(signalRectMove(QPoint)), this, SLOT(slotViewSelectionMovePos(QPoint)));
+    connect(_eventFilterScene.get(), SIGNAL(signalRectMove(QPoint)), this, SLOT(slotViewSelectionMovePos(QPoint)));
     //Изображение курсора - стрелка, выключение кнопки selection_button
-    connect(_eventFilterScene, SIGNAL(signalRelease()), this, SLOT(slotFinishSelection()));
+    connect(_eventFilterScene.get(), SIGNAL(signalRelease()), this, SLOT(slotFinishSelection()));
 
-    connect(_eventFilterScene, SIGNAL(signalCreateRectItem(QGraphicsRectItem*)), this, SLOT(slotCreateRectItem(QGraphicsRectItem*)));
-    connect(_eventFilterScene, SIGNAL(signalDrawPoint(QPointF)), this, SLOT(slotDrawPoint(QPointF)));
+    connect(_eventFilterScene.get(), SIGNAL(signalCreateRectItem(QGraphicsRectItem*)), this, SLOT(slotCreateRectItem(QGraphicsRectItem*)));
+    connect(_eventFilterScene.get(), SIGNAL(signalDrawPoint(QPointF)), this, SLOT(slotDrawPoint(QPointF)));
 }
 
 void Viewer::showMarkers()
@@ -300,7 +297,7 @@ void Viewer::showMarkers()
 
 void Viewer::createButtonMenu()
 {
-    _pMenuFile = new QMenu;
+    _pMenuFile.reset(new QMenu);
 
     _pMenuFile->addAction("pix. && filter panel", this,
                          SLOT(slotPixAndFilterPanelMenuToggle()));
@@ -314,7 +311,7 @@ void Viewer::createButtonMenu()
     _pMenuFile->addAction("separate window", this,
                          SLOT(slotSeparateWindowMenuToggle()));
 
-    ui->button_settings->setMenu(_pMenuFile);
+    ui->button_settings->setMenu(_pMenuFile.get());
 
     ui->button_settings->setStyleSheet("QPushButton::menu-indicator { \
                                         image: url(:/settings); \
@@ -349,51 +346,45 @@ Filter_Clog Viewer::createFilterFromPixFilterPanel()
 
 void Viewer::createButtonPanel()
 {
-    if(_pViewerButtonPanel != nullptr)
-        return;
-
-    _pViewerButtonPanel = new Viewer_Button_Panel;
+    _pViewerButtonPanel.reset(new Viewer_Button_Panel);
     //повороты
-    connect(_pViewerButtonPanel, SIGNAL(signalRotatePlus()), this, SLOT(slotRotatePlus()));
-    connect(_pViewerButtonPanel, SIGNAL(signalRotateMinus()), this, SLOT(slotRotateMinus()));
+    connect(_pViewerButtonPanel.get(), SIGNAL(signalRotatePlus()), this, SLOT(slotRotatePlus()));
+    connect(_pViewerButtonPanel.get(), SIGNAL(signalRotateMinus()), this, SLOT(slotRotateMinus()));
     //зеркальное отражение
-    connect(_pViewerButtonPanel, SIGNAL(signalMirrorHorizontal()), this, SLOT(slotMirrorHorizontal()));
-    connect(_pViewerButtonPanel, SIGNAL(signalMirrorVertical()), this, SLOT(slotMirrorVertical()));
+    connect(_pViewerButtonPanel.get(), SIGNAL(signalMirrorHorizontal()), this, SLOT(slotMirrorHorizontal()));
+    connect(_pViewerButtonPanel.get(), SIGNAL(signalMirrorVertical()), this, SLOT(slotMirrorVertical()));
     //сброс трансформации
-    connect(_pViewerButtonPanel, SIGNAL(signalResetTransform()), this, SLOT(slotResetTransform()));
+    connect(_pViewerButtonPanel.get(), SIGNAL(signalResetTransform()), this, SLOT(slotResetTransform()));
     //масштаб
-    connect(_pViewerButtonPanel, SIGNAL(signalScaledPlus()), this, SLOT(slotScaledPlus()));
-    connect(_pViewerButtonPanel, SIGNAL(signalScaledMinus()), this, SLOT(slotScaledMinus()));
+    connect(_pViewerButtonPanel.get(), SIGNAL(signalScaledPlus()), this, SLOT(slotScaledPlus()));
+    connect(_pViewerButtonPanel.get(), SIGNAL(signalScaledMinus()), this, SLOT(slotScaledMinus()));
     //сохранение в bmp и txt
-    connect(_pViewerButtonPanel, SIGNAL(signalSaveToBmp()), this, SLOT(slotSaveBMP()));
-    connect(_pViewerButtonPanel, SIGNAL(signalSaveToTxt()), this, SLOT(slotSaveTXT()));
+    connect(_pViewerButtonPanel.get(), SIGNAL(signalSaveToBmp()), this, SLOT(slotSaveBMP()));
+    connect(_pViewerButtonPanel.get(), SIGNAL(signalSaveToTxt()), this, SLOT(slotSaveTXT()));
 
-    this->layout()->addWidget(_pViewerButtonPanel);
+    this->layout()->addWidget(_pViewerButtonPanel.get());
 }
 
 void Viewer::createDataPanel()
 {
-    if(pViewerDataPanel)
+    if(_pViewerDataPanel)
         return;
-    pViewerDataPanel = new _Viewer_Data_Panel;
-    if(_pViewerProcessor)
-        pViewerDataPanel->setData(0,0,0, _pViewerProcessor->getColumns(), _pViewerProcessor->getRows());
+    _pViewerDataPanel.reset(new Viewer_Data_Panel);
+    if(_pViewerProcessor )
+        _pViewerDataPanel->setData(0,0,0, _pViewerProcessor->getColumns(), _pViewerProcessor->getRows());
     if(_eventFilterScene)
-        connect(_eventFilterScene, SIGNAL(signalMousePos(QPointF)), this, SLOT(slotViewPosition(QPointF)));
-    this->layout()->addWidget(pViewerDataPanel);
+        connect(_eventFilterScene.get(), SIGNAL(signalMousePos(QPointF)), this, SLOT(slotViewPosition(QPointF)));
+    this->layout()->addWidget(_pViewerDataPanel.get());
 }
 
 void Viewer::createPixFilterPanel()
 {
-    if(_pPixFilterPanel != nullptr)
-        return;
+    _pPixFilterPanel.reset(new Pix_Filter_Panel);
 
-    _pPixFilterPanel = new Pix_Filter_Panel;
-
-    ui->layout_graphicView_and_Pix_filter_panel->addWidget(_pPixFilterPanel);
+    ui->layout_graphicView_and_Pix_filter_panel->addWidget(_pPixFilterPanel.get());
     ui->layout_graphicView_and_Pix_filter_panel->setStretch(0,1);
 
-    if(_pViewerProcessor && _pViewerProcessor->getFileType() != Viewer_Processor::fileType::CLOG)
+    if(_pViewerProcessor  && _pViewerProcessor->getFileType() != Viewer_Processor::fileType::CLOG)
         _pPixFilterPanel->setTabEnable(Pix_Filter_Panel::CLOG_FILTER_TAB, false);
     connectPixFilterPanel();
 }
@@ -419,13 +410,14 @@ void Viewer::slotCreateRectItem(QGraphicsRectItem * item)
 }
 void Viewer::slotApplyClogFilter()
 {
+    QApplication::setOverrideCursor(QCursor(Qt::WaitCursor));
     Filter_Clog filter = createFilterFromPixFilterPanel();
-    static_cast<Viewer_Clog_Processor*>(_pViewerProcessor)->setFilter(filter);
+    std::static_pointer_cast<Viewer_Clog_Processor>(_pViewerProcessor).get()->setFilter(filter);
     setImage(_pViewerProcessor->getImage());
+    QApplication::restoreOverrideCursor();
 }
 void Viewer::slotRepaint()
 {
-    //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
     setImage(_pViewerProcessor->getRedrawnImage());
 }
 
@@ -433,7 +425,6 @@ void Viewer::slotPixAndFilterPanelMenuToggle()
 {
     if( _state_of_the_menu_items[PIX_AND_FILTER_PANEL])
     {
-        objectDelete(_pPixFilterPanel);
         _pPixFilterPanel = nullptr;
         if(_itemRect)
         {
@@ -450,10 +441,7 @@ void Viewer::slotPixAndFilterPanelMenuToggle()
 void Viewer::slotDataPanelMenuToggle()
 {
     if( _state_of_the_menu_items[DATA_PANEL])
-    {
-        objectDelete(pViewerDataPanel);
-        pViewerDataPanel = nullptr;
-    }
+        _pViewerDataPanel = nullptr;
     else
         createDataPanel();
 
@@ -462,10 +450,7 @@ void Viewer::slotDataPanelMenuToggle()
 void Viewer::slotButtonPanelMenuToggle()
 {
     if( _state_of_the_menu_items[BUTTONS_PANEL])
-    {
-        objectDelete(_pViewerButtonPanel);
         _pViewerButtonPanel = nullptr;
-    }
     else
         createButtonPanel();
 
@@ -480,12 +465,12 @@ void Viewer::slotSeparateWindowMenuToggle()
 {   
     Viewer* SW = new Viewer;
     SW->setWindowTitle(_filePath);
-    SW->setSettings(*_pSettings);
+    SW->setSettings(_pSettings);
     SW->show();
 
-    if(_pViewerProcessor && _pViewerProcessor->getFileType() == Viewer_Processor::fileType::TXT)
+    if(_pViewerProcessor  && _pViewerProcessor->getFileType() == Viewer_Processor::fileType::TXT)
         SW->setImageFile(_filePath);
-    else if(_pViewerProcessor && _pViewerProcessor->getFileType() == Viewer_Processor::fileType::CLOG)
+    else if(_pViewerProcessor  && _pViewerProcessor->getFileType() == Viewer_Processor::fileType::CLOG)
         SW->setImageFile(_filePath);
     else
         SW->setImageFile(_filePath);
@@ -572,23 +557,23 @@ void Viewer::incorrectFile()
 {
     setEnableButtonPanel(false);
     selectFile();
-    if(pViewerDataPanel)
+    if(_pViewerDataPanel)
     {
         //Отображение на панели координаты курсора (x,y) относительно graphicsView
-        disconnect(_eventFilterScene, SIGNAL(signalMousePos(QPointF)), this, SLOT(slotViewPosition(QPointF)));
+        disconnect(_eventFilterScene.get(), SIGNAL(signalMousePos(QPointF)), this, SLOT(slotViewPosition(QPointF)));
     }
     //Отображение на панели данных о выделении(x,y,width,height)
-    disconnect(_eventFilterScene, SIGNAL(siganlRect(QRect)), this, SLOT(slotViewSelectionPos(QRect)));
+    disconnect(_eventFilterScene.get(), SIGNAL(siganlRect(QRect)), this, SLOT(slotViewSelectionPos(QRect)));
     //Отображение на панели координат выделения при перемещении(x,y)
-    disconnect(_eventFilterScene, SIGNAL(signalRectMove(QPoint)), this, SLOT(slotViewSelectionMovePos(QPoint)));
+    disconnect(_eventFilterScene.get(), SIGNAL(signalRectMove(QPoint)), this, SLOT(slotViewSelectionMovePos(QPoint)));
     //Изображение курсора - стрелка, выключение кнопки edit
-    disconnect(_eventFilterScene, SIGNAL(signalRelease()), this, SLOT(slotFinishSelection()));
+    disconnect(_eventFilterScene.get(), SIGNAL(signalRelease()), this, SLOT(slotFinishSelection()));
 
-    disconnect(_eventFilterScene, SIGNAL(signalCreateRectItem(QGraphicsRectItem*)), this, SLOT(slotCreateRectItem(QGraphicsRectItem*)));
-    disconnect(_eventFilterScene, SIGNAL(signalDrawPoint(QPointF)), this, SLOT(slotDrawPoint(QPointF)));
+    disconnect(_eventFilterScene.get(), SIGNAL(signalCreateRectItem(QGraphicsRectItem*)), this, SLOT(slotCreateRectItem(QGraphicsRectItem*)));
+    disconnect(_eventFilterScene.get(), SIGNAL(signalDrawPoint(QPointF)), this, SLOT(slotDrawPoint(QPointF)));
 
-    if(pViewerDataPanel)
-        pViewerDataPanel->setData(0,0,0.0,0,0);
+    if(_pViewerDataPanel)
+        _pViewerDataPanel->setData(0,0,0.0,0,0);
 }
 
 void Viewer::resetTransform()
@@ -679,7 +664,6 @@ void Viewer::slotCut()
                                            static_cast<size_t>(_pPixFilterPanel->getHeight()),
                                            newVec2D);
     setImageFile(fileName);
-//    setImage(_pViewerProcessor->getImage());
 }
 void Viewer::slotRotatePlus()
 {
@@ -740,7 +724,7 @@ void Viewer::slotResetTransform()
 }
 void Viewer::slotViewPosition(QPointF pos)
 {
-    if(pViewerDataPanel == nullptr)
+    if(!_pViewerDataPanel)
         return;
 
     int width = static_cast<int>(_pCurrentScene->sceneRect().width());
@@ -748,15 +732,15 @@ void Viewer::slotViewPosition(QPointF pos)
 
     if(pos.x() < 0 || pos.x() > width || pos.y() < 0 || pos.y() > height)
     {
-        pViewerDataPanel->setX(0);
-        pViewerDataPanel->setY(0);
-        pViewerDataPanel->setData(0.0);
+        _pViewerDataPanel->setX(0);
+        _pViewerDataPanel->setY(0);
+        _pViewerDataPanel->setData(0.0);
         return;
     }
 
-    pViewerDataPanel->setX(static_cast<int>(pos.x()));
-    pViewerDataPanel->setY(static_cast<int>(pos.y()));
-    pViewerDataPanel->setData(_pViewerProcessor->getDataInVec2D(static_cast<size_t>(pos.x()), static_cast<size_t>(pos.y())));
+    _pViewerDataPanel->setX(static_cast<int>(pos.x()));
+    _pViewerDataPanel->setY(static_cast<int>(pos.y()));
+    _pViewerDataPanel->setData(_pViewerProcessor->getDataInVec2D(static_cast<size_t>(pos.x()), static_cast<size_t>(pos.y())));
 }
 void Viewer::slotScaledPlus()
 {
@@ -782,8 +766,6 @@ void Viewer::slotSaveTXT()
 Viewer::~Viewer()
 {
     delete ui;
-    objectDelete(_pMenuFile);
-    objectDelete(_eventFilterScene);
 }
 
 template<typename T>

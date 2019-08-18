@@ -58,9 +58,9 @@ void Viewer_Processor::setFileName(const QString &fileName)
     createVec2D();
 }
 
-void Viewer_Processor::setSettings(QSettings* const settings)
+void Viewer_Processor::setSettings(std::shared_ptr<QSettings>pSharedSettings)
 {
-    _pSettings = settings;
+    _pSettings = pSharedSettings;
 }
 
 void Viewer_Processor::setDataInVec2D(size_t column_number, size_t row_number, double value)

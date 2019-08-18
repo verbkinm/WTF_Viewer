@@ -3,6 +3,7 @@
 
 #include <QDialog>
 #include <QSettings>
+#include <memory>
 
 namespace Ui {
 class SettingsImage;
@@ -13,7 +14,7 @@ class SettingsImage : public QDialog
     Q_OBJECT
 
 public:
-    explicit SettingsImage(QSettings& pSettings, QWidget *parent = nullptr);
+    explicit SettingsImage(std::shared_ptr<QSettings> pSettings, QWidget *parent = nullptr);
     ~SettingsImage();
 
     void    writeSettings();
@@ -27,7 +28,7 @@ private slots:
     void on_actionsetColor_triggered();
 
 private:
-    QSettings* pSettings;
+    std::shared_ptr<QSettings> pSettings;
     Ui::SettingsImage *ui;
 
 

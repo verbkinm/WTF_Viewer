@@ -1,6 +1,8 @@
 #include "viewer_button_panel.h"
 #include "ui_viewer_button_panel.h"
 
+#include <QDebug>
+
 Viewer_Button_Panel::Viewer_Button_Panel(QWidget *parent) :
     QWidget(parent),
     ui(new Ui::Viewer_Button_Panel)

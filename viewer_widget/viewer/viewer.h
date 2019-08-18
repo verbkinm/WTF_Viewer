@@ -9,6 +9,7 @@
 #include <QSettings>
 #include <QMenu>
 #include <QFlags>
+#include <memory>
 
 #include "../../eventfilter/fingerslide.h"
 #include "../frames/frames.h"
@@ -35,10 +36,10 @@ public:
     explicit Viewer(QWidget *parent = nullptr);
     ~Viewer();
 
-    void setSettings(QSettings&);
+    void setSettings(std::shared_ptr<QSettings>pShareSettings);
     void setScene(QGraphicsScene*);
     void setReadOnly(bool);
-    void setImageFile(QString);
+    void setImageFile(QString &);
 
     QGraphicsScene* getScene();
 
@@ -47,13 +48,13 @@ public:
 
 private:
     Ui::Viewer *ui;
-    Viewer_Processor* _pViewerProcessor; // обработчик данных
+    std::shared_ptr<Viewer_Processor> _pViewerProcessor; // обработчик данных
     // панели
-    Viewer_Button_Panel *_pViewerButtonPanel;
-    _Viewer_Data_Panel *pViewerDataPanel;
-    Pix_Filter_Panel *_pPixFilterPanel;
+    std::unique_ptr<Viewer_Button_Panel> _pViewerButtonPanel;
+    std::unique_ptr<Viewer_Data_Panel> _pViewerDataPanel;
+    std::unique_ptr<Pix_Filter_Panel> _pPixFilterPanel;
 
-    QSettings* _pSettings;
+    std::shared_ptr<QSettings> _pSettings;
     bool _readOnly;
 
     /*
@@ -80,8 +81,8 @@ private:
     //рамка при выделении
     QGraphicsRectItem* _itemRect;
     //фильтр событий для сцены и представления
-    FingerSlide* _eventFilterScene;
-    QMenu* _pMenuFile;
+    std::unique_ptr<FingerSlide> _eventFilterScene;
+    std::unique_ptr<QMenu> _pMenuFile;
 
     QWidget* getViewport() const;
 

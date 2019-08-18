@@ -52,7 +52,7 @@ private:
 
     QString             currentActiveFile;
 
-    QSettings           settings;
+    std::shared_ptr<QSettings> settings;
 
     void openLastDir();
 

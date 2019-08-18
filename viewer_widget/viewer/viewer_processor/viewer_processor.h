@@ -1,6 +1,7 @@
 #ifndef VIEWER_PROCESSOR_H
 #define VIEWER_PROCESSOR_H
 
+#include <memory>
 #include <QSettings>
 
 class Viewer_Processor
@@ -31,7 +32,7 @@ public:
 
 
     void setFileName(const QString &fileName);
-    void setSettings(QSettings* const settings);
+    void setSettings(std::shared_ptr<QSettings>pSharedSettings);
     void setDataInVec2D(size_t column_number, size_t row_number, double value);
 
     std::vector<std::vector<double> > cutVec2D(size_t fromColumn, size_t fromRow, size_t width, size_t height);
@@ -41,7 +42,7 @@ public:
 
 protected:
     fileType _fileType;
-    QSettings* _pSettings;
+    std::shared_ptr<QSettings> _pSettings;
     QString _fileName;
 
     std::vector<std::vector<double>> _vec2D;

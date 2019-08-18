@@ -7,12 +7,12 @@
 #include "graph/graphdialog.h"
 #include "calibration/generalcalibration.h"
 
-const static QString VERSION =  "0.9.8.8";
+const static QString VERSION =  "0.9.8.9";
 
 MainWindow::MainWindow(QWidget *parent)
-    : QMainWindow(parent), settings(QSettings::IniFormat, QSettings::UserScope, "WTF.org", "WTF")
+    : QMainWindow(parent), settings(std::make_shared<QSettings>(QSettings::IniFormat, QSettings::UserScope, "WTF.org", "WTF"))
 {
-    settings.setIniCodec("UTF-8");
+    settings.get()->setIniCodec("UTF-8");
 
     createMenu();
 
@@ -80,7 +80,7 @@ void MainWindow::createMenu()
 
 void MainWindow::openLastDir()
 {
-    QModelIndex lastDirIndex = _fs_model.index(settings.value("Path/lastDir").toString());
+    QModelIndex lastDirIndex = _fs_model.index(settings->value("Path/lastDir").toString());
     _treeView.expand(lastDirIndex);
 
     QModelIndex index = lastDirIndex;
@@ -290,7 +290,8 @@ void MainWindow::slotSelectFile(const QModelIndex& index)
     currentActiveFile = file.fileName();
 
     this->statusBar()->showMessage(_fs_model.filePath(index));
-    pViewerWidget->setImageFile(_fs_model.filePath(index));
+    QString fileName = _fs_model.filePath(index);
+    pViewerWidget->setImageFile(fileName);
     if(_treeView.isExpanded(index))
         _treeView.collapse(index);
     else
@@ -303,9 +304,9 @@ void MainWindow::slotSelectFile(const QModelIndex& index)
 
 //Начало тормозить  дерево - использовать QAbstractProxyModel
     if(_fs_model.isDir(index))
-        settings.setValue("Path/lastDir", _fs_model.filePath(index) );
+        settings.get()->setValue("Path/lastDir", _fs_model.filePath(index) );
     else
-        settings.setValue("Path/lastDir", _fs_model.filePath(index.parent()) );
+        settings.get()->setValue("Path/lastDir", _fs_model.filePath(index.parent()) );
 }
 
 bool MainWindow::event(QEvent *event)
