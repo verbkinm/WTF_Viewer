@@ -29,10 +29,8 @@ public:
     double getDataInVec2D(size_t column, size_t row);
     const std::vector<std::vector<double> > &getVec2D() const;
 
-
-
     void setFileName(const QString &fileName);
-    void setSettings(std::shared_ptr<QSettings>pSharedSettings);
+    void setSettings(std::shared_ptr<const QSettings> spSettings);
     void setDataInVec2D(size_t column_number, size_t row_number, double value);
 
     std::vector<std::vector<double> > cutVec2D(size_t fromColumn, size_t fromRow, size_t width, size_t height);
@@ -42,7 +40,7 @@ public:
 
 protected:
     fileType _fileType;
-    std::shared_ptr<QSettings> _pSettings;
+    std::shared_ptr<const QSettings> _spSettings;
     QString _fileName;
 
     std::vector<std::vector<double>> _vec2D;

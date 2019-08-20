@@ -38,7 +38,12 @@ std::vector<size_t> Viewer_Clog_Processor::getClustersLengthVector() const
 
 std::vector<double> Viewer_Clog_Processor::getVectorOfLengthsOfTots() const
 {
-    return  _frames.getVectorOfLengthsOfTots();
+    return  _frames.getVectoValueTots();
+}
+
+Frames const &Viewer_Clog_Processor::getFrames() const
+{
+    return _frames;
 }
 
 void Viewer_Clog_Processor::setFilter(const Filter_Clog &filter)
@@ -85,7 +90,7 @@ void Viewer_Clog_Processor::modifyPointAccordingPixMode(OneFrame::ePoint &point)
         _vec2D.at(point.x).at(point.y) = _vec2D.at(point.x).at(point.y) + 1;
     else
     {
-        if( checkSettingsPtr() && _pSettings->value("GeneralCalibration/apply").toBool())
+        if( checkSettingsPtr() && _spSettings->value("GeneralCalibration/apply").toBool())
         {
             generalCalibrationSettingsForEPoint(point);
             _markers |= GENERAL_CALIBRATION;
@@ -102,10 +107,10 @@ void Viewer_Clog_Processor::generalCalibrationSettingsForEPoint(OneFrame::ePoint
     if(!checkSettingsPtr())
         return;
 
-    double A = (_pSettings->value("GeneralCalibration/A").toDouble());
-    double B = (_pSettings->value("GeneralCalibration/B").toDouble());
-    double C = (_pSettings->value("GeneralCalibration/C").toDouble());
-    double T = (_pSettings->value("GeneralCalibration/T").toDouble());
+    double A = (_spSettings->value("GeneralCalibration/A").toDouble());
+    double B = (_spSettings->value("GeneralCalibration/B").toDouble());
+    double C = (_spSettings->value("GeneralCalibration/C").toDouble());
+    double T = (_spSettings->value("GeneralCalibration/T").toDouble());
 
     double parA = A;
     double parB = B - point.tot - A * T;

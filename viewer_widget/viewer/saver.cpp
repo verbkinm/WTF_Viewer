@@ -13,7 +13,7 @@ Saver::Saver(QObject *parent) : QObject(parent)
 
 }
 
-void Saver::saveTXT(size_t columns, size_t rows, const std::vector<std::vector<double>> &vector)
+void Saver::dialogSaveTXT(size_t columns, size_t rows, const std::vector<std::vector<double>> &vector)
 {
     QString fileName = QFileDialog::getSaveFileName(nullptr,
                                                     ("Save file"),
@@ -43,7 +43,7 @@ void Saver::saveTXT(size_t columns, size_t rows, const std::vector<std::vector<d
     QMessageBox::information(nullptr, "Saved", "File \"" + fileName + "\" successfully saved!");
 }
 
-QString Saver::temporaryTXT(size_t columns, size_t rows, const std::vector<std::vector<double>> &vector)
+QString Saver::saveInTemporaryTXT(size_t columns, size_t rows, const std::vector<std::vector<double>> &vector)
 {
     QTemporaryFile tmpFile;
     tmpFile.setAutoRemove(false);
@@ -75,7 +75,7 @@ QString Saver::temporaryTXT(size_t columns, size_t rows, const std::vector<std::
     return file.fileName();
 }
 
-void Saver::saveBMP(const QImage &image)
+void Saver::dialogSaveBMP(const QImage &image)
 {
     QString fileName = QFileDialog::getSaveFileName(nullptr,
                                                     ("Save file"),
@@ -83,7 +83,6 @@ void Saver::saveBMP(const QImage &image)
                                                     "Images (*.bmp);;All files (*.*)");
 
     QApplication::setOverrideCursor(QCursor(Qt::WaitCursor));
-
 
     image.save(fileName, "BMP");
     QApplication::restoreOverrideCursor();

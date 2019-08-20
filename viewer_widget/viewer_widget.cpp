@@ -13,19 +13,18 @@
 #include "viewer_widget.h"
 #include "ui_viewer_widget.h"
 #include "checkFile/checkfile.h"
-#include "../progressbar.h"
 
-Viewer_widget::Viewer_widget(std::shared_ptr<QSettings>pSharedSetting, QWidget *parent) :
+Viewer_widget::Viewer_widget(std::shared_ptr<const QSettings> spSetting, QWidget *parent) :
     QWidget(parent), /*_settings(&setting)*/
     ui(new Ui::Viewer_widget)
 {
-    _pSettings = pSharedSetting;
+    _spSettings = spSetting;
     ui->setupUi(this);
 
     makeMaskTab();
 
-    ui->graphicsView->setSettings(pSharedSetting);
-    graphicsView_origin.setScene(ui->graphicsView->getScene());
+    ui->graphicsView->setSettings(spSetting);
+    graphicsView_origin.setScene(ui->graphicsView->getScenePtr());
 
     graphicsView_origin.hideAllPanel();
     graphicsView_origin.setReadOnly(true);
@@ -53,12 +52,12 @@ void Viewer_widget::setImageFile(QString &path)
     ui->graphicsView->setImageFile(path);
 }
 
-Frames* Viewer_widget::getFrames()
+std::pair<const Frames &, bool> Viewer_widget::getFrames()
 {
-//    return ui->graphicsView->getFrames();
+    return ui->graphicsView->getFrames();
 }
 
-QImage Viewer_widget::getImageFromTxtFile(QString file)
+QImage Viewer_widget::getImageFromTxtFile(const QString &file)
 {
 //    return ui->graphicsView->getImageFromTxtFile(file);
 }

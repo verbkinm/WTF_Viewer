@@ -38,13 +38,11 @@ public:
     SettingsImage*      pSettingsImage  = nullptr;
 
 private:
-
     QMenu               _menuFile;
     QMenu               _menuGraph;
     QMenu               _menuAbout;
     QMenu               _menuSettings;
     QMenu               _menuCalibration;
-
 
     QList<CentralWidget*> graphWindowList;
 

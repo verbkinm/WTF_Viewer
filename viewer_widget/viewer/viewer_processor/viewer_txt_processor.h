@@ -11,8 +11,6 @@ public:
     virtual QImage getRedrawnImage() override;
 
 private:
-//    virtual void rebuildVec2DAccordingToSettings() override;
-//    virtual void rebuildImageAccordingToSettings(QImage &image) override;
     virtual void createVec2D() override;
     virtual void resetDataToDefault() override;
 };

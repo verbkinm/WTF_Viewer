@@ -7,7 +7,7 @@
 
 Viewer_Processor::Viewer_Processor() :
     _fileType(fileType::UNDEFINED),
-    _pSettings(nullptr),
+    _spSettings(nullptr),
     _rows(0), _columns(0)
 {
 
@@ -58,9 +58,9 @@ void Viewer_Processor::setFileName(const QString &fileName)
     createVec2D();
 }
 
-void Viewer_Processor::setSettings(std::shared_ptr<QSettings>pSharedSettings)
+void Viewer_Processor::setSettings(std::shared_ptr<const QSettings>spSettings)
 {
-    _pSettings = pSharedSettings;
+    _spSettings = spSettings;
 }
 
 void Viewer_Processor::setDataInVec2D(size_t column_number, size_t row_number, double value)
@@ -122,7 +122,7 @@ QImage Viewer_Processor::getImageFromVec2D()
 
 bool Viewer_Processor::checkSettingsPtr()
 {
-    if(_pSettings != nullptr)
+    if(_spSettings != nullptr)
         return true;
 
     qDebug() << __FUNCTION__ << " _settings = nullptr";
@@ -133,14 +133,14 @@ void Viewer_Processor::rebuildVec2DAccordingToSettings()
 {
     if(!checkSettingsPtr())
         return;
-    if(_pSettings->value("SettingsImage/FrameGroupBox").toBool())
+    if(_spSettings->value("SettingsImage/FrameGroupBox").toBool())
     {
         createFrameInVec2D();
         _markers |= BORDER;
     }
     else
         _markers &= ~BORDER;
-    if(_pSettings->value("SettingsImage/MasquradingGroupBox").toBool())
+    if(_spSettings->value("SettingsImage/MasquradingGroupBox").toBool())
     {
         createMaskInVec2D();
         _markers |= MASKING;
@@ -153,13 +153,13 @@ void Viewer_Processor::rebuildImageAccordingToSettings(QImage &image)
 {
     if(!checkSettingsPtr())
         return;
-    if(_pSettings->value("SettingsImage/MasquradingGroupBox").toBool())
+    if(_spSettings->value("SettingsImage/MasquradingGroupBox").toBool())
     {
     //рисуем маскированые пиксели выбраным цветом
     for (size_t  x = 0; x < _columns; ++x)
         for (size_t  y = 0; y < _rows; ++y)
             if(_vec2DMask.at(x).at(y) > 0)
-                image.setPixelColor(static_cast<int>(x), static_cast<int>(y), QColor(_pSettings->value("SettingsImage/maskColor").toString()));
+                image.setPixelColor(static_cast<int>(x), static_cast<int>(y), QColor(_spSettings->value("SettingsImage/maskColor").toString()));
     }
 }
 
@@ -222,11 +222,11 @@ void Viewer_Processor::createFrameInVec2D()
 {
     if(!checkSettingsPtr())
         return;
-    size_t  width = static_cast<size_t>(_pSettings->value("SettingsImage/frameWidth").toInt());
+    size_t  width = static_cast<size_t>(_spSettings->value("SettingsImage/frameWidth").toInt());
     if(width > _columns || width > _rows)
         width = 0;
 //        width = (_columns > _rows) ? _rows : _columns;
-    int value = _pSettings->value("SettingsImage/frameValue", -1).toInt();
+    int value = _spSettings->value("SettingsImage/frameValue", -1).toInt();
     //верх
     for (size_t  x = 0; x < _columns; ++x)
         for (size_t  y = 0; y < width; ++y)
@@ -250,9 +250,9 @@ void Viewer_Processor::createMaskInVec2D()
     if(!checkSettingsPtr())
         return;
     allocateEmptyVec2D(_vec2DMask, _columns, _rows);
-    int value = _pSettings->value("SettingsImage/maskValue").toInt();
-    int newValue = _pSettings->value("SettingsImage/maskNewValue").toInt();
-    bool after= _pSettings->value("SettingsImage/maskAfter").toBool();
+    int value = _spSettings->value("SettingsImage/maskValue").toInt();
+    int newValue = _spSettings->value("SettingsImage/maskNewValue").toInt();
+    bool after= _spSettings->value("SettingsImage/maskAfter").toBool();
 
     for (size_t  x = 0; x < _columns; ++x)
     {

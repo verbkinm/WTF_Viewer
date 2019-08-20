@@ -7,7 +7,7 @@
 #include "graph/graphdialog.h"
 #include "calibration/generalcalibration.h"
 
-const static QString VERSION =  "0.9.8.9";
+const static QString VERSION =  "0.9.8.10";
 
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent), settings(std::make_shared<QSettings>(QSettings::IniFormat, QSettings::UserScope, "WTF.org", "WTF"))
@@ -189,41 +189,34 @@ void MainWindow::slotAuthor()
 
 void MainWindow::slotPlotGraph()
 {
-    Frames* frames = pViewerWidget->getFrames();
+    if(!pViewerWidget->getFrames().second)
+        return;
+
+    const Frames& frames = pViewerWidget->getFrames().first;
     GraphDialog* gd = new GraphDialog(frames, this);
     QString legendText;
     QString chartTitle = "Graph ";
 
-    connect(gd,          SIGNAL(signalDataXChanged(QString)), this,
-                         SLOT(slotGrapgWindowCheck(QString)));
+    connect(gd, SIGNAL(signalDataXChanged(QString)), SLOT(slotGrapgWindowCheck(QString)));
 
     //наполняем список GraphDialog существующими графиками
-    foreach (CentralWidget* cw, graphWindowList)
+    for(CentralWidget* cw : graphWindowList)
         gd->appendWindow(cw->getTitle());
 
     emit gd->signalDataXChanged(gd->getCurrentX());
 
     if(gd->exec() == QDialog::Accepted)
     {
-//        QApplication::setOverrideCursor(Qt::WaitCursor);
-
         QVector<QPointF> vector;
         if(gd->getCurrentX() == "Tots")
         {
-
-//            vector = frames->getVectorOfLengthsOfTots()gd->getCurrentClusterLenght());
-
             legendText = gd->getCurrentY() + "px";
-
-//            for (auto &item : vector) {
-//                qDebug() << item.x() << item.y();
-//            }
-
+//            vector = frames.get
         }
         if(gd->getCurrentX() == "Clusters")
         {
-//            vector = frames->getClusterVector();
             legendText = currentActiveFile;
+//            vector = frames.get
         }
         if(gd->getCurrentX() == "Energy")
         {
@@ -254,8 +247,6 @@ void MainWindow::slotPlotGraph()
             graphWindow->addSeries(vector, legendText, gd->getCurrentX(), "Count");
             graphWindow->show();
         }
-
-//        QApplication::restoreOverrideCursor();
     }
 
     delete gd;
@@ -302,7 +293,6 @@ void MainWindow::slotSelectFile(const QModelIndex& index)
     else
         _menuGraph.setDisabled(true);
 
-//Начало тормозить  дерево - использовать QAbstractProxyModel
     if(_fs_model.isDir(index))
         settings.get()->setValue("Path/lastDir", _fs_model.filePath(index) );
     else

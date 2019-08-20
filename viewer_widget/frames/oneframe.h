@@ -46,14 +46,14 @@ private:
     std::vector<cluster> _vectorOfCluster;
 
     void appendCluster();
-    void appendEPoint(const ePoint &point);
+    void appendEPoint(const size_t &clusterNumber, const ePoint &point);
 
     void setFrameProperties(QString &string);
     void setClusterProperies(QString &string);
 
-    void setThreshold_energy (double value);
-    void setExposure_time (double value);
-    void setFrameNumber(int);
+    void setThreshold_energy (double value) noexcept;
+    void setExposure_time (double value) noexcept;
+    void setFrameNumber(int) noexcept;
 };
 
 #endif // ONEFRAME_H

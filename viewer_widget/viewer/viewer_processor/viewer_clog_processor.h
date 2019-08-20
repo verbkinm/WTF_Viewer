@@ -17,6 +17,7 @@ public:
 
     std::vector<size_t> getClustersLengthVector() const;
     std::vector<double> getVectorOfLengthsOfTots() const;
+    Frames const &getFrames() const;
 
     void setFilter(const Filter_Clog &filter);
 
@@ -32,9 +33,6 @@ private:
 
     virtual void createVec2D() override;
     virtual void resetDataToDefault() override;
-
-//    virtual void rebuildVec2DAccordingToSettings() override;
-//    virtual void rebuildImageAccordingToSettings(QImage &image) override;
 };
 
 #endif // VIEWER_CLOG_PROCESSOR_H

@@ -3,19 +3,15 @@
 
 #include <QDebug>
 
-GraphDialog::GraphDialog(Frames *frames, QWidget *parent) :
+GraphDialog::GraphDialog(const Frames &frames, QWidget *parent) :
     QDialog(parent),
     ui(new Ui::GraphDialog)
 {
     ui->setupUi(this);
 
-//    QApplication::setOverrideCursor(QCursor(Qt::WaitCursor));
-
     ui->DataY->addItem("All ");
-    foreach(auto &value, frames->getClustersLengthVector())
+    for(auto &value : frames.getClustersLengthVector())
         ui->DataY->addItem(QString::number(value));
-
-//    QApplication::restoreOverrideCursor();
 
     connect(ui->DataX, SIGNAL(currentTextChanged(QString)), this, SLOT(slotSelectDataX(QString)));
 

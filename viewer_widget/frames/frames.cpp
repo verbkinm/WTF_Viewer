@@ -201,7 +201,7 @@ std::vector<QPointF> Frames::getVectorOfPointsFromClusters() const
     return vector;
 }
 
-std::vector<double> Frames::getVectorOfLengthsOfTots() const
+std::vector<double> Frames::getVectoValueTots() const
 {
     std::vector<double> lenghtList;
     for (size_t frameNumber = 0; frameNumber < getFrameCount(); ++frameNumber)

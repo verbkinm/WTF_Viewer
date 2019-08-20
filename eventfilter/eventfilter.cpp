@@ -1,19 +1,17 @@
-#include "eventfilter.h"
-
-#include <QEvent>
 #include <QKeyEvent>
 #include <QTreeView>
-#include <QModelIndex>
 #include <QFileSystemModel>
-#include <QDebug>
+
+#include "eventfilter.h"
 
 EventFilter::EventFilter(QObject *parent) : QObject(parent)
 {
 
 }
-/*virtual*/ bool EventFilter::eventFilter(QObject* obj, QEvent* event)
+bool EventFilter::eventFilter(QObject* obj, QEvent* event)
 {
-    if(event->type() == QEvent::KeyRelease){
+    if(event->type() == QEvent::KeyRelease)
+    {
         QKeyEvent* ke = static_cast<QKeyEvent*>(event);
         if( (ke->key() == Qt::Key_Down) || (ke->key() == Qt::Key_Up))
         {

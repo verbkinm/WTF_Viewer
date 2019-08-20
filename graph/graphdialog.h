@@ -13,7 +13,7 @@ class GraphDialog : public QDialog
     Q_OBJECT
 
 public:
-    explicit GraphDialog(Frames* frames, QWidget *parent = nullptr);
+    explicit GraphDialog(const Frames& frames, QWidget *parent = nullptr);
     ~GraphDialog();
 
     int getCurrentClusterLenght();

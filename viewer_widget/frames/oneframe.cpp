@@ -25,22 +25,22 @@ bool OneFrame::createFromStrings(QStringList buff)
     return  true;
 }
 
-void OneFrame::setThreshold_energy(double value)
+void OneFrame::setThreshold_energy(double value) noexcept
 {
     _threshold_energy = value;
 }
-void OneFrame::setExposure_time(double value)
+void OneFrame::setExposure_time(double value) noexcept
 {
     _exposure_time = value;
 }
-void OneFrame::setFrameNumber(int number)
+void OneFrame::setFrameNumber(int number) noexcept
 {
     _number = number;
 }
 
-void OneFrame::appendEPoint(const ePoint &point)
+void OneFrame::appendEPoint(const size_t &clusterNumber, const ePoint &point)
 {
-    _vectorOfCluster.at(_vectorOfCluster.size() - 1).push_back(point);
+    _vectorOfCluster.at(clusterNumber).push_back(point);
 }
 
 void OneFrame::appendCluster()
@@ -123,6 +123,6 @@ void OneFrame::setClusterProperies(QString &string)
     {
         QStringList point = str.split(",");
         if(point.length() == 3)
-            appendEPoint({point[0].toULongLong(), point[1].toULongLong(), point[2].toDouble()});
+            appendEPoint(_vectorOfCluster.size() - 1, {point[0].toULongLong(), point[1].toULongLong(), point[2].toDouble()});
     }
 }

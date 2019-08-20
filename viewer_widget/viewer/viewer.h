@@ -1,21 +1,14 @@
 #ifndef VIEWER_H
 #define VIEWER_H
 
-#include <QWidget>
-#include <QFile>
-#include <QImage>
-#include <QCloseEvent>
 #include <QGraphicsScene>
-#include <QSettings>
-#include <QMenu>
-#include <QFlags>
-#include <memory>
 
 #include "../../eventfilter/fingerslide.h"
-#include "../frames/frames.h"
+
 #include "viewer_processor/viewer_processor.h"
 #include "viewer_processor/viewer_clog_processor.h"
 #include "viewer_processor/viewer_txt_processor.h"
+
 #include "viewer_button_panel.h"
 #include "viewer_data_panel.h"
 #include "pix_filter_panel.h"
@@ -36,25 +29,26 @@ public:
     explicit Viewer(QWidget *parent = nullptr);
     ~Viewer();
 
-    void setSettings(std::shared_ptr<QSettings>pShareSettings);
+    void setSettings(std::shared_ptr<const QSettings>);
     void setScene(QGraphicsScene*);
     void setReadOnly(bool);
-    void setImageFile(QString &);
+    void setImageFile(const QString &);
 
-    QGraphicsScene* getScene();
+    QGraphicsScene* getScenePtr();
+    std::pair<const Frames &, bool> getFrames() const;
 
     void hideAllPanel();
     void hideSettingsButton(bool);
 
 private:
     Ui::Viewer *ui;
-    std::shared_ptr<Viewer_Processor> _pViewerProcessor; // обработчик данных
+    std::shared_ptr<Viewer_Processor> _spViewerProcessor; // обработчик данных
     // панели
-    std::unique_ptr<Viewer_Button_Panel> _pViewerButtonPanel;
-    std::unique_ptr<Viewer_Data_Panel> _pViewerDataPanel;
-    std::unique_ptr<Pix_Filter_Panel> _pPixFilterPanel;
+    std::unique_ptr<Viewer_Button_Panel> _spViewerButtonPanel;
+    std::unique_ptr<Viewer_Data_Panel> _spViewerDataPanel;
+    std::unique_ptr<Pix_Filter_Panel> _spPixFilterPanel;
 
-    std::shared_ptr<QSettings> _pSettings;
+    std::shared_ptr<const QSettings> _spSettings;
     bool _readOnly;
 
     /*
@@ -67,32 +61,27 @@ private:
     */
     enum
     {
-          PIX_AND_FILTER_PANEL,
-          DATA_PANEL,
-          BUTTONS_PANEL,
-          INVERSION,
-          SINGLE_WINDOW
+        PIX_AND_FILTER_PANEL,
+        DATA_PANEL,
+        BUTTONS_PANEL,
+        INVERSION,
+        SINGLE_WINDOW
     };
+
     std::array<bool, 5>  _state_of_the_menu_items;
-    QString  _filePath;
+    QString _filePath;
     QImage _currentImage;
-    //указатели на item`ы
-    QGraphicsPixmapItem* _itemForeground ;
-    //рамка при выделении
-    QGraphicsRectItem* _itemRect;
-    //фильтр событий для сцены и представления
-    std::unique_ptr<FingerSlide> _eventFilterScene;
-    std::unique_ptr<QMenu> _pMenuFile;
-
-    QWidget* getViewport() const;
-
+    QGraphicsPixmapItem *_itemImage ;
+    QGraphicsRectItem *_itemRect;
+    FingerSlide *_pEventFilterScene;    //фильтр событий для сцены и представления
+    std::unique_ptr<QMenu> _spMenuFile;
     //объект сцены
     QGraphicsScene* _pCurrentScene;
     QGraphicsScene _defaultScene;
 
-    void setImage(QImage image);
-
+    void setImage(const QImage &image);
     void setSceneDefault();
+
     void resetTransform();
 
     void createButtonPanel();
@@ -100,7 +89,7 @@ private:
     void createPixFilterPanel();
 
     void incorrectFile();  //действия при не правильном файле
-    void selectFile();     //вывести вместо изображения надпись - "Select file!"
+    void setEmptyImageOnViewerScene();     //вывести вместо изображения надпись - "Select file!"
     void setEnableButtonPanel(bool);    //включени\отключение кнопок на панелях
     void setEnableDataPanelSelection(bool);    //включени\отключение кнопок на панели Data
     void setReadOnlyDataPanelSelection(bool);    //состояние readonly на панели Data
@@ -114,9 +103,6 @@ private:
 
     void createButtonMenu();
     Filter_Clog createFilterFromPixFilterPanel();
-
-    template <typename T>
-    void objectDelete(T* obj);
 
 public slots:
     void slotSetImageFile(QString file);
