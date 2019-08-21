@@ -27,11 +27,11 @@ Pix_Filter_Panel::Pix_Filter_Panel(const Pix_Filter_Panel &object)
     ui->clogFilterPanel->setTot(object.ui->clogFilterPanel->isTotEnable());
     ui->clogFilterPanel->setAllTotInCluster(object.ui->clogFilterPanel->isAllTotInCluster());
 
-    ui->clogFilterPanel->setClusterBegin(object.ui->clogFilterPanel->getClusterBegin());
-    ui->clogFilterPanel->setClusterEnd(object.ui->clogFilterPanel->getClusterEnd());
+    ui->clogFilterPanel->setClusterBegin(static_cast<int>(object.ui->clogFilterPanel->getClusterBegin()));
+    ui->clogFilterPanel->setClusterEnd(static_cast<int>(object.ui->clogFilterPanel->getClusterEnd()));
 
-    ui->clogFilterPanel->setTotBegin(object.ui->clogFilterPanel->getTotBegin());
-    ui->clogFilterPanel->setTotEnd(object.ui->clogFilterPanel->getTotEnd());
+    ui->clogFilterPanel->setTotBegin(static_cast<int>(object.ui->clogFilterPanel->getTotBegin()));
+    ui->clogFilterPanel->setTotEnd(static_cast<int>(object.ui->clogFilterPanel->getTotEnd()));
 
     if(object.ui->clogFilterPanel->isMediPix())
         ui->clogFilterPanel->setMediPix(true);
@@ -167,4 +167,15 @@ bool Pix_Filter_Panel::isMediPix() const
 void Pix_Filter_Panel::finishSelection() const
 {
     ui->edit_panel->finishSelection();
+}
+
+void Pix_Filter_Panel::reset(bool state)
+{
+    if(!state)
+        return;
+
+    ui->x->setValue(0);
+    ui->y->setValue(0);
+    ui->width->setValue(0);
+    ui->heigth->setValue(0);
 }

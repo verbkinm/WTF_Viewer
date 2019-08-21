@@ -7,10 +7,9 @@
 #include "graph/graphdialog.h"
 #include "calibration/generalcalibration.h"
 
-const static QString VERSION =  "0.9.8.10";
-
-MainWindow::MainWindow(QWidget *parent)
-    : QMainWindow(parent), settings(std::make_shared<QSettings>(QSettings::IniFormat, QSettings::UserScope, "WTF.org", "WTF"))
+MainWindow::MainWindow(QWidget *parent): QMainWindow(parent),
+    _Program_Version("0.9.8.11"),
+    settings(std::make_shared<QSettings>(QSettings::IniFormat, QSettings::UserScope, "WTF.org", "WTF"))
 {
     settings.get()->setIniCodec("UTF-8");
 
@@ -42,7 +41,7 @@ MainWindow::MainWindow(QWidget *parent)
     connect(&_treeView, SIGNAL(activated(const QModelIndex&)), this, SLOT(slotSelectFile(const QModelIndex&)));
 
     this->setWindowIcon(QIcon(":/atom"));
-    this->setWindowTitle("WTF_Viewer " + VERSION);
+    this->setWindowTitle("WTF_Viewer " + _Program_Version);
 
     openLastDir();
 }
@@ -177,7 +176,7 @@ void MainWindow::closeEvent(QCloseEvent*)
 }
 void MainWindow::slotAuthor()
 {
-    QString text = "<h3>WTF_Viewer " + VERSION + "</h3> <br>"
+    QString text = "<h3>WTF_Viewer " + _Program_Version + "</h3> <br>"
                    "WTF(What flies?)<br>"
                    "Author: Verbkin Mikhail <br>"
                    "Email: <a href=\"mailto:verbkinm@yandex.ru\" >verbkinm@yandex.ru</a> <br>"

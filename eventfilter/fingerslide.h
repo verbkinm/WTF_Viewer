@@ -8,9 +8,6 @@
 class FingerSlide : public QObject
 {
     Q_OBJECT
-public:
-    FingerSlide(QObject *parent = nullptr);
-    ~FingerSlide();
 
 private:
 //координаты курсора
@@ -24,12 +21,12 @@ private:
     QObject* _pObject;
     QEvent* _pEvent;
 
-    bool isDrawingPen();
+    inline bool isDrawingPen();
 
-    void sceneMovement();
+    void sceneMouseMovement();
     void sceneMousePress();
     void sceneMouseRelease();
-    void sceneDrawRect(QGraphicsRectItem* rectItem, qreal x, qreal y, qreal width, qreal height);
+    void sceneMouseDrawRect(QGraphicsRectItem* rectItem, qreal x, qreal y, qreal width, qreal height);
 
     void viewportSlide();
     void viewportSliding();
@@ -37,7 +34,7 @@ private:
     void viewportSlidingVertical();
     bool viewportMouseWheel();
     void viewportSetPreXY();
-    void viewportMovement();
+    void viewporMouseMovement();
 
     bool eventFilterScene();
     bool eventFilterViewport();

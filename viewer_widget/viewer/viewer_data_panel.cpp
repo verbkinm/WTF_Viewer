@@ -13,51 +13,20 @@ Viewer_Data_Panel::~Viewer_Data_Panel()
     delete ui;
 }
 
-void Viewer_Data_Panel::setData(int x, int y, double data, size_t width, size_t height)
+void Viewer_Data_Panel::setData(size_t x, size_t y, double data, size_t width, size_t height)
 {
-    ui->x->setValue(x);
-    ui->y->setValue(y);
+    if(!this->isEnabled())
+        return;
+    if(static_cast<size_t>(x) > width || static_cast<size_t>(y) > height)
+    {
+        ui->x->setValue(0);
+        ui->y->setValue(0);
+        ui->data->setValue(0);
+        return;
+    }
+    ui->x->setValue(static_cast<int>(x));
+    ui->y->setValue(static_cast<int>(y));
     ui->data->setValue(data);
     ui->width->setValue(static_cast<int>(width));
     ui->heigth->setValue(static_cast<int>(height));
-}
-
-void Viewer_Data_Panel::setX(int value)
-{
-    ui->x->setValue(value);
-}
-
-void Viewer_Data_Panel::setY(int value)
-{
-    ui->y->setValue(value);
-}
-
-void Viewer_Data_Panel::setData(double value)
-{
-    ui->data->setValue(value);
-}
-
-void Viewer_Data_Panel::slotSetX(int value)
-{
-    ui->x->setValue(value);
-}
-
-void Viewer_Data_Panel::slotSetY(int value)
-{
-    ui->y->setValue(value);
-}
-
-void Viewer_Data_Panel::slotSetData(double value)
-{
-    ui->data->setValue(value);
-}
-
-void Viewer_Data_Panel::slotSetWidth(int value)
-{
-    ui->width->setValue(value);
-}
-
-void Viewer_Data_Panel::slotSetHeight(int value)
-{
-    ui->heigth->setValue(value);
 }

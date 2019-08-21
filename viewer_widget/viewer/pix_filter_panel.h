@@ -25,26 +25,20 @@ public:
 
     void setDataPanelEnabled(bool);
     void setDataPanelReadOnly(bool);
-
     void setToggleButtonEnable(bool);
     void setButtonCutDisable(bool);
-
     void setTabEnable(int, bool);
-
     void setClusterRange(const std::vector<size_t> &);
     void setTotRange(const std::vector<double> &);
 
     size_t getClusterBegin() const;
     size_t getClusterEnd() const;
-
     size_t getTotBegin() const;
     size_t getTotEnd() const;
-
     int getX() const;
     int getY() const;
     int getWidth() const;
     int getHeight() const;
-
     QColor getPenColor() const;
     double getPenValue() const;
 
@@ -52,6 +46,8 @@ public:
     bool isMediPix() const;
 
     void finishSelection() const;
+
+    void reset(bool);
 
 private:
     Ui::Pix_Filter_Panel *ui;

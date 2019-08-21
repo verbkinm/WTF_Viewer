@@ -31,7 +31,7 @@ public:
 
     void setSettings(std::shared_ptr<const QSettings>);
     void setScene(QGraphicsScene*);
-    void setReadOnly(bool);
+    void setSceneReadOnly(bool);
     void setImageFile(const QString &);
 
     QGraphicsScene* getScenePtr();
@@ -51,15 +51,7 @@ private:
     std::shared_ptr<const QSettings> _spSettings;
     bool _readOnly;
 
-    /*
-    [0 - pix. && filter pnael]
-    [1 - data paNel]
-    [2 - buttons panel]
-    [3 - inversion]
-    [4 - single window]
-    видимость панелей
-    */
-    enum
+    enum actionsName
     {
         PIX_AND_FILTER_PANEL,
         DATA_PANEL,
@@ -68,7 +60,6 @@ private:
         SINGLE_WINDOW
     };
 
-    std::array<bool, 5>  _state_of_the_menu_items;
     QString _filePath;
     QImage _currentImage;
     QGraphicsPixmapItem *_itemImage ;
@@ -90,14 +81,10 @@ private:
 
     void incorrectFile();  //действия при не правильном файле
     void setEmptyImageOnViewerScene();     //вывести вместо изображения надпись - "Select file!"
-    void setEnableButtonPanel(bool);    //включени\отключение кнопок на панелях
-    void setEnableDataPanelSelection(bool);    //включени\отключение кнопок на панели Data
-    void setReadOnlyDataPanelSelection(bool);    //состояние readonly на панели Data
+    void setEnablePanels(bool);    //включени\отключение кнопок на панелях
 
-    void disconnectPixFilterPanelSelectionBox ();
-    void connectPixFilterPanel();
-    void connectPixFilterPanelSelectionBox();
-    void connectEventFilter();
+    void connectPixFilterSelectionDataPanel();
+    void disconnectPixFilterSelectionDataPanel();
 
     void showMarkers();
 
@@ -118,12 +105,12 @@ private slots:
     void slotScaledPlus();       //масштаб при нажатии на виджете кнопок +
     void slotScaledMinus();      //масштаб при нажатии на виджете кнопок -
     void slotScaleWheel(int);    // масштаб колёсиком мышки
-    void slotInversionCheckBox(int);//отрисовка _currentImage в зависимости от значения checkBox'а Inversion
+    void slotImageAccordingInversionCheckBox(int);//отрисовка _currentImage в зависимости от значения checkBox'а Inversion
     void slotViewPosition(QPointF); //позиция курсора и значение "пикселя" на сцене
     void slotViewSelectionPos(QRect);//позиция выделения
     void slotViewSelectionMovePos(QPoint);//позиция выделения при перетаскивании мышкой
     void slotDrawPoint(QPointF); //рисование точек карандашем
-    void slotSelectionFrame(bool);
+    void slotToggleFrame(bool);
     void slotPen(bool);
     void slotCut();
     void slotFinishSelection();    //действия при окончании выделения(отпускание кнопки мышки)
@@ -133,10 +120,10 @@ private slots:
     void slotRepaint();
 
     //действия для каждого пункта меню кнопки button_settings
-    void slotPixAndFilterPanelMenuToggle();
-    void slotDataPanelMenuToggle();
-    void slotButtonPanelMenuToggle();
-    void slotInversionMenuToggle();
+    void slotPixAndFilterPanelMenuToggle(bool);
+    void slotDataPanelMenuToggle(bool);
+    void slotButtonPanelMenuToggle(bool);
+    void slotInversionMenuToggle(bool);
     void slotSeparateWindowMenuToggle();
 };
 #endif // VIEWER_H

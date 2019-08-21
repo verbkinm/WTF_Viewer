@@ -1,7 +1,6 @@
 #include "fingerslide.h"
 #include "../viewer_widget/viewer/viewer.h"
 
-#include <QWidget>
 #include <QAbstractScrollArea>
 #include <QScrollBar>
 #include <QApplication>
@@ -12,10 +11,6 @@
 #include <QGraphicsSceneMoveEvent>
 #include <QGraphicsSceneMouseEvent>
 
-FingerSlide::FingerSlide(QObject *parent) : QObject(parent)
-{
-
-}
 bool FingerSlide::eventFilterScene()
 {
     _pScene = static_cast<QGraphicsScene*>(_pObject);
@@ -23,7 +18,7 @@ bool FingerSlide::eventFilterScene()
         return false;
     _pGraphView = _pScene->views().at(0);
 
-    sceneMovement();
+    sceneMouseMovement();
     sceneMousePress();
     sceneMouseRelease();
 
@@ -34,7 +29,7 @@ bool FingerSlide::eventFilterViewport()
     if(viewportMouseWheel())
         return true;
     viewportSetPreXY();
-    viewportMovement();
+    viewporMouseMovement();
 
     return false;
 }
@@ -46,7 +41,7 @@ bool FingerSlide::isDrawingPen()
     return false;
 }
 
-void FingerSlide::sceneMovement()
+void FingerSlide::sceneMouseMovement()
 {
     if(_pEvent->type() != QEvent::GraphicsSceneMouseMove)
         return;
@@ -82,11 +77,6 @@ void FingerSlide::sceneMousePress()
 
     QGraphicsSceneMouseEvent* mevent = static_cast<QGraphicsSceneMouseEvent*>(_pEvent);
     _point = mevent->scenePos();
-
-    //не перетаскивать рамку выделения, если мы рисуем карандашом
-    if(_pScene->items().count() > 1 && isDrawingPen())
-        static_cast<QGraphicsRectItem*>(_pScene->items().at(0))->setFlags(nullptr);
-    //если нажата левая кнопка мыши и при этом идет процесс рисования рамки
     if(QApplication::mouseButtons() == Qt::LeftButton && _pGraphView->cursor() == Qt::CrossCursor)
     {
         QGraphicsRectItem* rectItem = _pScene->addRect(QRectF(QPointF(0,0), QSize(0,0)), \
@@ -96,6 +86,7 @@ void FingerSlide::sceneMousePress()
     }
     if(isDrawingPen())
     {
+        static_cast<QGraphicsRectItem*>(_pScene->items().at(0))->setFlags(nullptr); //не перетаскивать рамку выделения, если мы рисуем карандашом
         QGraphicsSceneMouseEvent* mevent = static_cast<QGraphicsSceneMouseEvent*>(_pEvent);
         emit signalDrawPoint(mevent->scenePos());
     }
@@ -106,14 +97,14 @@ void FingerSlide::sceneMouseRelease()
     if(_pEvent->type() != QEvent::GraphicsSceneMouseRelease || _pGraphView->scene()->items().length() == 1 || isDrawingPen())
         return;
 
-    QGraphicsRectItem* rectItem = static_cast<QGraphicsRectItem*>(_pScene->items().at(0));
+    QGraphicsRectItem* rectItem = static_cast<QGraphicsRectItem*>(_pScene->items().at(0)); // рамка выделения
     rectItem->setFlags(QGraphicsItem::ItemIsMovable | QGraphicsItem::ItemIsSelectable);
     qreal x = rectItem->rect().x();
     qreal y = rectItem->rect().y();
     qreal width = rectItem->rect().width();
     qreal height = rectItem->rect().height();
 
-    sceneDrawRect(rectItem, x, y, width, height);
+    sceneMouseDrawRect(rectItem, x, y, width, height);
 
     // дискретное установление выделения
     x = rectItem->pos().x();
@@ -125,7 +116,7 @@ void FingerSlide::sceneMouseRelease()
     emit signalRelease();
 }
 
-void FingerSlide::sceneDrawRect(QGraphicsRectItem *rectItem, qreal x, qreal y, qreal width, qreal height)
+void FingerSlide::sceneMouseDrawRect(QGraphicsRectItem *rectItem, qreal x, qreal y, qreal width, qreal height)
 {
     /* при рисовании четырёх угольнника(снизу вверх) получаются отрицательные величины для ширины
     и(или) высоты, чтобы исправить это - следующие 4 if'а */
@@ -222,7 +213,7 @@ void FingerSlide::viewportSlidingVertical()
 
 bool FingerSlide::viewportMouseWheel()
 {
-    if(_pEvent->type() == QEvent::Wheel && QApplication::keyboardModifiers() == Qt::ControlModifier)
+    if(_pEvent->type() == QEvent::Wheel /*&& QApplication::keyboardModifiers() == Qt::ControlModifier*/)
     {
         QWheelEvent* wevent = static_cast<QWheelEvent*>(_pEvent);
         emit signalWheel(wevent->delta());
@@ -233,18 +224,17 @@ bool FingerSlide::viewportMouseWheel()
 
 void FingerSlide::viewportSetPreXY()
 {
-    if(_pEvent->type() == QEvent::MouseButtonPress)
+    if(_pEvent->type() != QEvent::MouseButtonPress)
+        return;
+    QMouseEvent* mouseEvent = static_cast<QMouseEvent*>(_pEvent);
+    if(mouseEvent->button() == Qt::LeftButton)
     {
-        QMouseEvent* mouseEvent = static_cast<QMouseEvent*>(_pEvent);
-        if(mouseEvent->button() == Qt::LeftButton)
-        {
-            _preX = _x = mouseEvent->x();
-            _preY = _y = mouseEvent->y();
-        }
+        _preX = _x = mouseEvent->x();
+        _preY = _y = mouseEvent->y();
     }
 }
 
-void FingerSlide::viewportMovement()
+void FingerSlide::viewporMouseMovement()
 {
     if(_pEvent->type() != QEvent::MouseMove)
         return;
@@ -256,8 +246,4 @@ void FingerSlide::viewportMovement()
     {
         viewportSlide();
     }
-}
-FingerSlide::~FingerSlide()
-{
-
 }

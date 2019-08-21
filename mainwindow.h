@@ -38,6 +38,8 @@ public:
     SettingsImage*      pSettingsImage  = nullptr;
 
 private:
+    const QString _Program_Version;
+
     QMenu               _menuFile;
     QMenu               _menuGraph;
     QMenu               _menuAbout;

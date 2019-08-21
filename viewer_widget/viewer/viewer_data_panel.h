@@ -15,17 +15,7 @@ public:
     explicit Viewer_Data_Panel(QWidget *parent = nullptr);
     ~Viewer_Data_Panel();
 
-    void setData(int x, int y, double data, size_t width, size_t height);
-    void setX(int);
-    void setY(int);
-    void setData(double);
-
-public slots:
-    void slotSetX(int);
-    void slotSetY(int);
-    void slotSetData(double);
-    void slotSetWidth(int);
-    void slotSetHeight(int);
+    void setData(size_t x, size_t y, double data, size_t width, size_t height);
 
 private:
     Ui::Viewer_Data_Panel *ui;

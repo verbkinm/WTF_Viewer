@@ -27,7 +27,7 @@ Viewer_widget::Viewer_widget(std::shared_ptr<const QSettings> spSetting, QWidget
     graphicsView_origin.setScene(ui->graphicsView->getScenePtr());
 
     graphicsView_origin.hideAllPanel();
-    graphicsView_origin.setReadOnly(true);
+    graphicsView_origin.setSceneReadOnly(true);
     graphicsView_origin.hideSettingsButton(true);
     mask_viewer.hideAllPanel();
 
@@ -88,7 +88,7 @@ void Viewer_widget::slotTabChanged(int value)
      * нельзя было рисовать, создавать и перемещать рамку
      */
     if(value == 1)
-        ui->graphicsView->setReadOnly(true);
+        ui->graphicsView->setSceneReadOnly(true);
     else if(value == 0)
-        ui->graphicsView->setReadOnly(false);
+        ui->graphicsView->setSceneReadOnly(false);
 }
