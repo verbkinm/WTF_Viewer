@@ -6,9 +6,10 @@
 #include "export\export.h"
 #include "graph/graphdialog.h"
 #include "calibration/generalcalibration.h"
+#include "viewer_widget/viewer/viewer_processor/viewer_txt_processor.h"
 
 MainWindow::MainWindow(QWidget *parent): QMainWindow(parent),
-    _Program_Version("0.9.8.11"),
+    _Program_Version("0.9.8.12"),
     settings(std::make_shared<QSettings>(QSettings::IniFormat, QSettings::UserScope, "WTF.org", "WTF"))
 {
     settings.get()->setIniCodec("UTF-8");
@@ -109,7 +110,10 @@ void MainWindow::slotExportFile()
 
         for (auto &fileName : listFiles)
         {
-            QImage image(pViewerWidget->getImageFromTxtFile(fileName));
+            Viewer_Txt_Processor viewerTxtProc;
+            viewerTxtProc.setFileName(fileName);
+
+            QImage image(viewerTxtProc.getImage());
             if(image.format() != QImage::Format_Invalid)
             {
                 QFileInfo fileInfo(fileName);

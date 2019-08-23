@@ -19,7 +19,7 @@ Viewer::Viewer(QWidget *parent) :
     _spSettings(nullptr),
     _readOnly(false),
     _itemImage(nullptr), _itemRect(nullptr),
-    _pEventFilterScene(nullptr),
+    _pEventFilterScene(nullptr), _pEventFilterViewPort(nullptr),
     _spMenuFile(nullptr),
     _pCurrentScene(&_defaultScene)
 { 
@@ -33,18 +33,16 @@ Viewer::Viewer(QWidget *parent) :
 
     //представление
     ui->graphicsView->viewport()->setObjectName("viewport");
-    // !!!!!!!!!!!!!!!!!!!!!!!!! delete
-    FingerSlide * eventFilterViewPort = new FingerSlide;     //фильтр событий для представления (колёсико мышы и перетаскивание рисунка мышью)
-    ui->graphicsView->viewport()->installEventFilter(eventFilterViewPort);
-    connect(eventFilterViewPort, SIGNAL(signalWheel(int)), SLOT(slotScaleWheel(int)));
+    _pEventFilterViewPort = new FingerSlide;     //фильтр событий для представления (колёсико мышы и перетаскивание рисунка мышью)
+    ui->graphicsView->viewport()->installEventFilter(_pEventFilterViewPort);
 
     createButtonMenu();
     createDataPanel();
     createButtonPanel();
     createPixFilterPanel();
 
-    incorrectFile();     //при первом запуске - вывести на экран надпись и отключить всё не нужное
     connect(ui->inversion, SIGNAL(stateChanged(int)), this, SLOT(slotImageAccordingInversionCheckBox(int)));     //инверсия цвета
+    incorrectFile();     //при первом запуске - вывести на экран надпись и отключить всё не нужное
 }
 void Viewer::setEmptyImageOnViewerScene()
 {
@@ -116,11 +114,7 @@ void Viewer::setImage(const QImage &image)
     _itemImage = _pCurrentScene->addPixmap(QPixmap::fromImage(_currentImage));
     slotImageAccordingInversionCheckBox(ui->inversion->checkState());
 
-    connect(_pEventFilterScene, SIGNAL(siganlRect(QRect)), this, SLOT(slotViewSelectionPos(QRect)));
-    connect(_pEventFilterScene, SIGNAL(signalRectMove(QPoint)), this, SLOT(slotViewSelectionMovePos(QPoint)));
-    connect(_pEventFilterScene, SIGNAL(signalRelease()), this, SLOT(slotFinishSelection()));
-    connect(_pEventFilterScene, SIGNAL(signalCreateRectItem(QGraphicsRectItem*)), this, SLOT(slotCreateRectItem(QGraphicsRectItem*)));
-    connect(_pEventFilterScene, SIGNAL(signalDrawPoint(QPointF)), this, SLOT(slotDrawPoint(QPointF)));
+    connect_pEventFilterScene();
 }
 void Viewer::setSettings(std::shared_ptr<const QSettings> spSettings)
 {
@@ -138,7 +132,7 @@ void Viewer::setSceneDefault()
     _pCurrentScene = &_defaultScene;
     ui->graphicsView->setScene(_pCurrentScene);
 }
-void Viewer::setImageFile(const QString &fileName)
+void Viewer::setImageFileName(const QString &fileName)
 {
     QApplication::setOverrideCursor(QCursor(Qt::WaitCursor));
     _filePath = fileName;
@@ -169,26 +163,6 @@ void Viewer::setImageFile(const QString &fileName)
     else
         incorrectFile();
     QApplication::restoreOverrideCursor();
-}
-void Viewer::disconnectPixFilterSelectionDataPanel()
-{
-    if(!_spPixFilterPanel)
-        return;
-    disconnect(_spPixFilterPanel.get(), SIGNAL(signalValueX_Changed(int)), this, SLOT(slotMoveRectFromKey()) );
-    disconnect(_spPixFilterPanel.get(), SIGNAL(signalValueY_Changed(int)), this, SLOT(slotMoveRectFromKey()) );
-    disconnect(_spPixFilterPanel.get(), SIGNAL(signalValueWidth_Changed(int)), this, SLOT(slotMoveRectFromKey()) );
-    disconnect(_spPixFilterPanel.get(), SIGNAL(signalValueHeight_Changed(int)), this, SLOT(slotMoveRectFromKey()) );
-}
-
-void Viewer::connectPixFilterSelectionDataPanel()
-{
-    if(!_spPixFilterPanel)
-        return;
-    //изменение выделения с помощью спинбоксов
-    connect(_spPixFilterPanel.get(), SIGNAL(signalValueX_Changed(int)), this, SLOT(slotMoveRectFromKey()) );
-    connect(_spPixFilterPanel.get(), SIGNAL(signalValueY_Changed(int)), this, SLOT(slotMoveRectFromKey()) );
-    connect(_spPixFilterPanel.get(), SIGNAL(signalValueWidth_Changed(int)), this, SLOT(slotMoveRectFromKey()) );
-    connect(_spPixFilterPanel.get(), SIGNAL(signalValueHeight_Changed(int)), this, SLOT(slotMoveRectFromKey()) );
 }
 
 void Viewer::showMarkers()
@@ -288,25 +262,26 @@ void Viewer::createPixFilterPanel()
         _spPixFilterPanel->setTabEnable(Pix_Filter_Panel::CLOG_FILTER_TAB, false);
     //соединение сигналов высылаемых классом ToolsPanel
     connect(_spPixFilterPanel.get(), SIGNAL(signalSelectionToggle(bool)), SLOT(slotToggleFrame(bool)));
-    connect(_spPixFilterPanel.get(), SIGNAL(signalPenToggle(bool)), SLOT(slotPen(bool)));
+    connect(_spPixFilterPanel.get(), SIGNAL(signalPenToggle(bool)), SLOT(slotSetCursorAsPencil(bool)));
     connect(_spPixFilterPanel.get(), SIGNAL(signalCutClicked(bool)), SLOT(slotCut()));
     connect(_spPixFilterPanel.get(), SIGNAL(signalRepaint()), SLOT(slotRepaint()));
-    connectPixFilterSelectionDataPanel();
+    connect(_spPixFilterPanel.get(), SIGNAL(signalDataOnDataPanelChanged(QRect)), SLOT(slotMoveRectFromKey(QRect)) );
     //Нажатия на кнопку Apply на панели фильтров clog
     connect(_spPixFilterPanel.get(), SIGNAL(signalApplyFilter()), this, SLOT(slotApplyClogFilter()));
+
+    connect_pEventFilterScene();
 }
 
 void Viewer::slotSetImageFile(QString file)
 {
-    setImageFile(file);
+    setImageFileName(file);
 }
-void Viewer::slotMoveRectFromKey()
+void Viewer::slotMoveRectFromKey(QRect rect)
 {
     if(!_spPixFilterPanel || !_itemRect)
         return;
     _itemRect->setPos(0, 0);
-    _itemRect->setRect(_spPixFilterPanel->getX(), _spPixFilterPanel->getY(),
-                       _spPixFilterPanel->getWidth(), _spPixFilterPanel->getHeight());
+    _itemRect->setRect(rect.x(), rect.y(), rect.width(), rect.height());
 }
 void Viewer::slotCreateRectItem(QGraphicsRectItem * item)
 {
@@ -366,20 +341,19 @@ void Viewer::slotSeparateWindowMenuToggle()
     SW->show();
 
     if(_spViewerProcessor  && _spViewerProcessor->getFileType() == Viewer_Processor::fileType::TXT)
-        SW->setImageFile(_filePath);
+        SW->setImageFileName(_filePath);
     else if(_spViewerProcessor  && _spViewerProcessor->getFileType() == Viewer_Processor::fileType::CLOG)
-        SW->setImageFile(_filePath);
+        SW->setImageFileName(_filePath);
 }
 
 void Viewer::slotViewSelectionMovePos(QPoint point)
 {
-    disconnectPixFilterSelectionDataPanel();
-    if(_spPixFilterPanel)
-    {
-        _spPixFilterPanel->setX(point.x());
-        _spPixFilterPanel->setY(point.y());
-    }
-    connectPixFilterSelectionDataPanel();
+    if(!_spPixFilterPanel)
+        return;
+    disconnect(_spPixFilterPanel.get(), SIGNAL(signalDataOnDataPanelChanged(QRect)), this, SLOT(slotMoveRectFromKey(QRect)));
+    _spPixFilterPanel->setX(point.x());
+    _spPixFilterPanel->setY(point.y());
+    connect(_spPixFilterPanel.get(), SIGNAL(signalDataOnDataPanelChanged(QRect)), SLOT(slotMoveRectFromKey(QRect)) );
 }
 
 void Viewer::slotDrawPoint(QPointF point)
@@ -397,46 +371,6 @@ void Viewer::slotDrawPoint(QPointF point)
         _spViewerProcessor->setDataInVec2D(static_cast<size_t>(x), static_cast<size_t>(y), _spPixFilterPanel->getPenValue());
     }
 }
-void Viewer::slotViewSelectionPos(QRect rect)
-{
-    int x = rect.x();
-    int y = rect.y();
-
-    int width = rect.width();
-    int height = rect.height();
-
-    if(height < 0 && width < 0)
-    {
-        x = x + width;
-        y = y - qAbs(height);
-        width = qAbs(width);
-        height = qAbs(height);
-    }
-    else if(height < 0 && width > 0)
-    {
-        y = y - qAbs(height);
-        width = qAbs(width);
-        height = qAbs(height);
-    }
-    else if(height > 0 && width < 0  )
-    {
-        x = x + width;
-        width = qAbs(width);
-        height = qAbs(height);
-    }
-    else if(height > 0 && width > 0  )
-    {
-        ;
-    }
-
-    if(!_spPixFilterPanel)
-        return;
-
-    _spPixFilterPanel->setX(x);
-    _spPixFilterPanel->setY(y);
-    _spPixFilterPanel->setWidth(width);
-    _spPixFilterPanel->setHeight(height);
-}
 void Viewer::slotFinishSelection()
 {
     ui->graphicsView->unsetCursor();
@@ -450,8 +384,8 @@ void Viewer::incorrectFile()
     setEnablePanels(false);
     setEmptyImageOnViewerScene();
 
-    //Отображение на панели данных о выделении(x,y,width,height)
-    disconnect(_pEventFilterScene, SIGNAL(siganlRect(QRect)), this, SLOT(slotViewSelectionPos(QRect)));
+    if(_spPixFilterPanel)
+        disconnect(_pEventFilterScene, SIGNAL(siganlRect(QRect)), _spPixFilterPanel.get(), SLOT(slotSetDataOnDataPanel(QRect)));
     //Отображение на панели координат выделения при перемещении(x,y)
     disconnect(_pEventFilterScene, SIGNAL(signalRectMove(QPoint)), this, SLOT(slotViewSelectionMovePos(QPoint)));
     //Изображение курсора - стрелка, выключение кнопки edit
@@ -466,6 +400,17 @@ void Viewer::incorrectFile()
 void Viewer::resetTransform()
 {
     ui->graphicsView->resetTransform();
+}
+
+void Viewer::connect_pEventFilterScene()
+{
+    if(_spPixFilterPanel)
+        connect(_pEventFilterScene, SIGNAL(siganlRect(QRect)), _spPixFilterPanel.get(), SLOT(slotSetDataOnDataPanel(QRect)), Qt::UniqueConnection);
+    connect(_pEventFilterScene, SIGNAL(signalRectMove(QPoint)), this, SLOT(slotViewSelectionMovePos(QPoint)), Qt::UniqueConnection);
+    connect(_pEventFilterScene, SIGNAL(signalRelease()), this, SLOT(slotFinishSelection()), Qt::UniqueConnection);
+    connect(_pEventFilterScene, SIGNAL(signalCreateRectItem(QGraphicsRectItem*)), this, SLOT(slotCreateRectItem(QGraphicsRectItem*)), Qt::UniqueConnection);
+    connect(_pEventFilterScene, SIGNAL(signalDrawPoint(QPointF)), this, SLOT(slotDrawPoint(QPointF)), Qt::UniqueConnection);
+    connect(_pEventFilterViewPort, SIGNAL(signalWheel(int)), SLOT(slotScaleWheel(int)), Qt::UniqueConnection);
 }
 
 QGraphicsScene *Viewer::getScenePtr()
@@ -511,7 +456,7 @@ void Viewer::slotToggleFrame(bool state)
     }
 }
 
-void Viewer::slotPen(bool value)
+void Viewer::slotSetCursorAsPencil(bool value)
 {
     if(value)
         ui->graphicsView->setCursor(QCursor(QPixmap(":/pen").scaled(24,24, Qt::KeepAspectRatio, Qt::SmoothTransformation), X_HOT ,Y_HOT));
@@ -548,7 +493,7 @@ void Viewer::slotCut()
     QString fileName = Saver::saveInTemporaryTXT(static_cast<size_t>(_spPixFilterPanel->getWidth()),
                                                  static_cast<size_t>(_spPixFilterPanel->getHeight()),
                                                  newVec2D);
-    setImageFile(fileName);
+    setImageFileName(fileName);
 }
 void Viewer::slotRotatePlus()
 {
@@ -635,13 +580,14 @@ void Viewer::slotSaveBMP()
 
 void Viewer::slotSaveTXT()
 {
+    if(!_spViewerProcessor)
+        return;
     Saver::dialogSaveTXT(_spViewerProcessor->getColumns(), _spViewerProcessor->getRows(), _spViewerProcessor->getVec2D());
 }
 Viewer::~Viewer()
 {
     delete ui;
     delete _pEventFilterScene;
-    // !!!!!!!!!!!!!!!!!!!!
-    //    delete eventFilterViewPort;
+    delete _pEventFilterViewPort;
 
 }

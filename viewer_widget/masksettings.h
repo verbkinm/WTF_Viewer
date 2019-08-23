@@ -2,8 +2,7 @@
 #define MASKSETTINGS_H
 
 #include <QWidget>
-
-#define BINNING_MAX_SIZE 15
+#include <vector>
 
 namespace Ui {
 class MaskSettings;
@@ -17,40 +16,40 @@ public:
     explicit MaskSettings(QWidget *parent = nullptr);
     ~MaskSettings();
 
-    int     getRank() const;
-    int     getTransparency() const;
+    int getRank() const;
+    int getTransparency() const;
 
 
 private:
     Ui::MaskSettings *ui;
 
-    double** arrayBin = nullptr;
+    size_t _BINNING_MAX_SIZE;
+
+    std::vector<std::vector<double>> _vecBin;
 
     enum TAB_NAME{MASK, CONVOLUTION, BACKPROJECTION};
 
-    //
     double minus_one_or_zero;
-    int binning;	//ранг бингования
+    size_t _binning;	//ранг бингования
 
-    int** dynamicArrayInt(int N, int M);
-    double** dynamicArrayDouble(int N, int M);
+//    int** dynamicArrayInt(int N, int M);
+//    std::vector<std::vector<double> > dynamicArrayDouble(size_t N, size_t M);
     int square_vychet(int i, int p);
     void mask_construction(int N);
 
-    //
 
 private slots:
-    void    slotGenerate();
-    void    slotOpenTXT();
-    void    slotSaveTXT();
-    void    slotBinningChanged(int);
+    void slotGenerate();
+    void slotOpenTXT();
+    void slotSaveTXT();
+    void slotBinningChanged(int);
 
-    void    slotTableShow();
+    void slotTableShow();
 
 signals:
-    void    signalGenerated(QString);
-    void    signalOpenTXT(QString);
-    void    signalSaveTXT();
+    void signalGenerated(QString);
+    void signalOpenTXT(QString);
+    void signalSaveTXT();
 };
 
 #endif // MASKSETTINGS_H

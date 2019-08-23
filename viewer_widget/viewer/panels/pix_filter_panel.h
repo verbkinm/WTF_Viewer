@@ -58,11 +58,14 @@ signals:
     void signalCutClicked(bool);
     void signalRepaint();
 
-    void signalValueX_Changed(int);
-    void signalValueY_Changed(int);
-    void signalValueWidth_Changed(int);
-    void signalValueHeight_Changed(int);
+    void signalDataOnDataPanelChanged(QRect);
     void signalApplyFilter();
+
+public slots:
+    void slotSetDataOnDataPanel(QRect);
+
+private slots:
+    void slotDataOnDataPanelChanged();
 };
 
 #endif // PIX_FILTER_PANEL_H

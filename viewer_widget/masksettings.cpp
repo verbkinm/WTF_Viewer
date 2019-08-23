@@ -13,31 +13,6 @@ using namespace std;
 //код Розы
 // ->
 
-/*	создание массива рангом N	*/
-int** MaskSettings::dynamicArrayInt(int N, int M)
-{
-    int** arrayPtr = nullptr;
-
-    arrayPtr = new int *[2 * N + 1];
-
-    for (int i = 0; i < 2 * N + 1; ++i)
-        arrayPtr[i] = new int[2 * M + 1];
-
-    return arrayPtr;
-}
-
-double** MaskSettings::dynamicArrayDouble(int N, int M)
-{
-    double** arrayPtr = nullptr;
-
-    arrayPtr = new double *[N];
-
-    for (int i = 0; i < N; ++i)
-        arrayPtr[i] = new double[M];
-
-    return arrayPtr;
-}
-
 
 /*	вычисление квадратного вычета по модулю p	*/
 int MaskSettings::square_vychet(int i, int p)
@@ -104,105 +79,95 @@ finish:
 /*	 построение маски заданного ранга N	*/
 void MaskSettings::mask_construction(int N)
 {
-    int** a = nullptr;
-    a = dynamicArrayInt(2 * N + 1, 2 * N + 1);	//создание массива стандартной маски
+    size_t N_to_size_t = static_cast<size_t>(N);
+    size_t N_to_size_t_for_a = 2 * (2 * N_to_size_t + 1) + 1;
 
-    double** bincoded = dynamicArrayDouble((2 * N + 1)*binning, (2 * N + 1)*binning);	//создание массива бининговой маски
+    std::vector<std::vector<int>> a(N_to_size_t_for_a, std::vector<int>(N_to_size_t_for_a, 0)); //создание массива стандартной маски
+    std::vector<std::vector<double>> bincoded((2 * N_to_size_t + 1) *_binning, std::vector<double>((2 * N_to_size_t + 1) * _binning, 0));
+    std::vector<std::vector<double>> decoded(2 * N_to_size_t + 1, std::vector<double>(2 * N_to_size_t + 1, 0));
+    std::vector<std::vector<double>> mass_bp(_binning, std::vector<double>(_binning, 0));
 
-    double** decoded = nullptr;
-    decoded = dynamicArrayDouble(2 * N + 1, 2 * N + 1);	//создание массива декодирующей функции
-
-    double** mass_bp = nullptr;
-    mass_bp = dynamicArrayDouble(binning, binning);		//массив бинов
-
-
-    for (int i=0;i<binning;i++)						//заполнение массива бинов
-        for (int j = 0; j < binning; j++) {
-            mass_bp[i][j] = double(arrayBin[i][j]);
-        }
+    for (size_t i = 0; i < _binning; i++)						//заполнение массива бинов
+        for (size_t j = 0; j < _binning; j++)
+            mass_bp[i][j] = _vecBin[i][j];
 
     /*Построение массива стандартной маски*/
     for (int i = -N; i < 1; ++i)
-        for (int j = -N; j < 1; ++j) {
-            if (i == 0) {
-                a[i + N][j + N] = 0;
-                a[i + 2 * N + 1][j + 2 * N + 1] = 0;
-                a[i + N][j + 2 * N + 1] = 0;
-                a[i + 2 * N + 1][j + N] = 0;
-            }
-            else {
-                if (j == 0) {
-                    a[i + N][j + N] = 1;
-                    a[i + 2 * N + 1][j + 2 * N + 1] = 1;
-                    a[i + N][j + 2 * N + 1] = 1;
-                    a[i + 2 * N + 1][j + N] = 1;
-                }
-                else {
-                    if (square_vychet(i, N + 1)*square_vychet(j, N + 1) == 1) {
-                        a[i + N][j + N] = 1;
-                        a[i + 2 * N + 1][j + 2 * N + 1] = 1;
-                        a[i + N][j + 2 * N + 1] = 1;
-                        a[i + 2 * N + 1][j + N] = 1;
-                    }
-                    else {
-                        a[i + N][j + N] = 0;
-                        a[i + 2 * N + 1][j + 2 * N + 1] = 0;
-                        a[i + N][j + 2 * N + 1] = 0;
-                        a[i + 2 * N + 1][j + N] = 0;
-                    }
-                }
-            }
-        }
-
-//    for (int i = 0; i < 2 * N + 1; ++i) {
-//        for (int j = 0; j < 2 * N + 1; ++j) {
-//            cout << a[i][j] << " ";	//вывод массива стандартной маски
-//        }
-//        cout << endl;
-//    }
-//    cout << endl << endl;
-
-//    cout << endl << endl;
-
-    for (int i = 0; i < 2 * N + 1; ++i) {
-        for (int j = 0; j < 2 * N + 1; ++j) {
-            if (i == j) decoded[i][j] = 1;
-            else if (a[i][j] == 1) decoded[i][j] = 1;
-            else decoded[i][j] = minus_one_or_zero;			//ПРОЗРАЧНОСТЬ МАСКИ по умолчанию "-1"
-//            cout << decoded[i][j] << " "; //вывод массива декодирующей функции
-        }
-//        cout << endl;
-    }
-
-
-    for (int i = 0; i < 2 * N + 1; i++) {
-
-        for (int j = 0; j < 2 * N + 1; j++) {
-
+    {
+        for (int j = -N; j < 1; ++j)
+        {
+            if (i == 0)
             {
-                if (decoded[i][j] == 1.00) {
-
-                    for (int k = 0; k < binning; k++)
-                        for (int l = 0; l < binning; l++) {
-
-                            bincoded[binning * i + k][binning * j + l] = mass_bp[k][l];
-                        }
+                a[static_cast<size_t>(i + N)][static_cast<size_t>(j + N)] = 0;
+                a[static_cast<size_t>(i + 2 * N + 1)][static_cast<size_t>(j + 2 * N + 1)] = 0;
+                a[static_cast<size_t>(i + N)][static_cast<size_t>(j + 2 * N + 1)] = 0;
+                a[static_cast<size_t>(i + 2 * N + 1)][static_cast<size_t>(j + N)] = 0;
+            }
+            else
+            {
+                if (j == 0)
+                {
+                    a[static_cast<size_t>(i + N)][static_cast<size_t>(j + N)] = 1;
+                    a[static_cast<size_t>(i + 2 * N + 1)][static_cast<size_t>(j + 2 * N + 1)] = 1;
+                    a[static_cast<size_t>(i + N)][static_cast<size_t>(j + 2 * N + 1)] = 1;
+                    a[static_cast<size_t>(i + 2 * N + 1)][static_cast<size_t>(j + N)] = 1;
                 }
                 else
                 {
-                    for (int k = 0; k < binning; k++)
-                        for (int l = 0; l < binning; l++) {
-
-                            bincoded[binning * i + k][binning * j + l] = ui->transparency_of_mask->value();
-                        }
+                    if (square_vychet(i, N + 1)*square_vychet(j, N + 1) == 1)
+                    {
+                        a[static_cast<size_t>(i + N)][static_cast<size_t>(j + N)] = 1;
+                        a[static_cast<size_t>(i + 2 * N + 1)][static_cast<size_t>(j + 2 * N + 1)] = 1;
+                        a[static_cast<size_t>(i + N)][static_cast<size_t>(j + 2 * N + 1)] = 1;
+                        a[static_cast<size_t>(i + 2 * N + 1)][static_cast<size_t>(j + N)] = 1;
+                    }
+                    else
+                    {
+                        a[static_cast<size_t>(i + N)][static_cast<size_t>(j + N)] = 0;
+                        a[static_cast<size_t>(i + 2 * N + 1)][static_cast<size_t>(j + 2 * N + 1)] = 0;
+                        a[static_cast<size_t>(i + N)][static_cast<size_t>(j + 2 * N + 1)] = 0;
+                        a[static_cast<size_t>(i + 2 * N + 1)][static_cast<size_t>(j + N)] = 0;
+                    }
                 }
+            }
+        }
+    }
+
+    for (size_t i = 0; i < 2 * N_to_size_t + 1; ++i)
+    {
+        for (size_t j = 0; j < 2 * N_to_size_t + 1; ++j)
+        {
+            if (i == j) decoded[i][j] = 1;
+            else if (a[i][j] == 1) decoded[i][j] = 1;
+            else decoded[i][j] = minus_one_or_zero;			//ПРОЗРАЧНОСТЬ МАСКИ по умолчанию "-1"
+        }
+    }
+
+
+    for (size_t i = 0; i < 2 * N_to_size_t + 1; i++)
+    {
+        for (size_t j = 0; j < 2 * N_to_size_t + 1; j++)
+        {
+            if (decoded[i][j] == 1.00)
+            {
+                for (size_t k = 0; k < _binning; k++)
+                    for (size_t l = 0; l < _binning; l++)
+                        bincoded[_binning * i + k][_binning * j + l] = mass_bp[k][l];
+            }
+            else
+            {
+                for (size_t k = 0; k < _binning; k++)
+                    for (size_t l = 0; l < _binning; l++)
+                        bincoded[_binning * i + k][_binning * j + l] = ui->transparency_of_mask->value();
             }
         }
     }
 
     ofstream decoded_f("output.txt", ofstream::out);	//запись в файл, он же (ВЫВОД НА ФОРМУ) binningcoded
-    for (int i = 0; i < (N * 2 + 1)*binning; i++){
-        for (int j = 0; j < (N * 2 + 1)*binning; j++){
+    for (size_t i = 0; i < (N_to_size_t * 2 + 1)*_binning; i++)
+    {
+        for (size_t j = 0; j < (N_to_size_t * 2 + 1)*_binning; j++)
+        {
             if(j != 0)
                 decoded_f << " ";
             decoded_f << bincoded[i][j];
@@ -211,22 +176,6 @@ void MaskSettings::mask_construction(int N)
     }
     emit signalGenerated("output.txt");
     decoded_f.close();
-
-    for (int i = 0; i < 2 * N + 1; ++i)	//очистка памяти
-        delete[] a[i];
-    delete a;
-
-    for (int i = 0; i < (2 * N + 1)*binning; ++i)	//очистка памяти
-        delete[] bincoded[i];
-    delete bincoded;
-
-    for (int i = 0; i < 2 * N + 1; ++i)	//очистка памяти
-        delete[] decoded[i];
-    delete decoded;
-
-    for (int i = 0; i < binning; ++i)	//очистка памяти
-        delete[] mass_bp[i];
-    delete mass_bp;
 }
 
 //---------------------------------------------
@@ -235,16 +184,11 @@ void MaskSettings::mask_construction(int N)
 
 MaskSettings::MaskSettings(QWidget *parent) :
     QWidget(parent),
-    ui(new Ui::MaskSettings)
+    ui(new Ui::MaskSettings),
+    _BINNING_MAX_SIZE(15)
 {
-    //выделение памяти
-    arrayBin = new double* [BINNING_MAX_SIZE];
-    for (int i = 0; i < BINNING_MAX_SIZE ; ++i)
-        arrayBin[i] = new double[BINNING_MAX_SIZE ];
-
-    for (int row = 0; row < BINNING_MAX_SIZE; ++row)
-        for (int column = 0; column < BINNING_MAX_SIZE; ++column)
-            arrayBin[row][column]= 1.00;
+    _vecBin.resize(_BINNING_MAX_SIZE, std::vector<double>(_BINNING_MAX_SIZE, 1));
+    _vecBin.shrink_to_fit();
 
     ui->setupUi(this);
 
@@ -263,10 +207,6 @@ MaskSettings::MaskSettings(QWidget *parent) :
 MaskSettings::~MaskSettings()
 {
     delete ui;
-
-    for (int i = 0; i < BINNING_MAX_SIZE ; ++i)
-        delete [] arrayBin[i];
-    delete [] arrayBin;
 }
 int MaskSettings::getRank() const
 {
@@ -284,20 +224,20 @@ void MaskSettings::slotGenerate()
 
     int rang = ui->rank_of_mask->value();
     minus_one_or_zero = ui->transparency_of_mask->value();
-    binning = ui->binning->value();
+    _binning = static_cast<size_t>(ui->binning->value());
 
     /*----Функция для создания файла с базовым узором ранга N-------*/
-//    cout << "Rang maski = ";
-//    cin >> rang;
+    //    cout << "Rang maski = ";
+    //    cin >> rang;
     mask_construction(rang - 1);
 
 }
 void MaskSettings::slotOpenTXT()
 {
     QString file = QFileDialog::getOpenFileName(this,
-                                               "Open",
-                                               QDir::homePath(),
-                                               "TXT (*.txt)");
+                                                "Open",
+                                                QDir::homePath(),
+                                                "TXT (*.txt)");
     if(!file.isNull()){
         //ловится в классе viewer_widget
         emit signalOpenTXT(file);
@@ -317,10 +257,8 @@ void MaskSettings::slotBinningChanged(int value)
 }
 void MaskSettings::slotTableShow()
 {
-    Table* table = new Table(ui->binning->value(), arrayBin);
+    Table table(ui->binning->value(), &_vecBin);
 
-    if(table->exec() == QDialog::Accepted)
-        table->saveData();
-
-    delete table;
+    if(table.exec() == QDialog::Accepted)
+        table.saveData();
 }

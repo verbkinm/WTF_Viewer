@@ -9,9 +9,9 @@
 #include "viewer_processor/viewer_clog_processor.h"
 #include "viewer_processor/viewer_txt_processor.h"
 
-#include "viewer_button_panel.h"
-#include "viewer_data_panel.h"
-#include "pix_filter_panel.h"
+#include "panels/viewer_button_panel.h"
+#include "panels/viewer_data_panel.h"
+#include "panels/pix_filter_panel.h"
 
 namespace Ui {
 class Viewer;
@@ -32,7 +32,7 @@ public:
     void setSettings(std::shared_ptr<const QSettings>);
     void setScene(QGraphicsScene*);
     void setSceneReadOnly(bool);
-    void setImageFile(const QString &);
+    void setImageFileName(const QString &);
 
     QGraphicsScene* getScenePtr();
     std::pair<const Frames &, bool> getFrames() const;
@@ -64,27 +64,26 @@ private:
     QImage _currentImage;
     QGraphicsPixmapItem *_itemImage ;
     QGraphicsRectItem *_itemRect;
-    FingerSlide *_pEventFilterScene;    //фильтр событий для сцены и представления
+    FingerSlide *_pEventFilterScene;    //фильтр событий для сцены
+    FingerSlide *_pEventFilterViewPort;//фильтр событий для представления
     std::unique_ptr<QMenu> _spMenuFile;
     //объект сцены
     QGraphicsScene* _pCurrentScene;
     QGraphicsScene _defaultScene;
 
-    void setImage(const QImage &image);
+    void setImage(const QImage &);
     void setSceneDefault();
+    void setEmptyImageOnViewerScene();     //вывести вместо изображения надпись - "Select file!"
+    void setEnablePanels(bool);
 
     void resetTransform();
+    void connect_pEventFilterScene();
 
     void createButtonPanel();
     void createDataPanel();
     void createPixFilterPanel();
 
     void incorrectFile();  //действия при не правильном файле
-    void setEmptyImageOnViewerScene();     //вывести вместо изображения надпись - "Select file!"
-    void setEnablePanels(bool);    //включени\отключение кнопок на панелях
-
-    void connectPixFilterSelectionDataPanel();
-    void disconnectPixFilterSelectionDataPanel();
 
     void showMarkers();
 
@@ -92,7 +91,7 @@ private:
     Filter_Clog createFilterFromPixFilterPanel();
 
 public slots:
-    void slotSetImageFile(QString file);
+    void slotSetImageFile(QString);
     void slotSaveBMP();
     void slotSaveTXT();
 
@@ -107,14 +106,13 @@ private slots:
     void slotScaleWheel(int);    // масштаб колёсиком мышки
     void slotImageAccordingInversionCheckBox(int);//отрисовка _currentImage в зависимости от значения checkBox'а Inversion
     void slotViewPosition(QPointF); //позиция курсора и значение "пикселя" на сцене
-    void slotViewSelectionPos(QRect);//позиция выделения
     void slotViewSelectionMovePos(QPoint);//позиция выделения при перетаскивании мышкой
     void slotDrawPoint(QPointF); //рисование точек карандашем
     void slotToggleFrame(bool);
-    void slotPen(bool);
+    void slotSetCursorAsPencil(bool);
     void slotCut();
     void slotFinishSelection();    //действия при окончании выделения(отпускание кнопки мышки)
-    void slotMoveRectFromKey();    // изменение выделения с помощью спинбоксов на панели
+    void slotMoveRectFromKey(QRect);    // изменение выделения с помощью спинбоксов на панели
     void slotCreateRectItem(QGraphicsRectItem*);
     void slotApplyClogFilter();
     void slotRepaint();

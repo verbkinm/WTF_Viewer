@@ -2,10 +2,7 @@
 #define VIEWER_WIDGET_H
 
 #include <QWidget>
-#include <QFile>
 #include <QImage>
-#include <QCloseEvent>
-#include <QGraphicsScene>
 #include <QSettings>
 #include <QSplitter>
 
@@ -23,25 +20,24 @@ class Viewer_widget : public QWidget
     Q_OBJECT
 
 public:
-
     explicit Viewer_widget(std::shared_ptr<const QSettings> spSetting, QWidget *parent = nullptr);
     ~Viewer_widget();
 
     std::shared_ptr<const QSettings>_spSettings;
+    std::pair<const Frames &, bool> getFrames() const;
 
-    void setImageFile(QString &path);
-    std::pair<const Frames &, bool> getFrames();
-    QImage getImageFromTxtFile(const QString &file);
+    void setImageFile(const QString &path);
 
 private:
     Ui::Viewer_widget *ui;
 
-    QSplitter main_splitter, left_splitter, right_splitter;
-
-    Viewer graphicsView_origin, mask_viewer, graphicsView_Result;
-    MaskSettings mask_settings;
+    QSplitter _main_splitter, _left_splitter, _right_splitter;
+    Viewer _graphicsView_origin, _mask_viewer, _graphicsView_Result;
+    MaskSettings _mask_settings;
 
     void makeMaskTab();
+
+    enum tabsName {VIEW_AND_EDIT, MASK};
 
 private slots:
     void slotTabChanged(int);

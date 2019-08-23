@@ -40,15 +40,15 @@ SOURCES += \
     viewer_widget/checkFile/checkfile.cpp \
     viewer_widget/frames/frames.cpp \
     viewer_widget/frames/oneframe.cpp \
-    viewer_widget/viewer/clogfilterpanel.cpp \
+    viewer_widget/viewer/panels/clogfilterpanel.cpp \
     viewer_widget/masksettings.cpp \
-    viewer_widget/viewer/pix_filter_panel.cpp \
+    viewer_widget/viewer/panels/pix_filter_panel.cpp \
     viewer_widget/table.cpp \
     viewer_widget/viewer/saver.cpp \
-    viewer_widget/viewer/toolspanel.cpp \
+    viewer_widget/viewer/panels/toolspanel.cpp \
     viewer_widget/viewer/viewer.cpp \
-    viewer_widget/viewer/viewer_button_panel.cpp \
-    viewer_widget/viewer/viewer_data_panel.cpp \
+    viewer_widget/viewer/panels/viewer_button_panel.cpp \
+    viewer_widget/viewer/panels/viewer_data_panel.cpp \
     viewer_widget/viewer/viewer_processor/filter_clog.cpp \
     viewer_widget/viewer/viewer_processor/viewer_clog_processor.cpp \
     viewer_widget/viewer/viewer_processor/viewer_processor.cpp \
@@ -73,15 +73,15 @@ HEADERS += \
     viewer_widget/checkFile/checkfile.h \
     viewer_widget/frames/frames.h \
     viewer_widget/frames/oneframe.h \
-    viewer_widget/viewer/clogfilterpanel.h \
+    viewer_widget/viewer/panels/clogfilterpanel.h \
     viewer_widget/masksettings.h \
-    viewer_widget/viewer/pix_filter_panel.h \
+    viewer_widget/viewer/panels/pix_filter_panel.h \
     viewer_widget/table.h \
     viewer_widget/viewer/saver.h \
-    viewer_widget/viewer/toolspanel.h \
+    viewer_widget/viewer/panels/toolspanel.h \
     viewer_widget/viewer/viewer.h \
-    viewer_widget/viewer/viewer_button_panel.h \
-    viewer_widget/viewer/viewer_data_panel.h \
+    viewer_widget/viewer/panels/viewer_button_panel.h \
+    viewer_widget/viewer/panels/viewer_data_panel.h \
     viewer_widget/viewer/viewer_processor/filter_clog.h \
     viewer_widget/viewer/viewer_processor/viewer_clog_processor.h \
     viewer_widget/viewer/viewer_processor/viewer_processor.h \
@@ -102,14 +102,14 @@ FORMS += \
     graph/panelwidget.ui \
     loadcalibrationfiles.ui \
     settings/settingsimage.ui \
-    viewer_widget/viewer/clogfilterpanel.ui \
+    viewer_widget/viewer/panels/clogfilterpanel.ui \
     viewer_widget/masksettings.ui \
-    viewer_widget/viewer/pix_filter_panel.ui \
+    viewer_widget/viewer/panels/pix_filter_panel.ui \
     viewer_widget/table.ui \
-    viewer_widget/viewer/toolspanel.ui \
+    viewer_widget/viewer/panels/toolspanel.ui \
     viewer_widget/viewer/viewer.ui \
-    viewer_widget/viewer/viewer_button_panel.ui \
-    viewer_widget/viewer/viewer_data_panel.ui \
+    viewer_widget/viewer/panels/viewer_button_panel.ui \
+    viewer_widget/viewer/panels/viewer_data_panel.ui \
     viewer_widget/viewer_widget.ui \
     progressbar.ui
 

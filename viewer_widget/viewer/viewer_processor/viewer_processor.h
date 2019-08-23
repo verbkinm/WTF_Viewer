@@ -54,6 +54,8 @@ protected:
     double rangeConverter(double value, double From1, double From2, double To1, double To2);
     void createFrameInVec2D();
     void createMaskInVec2D();
+    void rebuildVec2DAccordingToSettings();
+    void rebuildImageAccordingToSettings(QImage &image);
 
     //повороты
 //    QImage rotatePlus();
@@ -66,8 +68,6 @@ protected:
 
     virtual void createVec2D() = 0;
     virtual void resetDataToDefault() = 0;
-    void rebuildVec2DAccordingToSettings();
-    void rebuildImageAccordingToSettings(QImage &image);
 };
 Q_DECLARE_OPERATORS_FOR_FLAGS(Viewer_Processor::Markers_Flags)
 

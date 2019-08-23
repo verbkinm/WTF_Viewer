@@ -12,10 +12,10 @@ Pix_Filter_Panel::Pix_Filter_Panel(QWidget *parent) :
     connect(ui->edit_panel, SIGNAL(signalCutClicked(bool)), SIGNAL(signalCutClicked(bool)));
     connect(ui->edit_panel, SIGNAL(signalRepaint()), SIGNAL(signalRepaint()));
 
-    connect(ui->x, SIGNAL(valueChanged(int)), SIGNAL(signalValueX_Changed(int)));
-    connect(ui->y, SIGNAL(valueChanged(int)), SIGNAL(signalValueY_Changed(int)));
-    connect(ui->width, SIGNAL(valueChanged(int)), SIGNAL(signalValueWidth_Changed(int)));
-    connect(ui->heigth, SIGNAL(valueChanged(int)), SIGNAL(signalValueHeight_Changed(int)));
+    connect(ui->x, SIGNAL(valueChanged(int)), SLOT(slotDataOnDataPanelChanged()));
+    connect(ui->y, SIGNAL(valueChanged(int)), SLOT(slotDataOnDataPanelChanged()));
+    connect(ui->width, SIGNAL(valueChanged(int)), SLOT(slotDataOnDataPanelChanged()));
+    connect(ui->heigth, SIGNAL(valueChanged(int)), SLOT(slotDataOnDataPanelChanged()));
 
     connect(ui->clogFilterPanel, SIGNAL(signalApplyFilter()), SIGNAL(signalApplyFilter()));
 }
@@ -178,4 +178,47 @@ void Pix_Filter_Panel::reset(bool state)
     ui->y->setValue(0);
     ui->width->setValue(0);
     ui->heigth->setValue(0);
+}
+
+void Pix_Filter_Panel::slotSetDataOnDataPanel(QRect rect)
+{
+    int x = rect.x();
+    int y = rect.y();
+
+    int width = rect.width();
+    int height = rect.height();
+
+    if(height < 0 && width < 0)
+    {
+        x = x + width;
+        y = y - qAbs(height);
+        width = qAbs(width);
+        height = qAbs(height);
+    }
+    else if(height < 0 && width > 0)
+    {
+        y = y - qAbs(height);
+        width = qAbs(width);
+        height = qAbs(height);
+    }
+    else if(height > 0 && width < 0  )
+    {
+        x = x + width;
+        width = qAbs(width);
+        height = qAbs(height);
+    }
+    else if(height > 0 && width > 0  )
+    {
+        ;
+    }
+
+    ui->x->setValue(x);
+    ui->y->setValue(y);
+    ui->width->setValue(width);
+    ui->heigth->setValue(height);
+}
+
+void Pix_Filter_Panel::slotDataOnDataPanelChanged()
+{
+    emit signalDataOnDataPanelChanged(QRect(ui->x->value(), ui->y->value(), ui->width->value(), ui->heigth->value()));
 }

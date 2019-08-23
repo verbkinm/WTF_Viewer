@@ -2,6 +2,8 @@
 #define TABLE_H
 
 #include <QDialog>
+#include <vector>
+#include <memory>
 
 namespace Ui {
 class Table;
@@ -12,7 +14,7 @@ class Table : public QDialog
     Q_OBJECT
 
 public:
-    explicit Table(int size, double** array, QWidget *parent = nullptr);
+    explicit Table(int size, std::vector<std::vector<double>> *vec, QWidget *parent = nullptr);
     ~Table();
 
     void saveData();
@@ -20,7 +22,7 @@ public:
 private:
     Ui::Table *ui;
 
-    double** arrayBin = nullptr;
+    std::vector<std::vector<double>> *_vecBin;
 
     // QWidget interface
 protected:
