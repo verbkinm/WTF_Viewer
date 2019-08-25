@@ -29,15 +29,12 @@ Table::Table(int size, std::vector<std::vector<double>> *vec, QWidget *parent) :
                 spinbox->setStyleSheet("background-color: #c8c8c8;");
         }
     }
-
     ui->tableWidget->resizeRowsToContents();
     ui->tableWidget->resizeColumnsToContents();
-
     // для плавной прокрутки таблицы
     ui->tableWidget->setHorizontalScrollMode(QAbstractItemView::ScrollPerPixel);
     ui->tableWidget->setVerticalScrollMode(QAbstractItemView::ScrollPerPixel);
     ui->tableWidget->setSelectionMode(QAbstractItemView::NoSelection);
-
     this->resize(640, 480);
 }
 
@@ -46,7 +43,6 @@ Table::~Table()
     for (int row = 0; row < ui->tableWidget->rowCount(); ++row)
         for (int column = 0; column < ui->tableWidget->columnCount(); ++column)
             delete ui->tableWidget->cellWidget(row, column);
-
     delete ui;
 }
 
@@ -60,18 +56,19 @@ void Table::saveData()
 void Table::resizeEvent(QResizeEvent *)
 {
     // растягиваем ширину столбцов до предела, если ширина всех столбцов меньше ширины тыблицы
-    int widthColumns_TableLessonData = 0;
+    int widthColumns = 0;
     for (int column = 0; column < ui->tableWidget->columnCount(); ++column)
-        widthColumns_TableLessonData += ui->tableWidget->columnWidth(column);
-    if(widthColumns_TableLessonData < ui->tableWidget->width()){
+        widthColumns += ui->tableWidget->columnWidth(column);
+    if(widthColumns < ui->tableWidget->width())
+    {
         for (int column = 0; column < ui->tableWidget->columnCount(); ++column)
             ui->tableWidget->horizontalHeader()->setSectionResizeMode(column, QHeaderView::Stretch);
     }
     // растягиваем высоту строк до предела, если высота всех строк меньше высоты тыблицы
-    int heightRows_TableLessonData = 0;
+    int heightRows = 0;
     for (int row = 0; row < ui->tableWidget->rowCount(); ++row)
-        heightRows_TableLessonData += ui->tableWidget->rowHeight(row);
-    if(heightRows_TableLessonData < ui->tableWidget->height())
+        heightRows += ui->tableWidget->rowHeight(row);
+    if(heightRows < ui->tableWidget->height())
     {
         for (int row = 0; row < ui->tableWidget->rowCount(); ++row)
             ui->tableWidget->verticalHeader()->setSectionResizeMode(row, QHeaderView::Stretch);

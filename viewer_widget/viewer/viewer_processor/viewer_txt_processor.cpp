@@ -58,12 +58,12 @@ QImage Viewer_Txt_Processor::getRedrawnImage()
 void Viewer_Txt_Processor::createVec2D()
 {
     VectorFromTxtFile vectorFromTxtFile(_fileName);
-    _columns  = vectorFromTxtFile._column;
-    _rows     = vectorFromTxtFile._row;
+    _columns = vectorFromTxtFile._column;
+    _rows = vectorFromTxtFile._row;
 
     allocateEmptyVec2D(_vec2D, _columns, _rows);
 
-    int i = 0;
+    size_t i = 0;
     for(size_t  y = 0; y < _rows; ++y)
     {
         for(size_t  x = 0; x < _columns; ++x)

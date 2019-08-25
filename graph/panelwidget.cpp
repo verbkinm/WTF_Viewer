@@ -19,7 +19,6 @@ PanelWidget::PanelWidget(QWidget *parent) :
 {
     ui->setupUi(this);
 
-    // add items to theme combobox
     ui->themeComboBox->addItem("Light", QChart::ChartThemeLight);
     ui->themeComboBox->addItem("Blue Cerulean", QChart::ChartThemeBlueCerulean);
     ui->themeComboBox->addItem("Dark", QChart::ChartThemeDark);
@@ -32,59 +31,29 @@ PanelWidget::PanelWidget(QWidget *parent) :
     ui->tickCountX->setValue(5);
     ui->tickCountY->setValue(5);
 
-    connect(ui->themeComboBox,  SIGNAL(currentIndexChanged(int)), this,
-                                SIGNAL(signalChangeTheme(int)));
-
-    connect(ui->pointVisible,   SIGNAL(toggled(bool)), this,
-                                SLOT(slotSetPointVisible(bool)));
-
-    connect(ui->legendPosition, SIGNAL(currentIndexChanged(int)), this,
-                                SIGNAL(signalSetLegendPosition(int)));
-
-    connect(ui->title,          SIGNAL(textChanged(QString)), this,
-                                SIGNAL(signalSetTitile(QString)));
-
-    connect(ui->animation,      SIGNAL(toggled(bool)), this,
-                                SIGNAL(signalAnimation(bool)));
-
-    connect(ui->antialiasing,   SIGNAL(toggled(bool)), this,
-                                SIGNAL(signalAntialiasing(bool)));
-
-    connect(ui->seriesList,     SIGNAL(currentIndexChanged(int)), this,
-                                SLOT(slotSetSeriesPropery(int)));
-
-    connect(ui->colorSelect,    SIGNAL(clicked()), this,
-                                SLOT(slotSetSeriesColor()));
-
-    connect(ui->seriesType,     SIGNAL(currentIndexChanged(int)), this,
-                                SLOT(slotSetSeriesType(int)));
-
-    connect(ui->hide,           SIGNAL(toggled(bool)), this,
-                                SLOT(slotHideSeries(bool)));
-
-    connect(ui->tickCountX,     SIGNAL(valueChanged(int)), this,
-                                SIGNAL(signalTickCountChangeX(int)));
-    connect(ui->tickCountY,     SIGNAL(valueChanged(int)), this,
-                                SIGNAL(signalTickCountChangeY(int)));
-
-    connect(ui->penWidth,       SIGNAL(valueChanged(int)), this,
-                                SLOT(slotSetSeriesPenWidth(int)));
-
-    connect(ui->deleteSeries,   SIGNAL(clicked()), this,
-                                SLOT(slotDeleteSeries()));
-
-    connect(ui->saveToCSV,      SIGNAL(clicked()), this,
-                                SLOT(slotSaveToCSV()));
+    connect(ui->themeComboBox, SIGNAL(currentIndexChanged(int)), SIGNAL(signalChangeTheme(int)));
+    connect(ui->pointVisible, SIGNAL(toggled(bool)), SLOT(slotSetPointVisible(bool)));
+    connect(ui->legendPosition, SIGNAL(currentIndexChanged(int)), SIGNAL(signalSetLegendPosition(int)));
+    connect(ui->title, SIGNAL(textChanged(QString)), SIGNAL(signalSetTitile(QString)));
+    connect(ui->animation, SIGNAL(toggled(bool)), SIGNAL(signalAnimation(bool)));
+    connect(ui->antialiasing, SIGNAL(toggled(bool)), SIGNAL(signalAntialiasing(bool)));
+    connect(ui->seriesList, SIGNAL(currentIndexChanged(int)), SLOT(slotSetSeriesPropery(int)));
+    connect(ui->colorSelect, SIGNAL(clicked()), SLOT(slotSetSeriesColor()));
+    connect(ui->seriesType, SIGNAL(currentIndexChanged(int)), SLOT(slotSetSeriesType(int)));
+    connect(ui->hide, SIGNAL(toggled(bool)), SLOT(slotHideSeries(bool)));
+    connect(ui->tickCountX, SIGNAL(valueChanged(int)), SIGNAL(signalTickCountChangeX(int)));
+    connect(ui->tickCountY, SIGNAL(valueChanged(int)), SIGNAL(signalTickCountChangeY(int)));
+    connect(ui->penWidth, SIGNAL(valueChanged(int)), SLOT(slotSetSeriesPenWidth(int)));
+    connect(ui->deleteSeries, SIGNAL(clicked()), SLOT(slotDeleteSeries()));
+    connect(ui->saveToCSV, SIGNAL(clicked()), SLOT(slotSaveToCSV()));
 }
 
 PanelWidget::~PanelWidget()
 {
     delete ui;
-
-    foreach (QXYSeries* series, seriesList)
+    for (auto series :seriesList)
         delete series;
-
-    foreach (CustomTableModel* model, modelList)
+    for (auto model : modelList)
         delete model;
 }
 
@@ -94,7 +63,6 @@ void PanelWidget::addSeriesList(QXYSeries *series)
     CustomTableModel* model = new CustomTableModel();
     model->setVector(series->pointsVector());
     modelList.append(model);
-
     ui->seriesList->addItem(series->name());
 }
 

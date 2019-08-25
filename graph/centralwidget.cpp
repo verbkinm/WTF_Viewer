@@ -9,22 +9,20 @@
 
 #include <QApplication>
 
-CentralWidget::CentralWidget(QWidget *parent) : QMainWindow(parent)
+CentralWidget::CentralWidget(QWidget *parent) : QMainWindow(parent),
+    pAxisX(nullptr), pAxisY(nullptr),
+    maxX(0), maxY(0), minX(std::numeric_limits<int>::max()), minY(std::numeric_limits<int>::max())
 {
     panelWidget.setParent(this);
-
     createMenu();
-
     statusBar()->insertWidget(0, &statusBarWidget);
-
-    XYDefault();
+    setLinersXYDefault();
 
     QFont font = chart.titleFont();
     font.setPixelSize(18);
     chart.setTitleFont(QFont(font));
 
     createAxes();
-
     chart.axes(Qt::Horizontal).back()->setTitleText("X");
     chart.axes(Qt::Vertical).back()->setTitleText("Y");
     chart.setDropShadowEnabled(true);
@@ -33,122 +31,37 @@ CentralWidget::CentralWidget(QWidget *parent) : QMainWindow(parent)
 
     layout.addWidget(&chartView);
     layout.addWidget(&panelWidget);
-
     layout.setStretch(0, 1);
+
     centralWidget.setLayout(&layout);
     setCentralWidget(&centralWidget);
     chartView.setFocus();
 
-    connect(&panelWidget,    SIGNAL(signalChangeTheme(int)), this,
-                             SLOT(slotSetTheme(int)));
-
-    connect(&panelWidget,    SIGNAL(signalSetLegendPosition(int)), this,
-                             SLOT(slotSetLegentPosition(int)));
-
-    connect(&panelWidget,    SIGNAL(signalSetTitile(QString)), this,
-                             SLOT(slotSetTitle(QString)));
-
-    connect(&panelWidget,    SIGNAL(signalAnimation(bool)), this,
-                             SLOT(slotAnimation(bool)));
-
-    connect(&panelWidget,    SIGNAL(signalAntialiasing(bool)), this,
-                             SLOT(slotAntialiasing(bool)));
-
-    connect(&panelWidget,    SIGNAL(signalTickCountChangeX(int)), this,
-                             SLOT(slotSetTcickCountX(int)));
-    connect(&panelWidget,    SIGNAL(signalTickCountChangeY(int)), this,
-                             SLOT(slotSetTcickCountY(int)));
-
-    connect(&panelWidget,    SIGNAL(signalSeriesDeleted()), this,
-                             SLOT(slotReRange()));
-
-    connect(&panelWidget,    SIGNAL(signalRubberMode(QChartView::RubberBand)), this,
-                             SLOT(slotSetRubberMode(QChartView::RubberBand)));
-
-    connect(&panelWidget,    SIGNAL(signalAxisXRangeChanged(qreal, qreal)), this,
-                             SLOT(slotRangeXSet(qreal, qreal)));
-
-    connect(&panelWidget,    SIGNAL(signalAxisYRangeChanged(qreal, qreal)), this,
-                             SLOT(slotRangeYSet(qreal, qreal)));
-
-    connect(&panelWidget,    SIGNAL(signalSeriesTypeChange()), this,
-                             SLOT(slotSeriesTypeChanged()) );
-
-
-    connect(&chartView,      SIGNAL(signalMousePosition(QPointF)), this,
-                             SLOT(slotViewXYCoordinate(QPointF)));
+    connectPanelWidgetSignals();
+    connect(&chartView, &ChartView::signalMousePosition, this, &CentralWidget::slotViewXYCoordinate);
 }
 
 CentralWidget::~CentralWidget()
 {
-//    delete pMenuFile;
+    delete pAxisX;
+    delete pAxisY;
 }
 
-void CentralWidget::addSeries(QVector<QPointF> pointVector, QXYSeries::SeriesType type, QString legendTitle, QString axsisX_Title, QString axsisY_Title)
+void CentralWidget::addSeries(std::vector<QPointF> &pointVector, QXYSeries::SeriesType type, QString legendTitle, QString axsisX_Title, QString axsisY_Title)
 {
-    QXYSeries* series = nullptr;
-
-    switch (type) {
-    case QXYSeries::SeriesTypeLine:
-        series = new QLineSeries();
-        break;
-    case QXYSeries::SeriesTypeSpline:
-        series = new QSplineSeries();
-        break;
-    case QXYSeries::SeriesTypeScatter:
-        series = new QScatterSeries();
-        break;
-    default:
-        break;
-    }
-
-    foreach (QPointF point, pointVector)
-    {
-        *series << point;
-
-        if(point.x() > maxX) maxX = point.x();
-        if(point.y() > maxY) maxY = point.y();
-
-        if(point.x() < minX) minX = point.x();
-        if(point.y() < minY) minY = point.y();
-    }
-
+    QXYSeries* series = createSeriesAccordingType(type);
     series->setName(legendTitle);
+    fillSeriesOfPoints(pointVector, series);
+    setSeriesProperty(series);
+    setChartViewXYRange();
+    createAxes();
+    setRangeAndTitleForAxes(axsisX_Title, axsisY_Title);
+
     chart.addSeries(series);
     panelWidget.addSeriesList(series);
-
-    if(chart.series().length() > 2) //1 - axis x, 2 - axis y
-    {
-        QXYSeries* ser = static_cast<QXYSeries*>(chart.series().last());
-        QColor newColor = series->color();
-        QPen pen = ser->pen();
-        pen.setColor(newColor);
-        series->setPen(pen);
-        if(series->type() == QAbstractSeries::SeriesTypeScatter)
-        {
-            QScatterSeries* scatSer = static_cast<QScatterSeries*>(series);
-            scatSer->setMarkerSize(pen.width());
-            scatSer->setBorderColor(newColor);
-        }
-    }
-
-//Что-бы правильно работало нажатие Esc >>
-    chartView.rangeX.min = minX;
-    chartView.rangeX.max = maxX;
-
-    chartView.rangeY.min = minY;
-    chartView.rangeY.max = maxY;
-//Что-бы правильно работало нажатие Esc <<
-
-    createAxes();
-
-    chart.axes(Qt::Horizontal).back()->setRange(minX, maxX);
-    chart.axes(Qt::Horizontal).back()->setTitleText(axsisX_Title);
-    chart.axes(Qt::Vertical).back()->setRange(minY, maxY);
-    chart.axes(Qt::Vertical).back()->setTitleText(axsisY_Title);
 }
 
-void CentralWidget::addSeries(QVector<QPointF> pointVector, QString legendTitle, QString axsisX_Title, QString axsisY_Title)
+void CentralWidget::addSeries(std::vector<QPointF> &pointVector, QString legendTitle, QString axsisX_Title, QString axsisY_Title)
 {
     addSeries(pointVector, QXYSeries::SeriesType(panelWidget.getSeriesType()), legendTitle, axsisX_Title, axsisY_Title);
 }
@@ -159,16 +72,16 @@ void CentralWidget::setTitle(QString title)
     panelWidget.setTitle(chart.title());
 }
 
-QString CentralWidget::getTitle()
+QString CentralWidget::getTitle() const
 {
     return chart.title();
 }
 
-QString CentralWidget::getDataXType()
+QString CentralWidget::getDataXType() const
 {
     return chart.axes(Qt::Horizontal).back()->titleText();
 }
-void CentralWidget::XYDefault()
+void CentralWidget::setLinersXYDefault()
 {
     lineSeriesX.setPen(QPen(QColor(Qt::black)));
     lineSeriesX << QPointF(0, 0) << QPointF(chart.maximumWidth(), 0);
@@ -234,10 +147,98 @@ double CentralWidget::findMinY(QXYSeries *series)
     return minY;
 }
 
+void CentralWidget::connectPanelWidgetSignals()
+{
+    connect(&panelWidget, &PanelWidget::signalChangeTheme, this, &CentralWidget::slotSetTheme);
+    connect(&panelWidget, &PanelWidget::signalSetLegendPosition, this, &CentralWidget::slotSetLegentPosition);
+    connect(&panelWidget, &PanelWidget::signalSetTitile, this, &CentralWidget::slotSetTitle);
+    connect(&panelWidget, &PanelWidget::signalAnimation, this, &CentralWidget::slotAnimation);
+    connect(&panelWidget, &PanelWidget::signalAntialiasing, this, &CentralWidget::slotAntialiasing);
+    connect(&panelWidget, &PanelWidget::signalTickCountChangeX, this, &CentralWidget::slotSetTcickCountX);
+    connect(&panelWidget, &PanelWidget::signalTickCountChangeY, this, &CentralWidget::slotSetTcickCountY);
+    connect(&panelWidget, &PanelWidget::signalSeriesDeleted, this, &CentralWidget::slotReRange);
+    connect(&panelWidget, &PanelWidget::signalRubberMode, this, &CentralWidget::slotSetRubberMode);
+    connect(&panelWidget, &PanelWidget::signalAxisXRangeChanged, this, &CentralWidget::slotRangeXSet);
+    connect(&panelWidget, &PanelWidget::signalAxisYRangeChanged, this, &CentralWidget::slotRangeYSet);
+    connect(&panelWidget, &PanelWidget::signalSeriesTypeChange, this, &CentralWidget::slotSeriesTypeChanged);
+}
+
+QXYSeries *CentralWidget::createSeriesAccordingType(QAbstractSeries::SeriesType &type)
+{
+    QXYSeries *series = nullptr;
+    switch (type)
+    {
+    case QXYSeries::SeriesTypeLine:
+        series = new QLineSeries();
+        break;
+    case QXYSeries::SeriesTypeSpline:
+        series = new QSplineSeries();
+        break;
+    case QXYSeries::SeriesTypeScatter:
+        series = new QScatterSeries();
+        break;
+    default:
+        series = new QLineSeries();
+        break;
+    }
+    return series;
+}
+
+void CentralWidget::fillSeriesOfPoints(std::vector<QPointF> &pointVector, QXYSeries *series)
+{
+    for(auto &point : pointVector)
+    {
+        *series << point;
+        setMinAndMaxForXY(point);
+    }
+}
+
+void CentralWidget::setMinAndMaxForXY(QPointF &point)
+{
+    if(point.x() > maxX) maxX = point.x();
+    if(point.y() > maxY) maxY = point.y();
+    if(point.x() < minX) minX = point.x();
+    if(point.y() < minY) minY = point.y();
+}
+
+void CentralWidget::setRangeAndTitleForAxes(const QString &axsisX_Title, const QString &axsisY_Title)
+{
+    chart.axes(Qt::Horizontal).back()->setRange(minX, maxX);
+    chart.axes(Qt::Horizontal).back()->setTitleText(axsisX_Title);
+    chart.axes(Qt::Vertical).back()->setRange(minY, maxY);
+    chart.axes(Qt::Vertical).back()->setTitleText(axsisY_Title);
+}
+
+void CentralWidget::setChartViewXYRange()
+{
+    //Что-бы правильно работало нажатие Esc >>
+    chartView.rangeX.min = minX;
+    chartView.rangeX.max = maxX;
+    chartView.rangeY.min = minY;
+    chartView.rangeY.max = maxY;
+    //Что-бы правильно работало нажатие Esc <<
+}
+
+void CentralWidget::setSeriesProperty(QXYSeries *series)
+{
+    if(chart.series().length() > 2) //1 - axis x, 2 - axis y
+    {
+        QXYSeries* s = static_cast<QXYSeries*>(chart.series().last());
+        QColor newColor = series->color();
+        QPen pen = s->pen();
+        pen.setColor(newColor);
+        series->setPen(pen);
+        if(series->type() == QAbstractSeries::SeriesTypeScatter)
+        {
+            QScatterSeries* scatSer = static_cast<QScatterSeries*>(series);
+            scatSer->setMarkerSize(pen.width());
+            scatSer->setBorderColor(newColor);
+        }
+    }
+}
+
 void CentralWidget::createAxes()
 {
-//    disconnect(pAxisX, SIGNAL(rangeChanged(qreal, qreal)), this, SLOT(slotRangeChanged(qreal, qreal)));
-
     chart.createDefaultAxes();
 
     pAxisX = qobject_cast<QValueAxis*>(chart.axes(Qt::Horizontal).back());
@@ -330,13 +331,13 @@ void CentralWidget::slotReRange()
         if(maxY < findMaxY(series)) maxY = findMaxY(series);
         if(minY > findMinY(series)) minY = findMinY(series);
     }
-//Что-бы правильно работало нажатие Esc >>
+    //Что-бы правильно работало нажатие Esc >>
     chartView.rangeX.min = minX;
     chartView.rangeX.max = maxX;
 
     chartView.rangeY.min = minY;
     chartView.rangeY.max = maxY;
-//Что-бы правильно работало нажатие Esc <<
+    //Что-бы правильно работало нажатие Esc <<
 
     QString axisX_Title = chart.axes(Qt::Horizontal).back()->titleText();
     QString axisY_Title = chart.axes(Qt::Vertical).back()->titleText();

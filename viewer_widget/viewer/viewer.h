@@ -79,15 +79,14 @@ private:
     void resetTransform();
     void connect_pEventFilterScene();
 
+    void createButtonMenu();
     void createButtonPanel();
     void createDataPanel();
     void createPixFilterPanel();
 
     void incorrectFile();  //действия при не правильном файле
-
     void showMarkers();
 
-    void createButtonMenu();
     Filter_Clog createFilterFromPixFilterPanel();
 
 public slots:
@@ -116,7 +115,6 @@ private slots:
     void slotCreateRectItem(QGraphicsRectItem*);
     void slotApplyClogFilter();
     void slotRepaint();
-
     //действия для каждого пункта меню кнопки button_settings
     void slotPixAndFilterPanelMenuToggle(bool);
     void slotDataPanelMenuToggle(bool);

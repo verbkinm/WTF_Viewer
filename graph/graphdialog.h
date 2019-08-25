@@ -16,26 +16,23 @@ public:
     explicit GraphDialog(const Frames& frames, QWidget *parent = nullptr);
     ~GraphDialog();
 
-    int getCurrentClusterLenght();
+    size_t getCurrentClusterLenght();
     QString getCurrentX();
     QString getCurrentY();
     QString getCurrentWindowGraph();
 
-    void    selectLastWindow();
+    void selectLastWindow();
 
-    //очистить windowGraph
-    void    clearWindow();
+    void clearWindow(); //очистить windowGraph
+    void appendWindow(QString); //добавить к windowGraph строку
 
-    //добавить к windowGraph строку
-    void appendWindow(QString value);
-
-    QString NEW_WINDOW = "New Window";
+    const QString _NEW_WINDOW;
 
 private:
     Ui::GraphDialog *ui;
 
 private slots:
-    void slotSelectDataX(QString value);
+    void slotSelectDataX(QString);
 
 signals:
     void signalDataXChanged(QString);

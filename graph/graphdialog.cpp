@@ -5,6 +5,7 @@
 
 GraphDialog::GraphDialog(const Frames &frames, QWidget *parent) :
     QDialog(parent),
+    _NEW_WINDOW("New Window"),
     ui(new Ui::GraphDialog)
 {
     ui->setupUi(this);
@@ -13,9 +14,9 @@ GraphDialog::GraphDialog(const Frames &frames, QWidget *parent) :
     for(auto &value : frames.getClustersLengthVector())
         ui->DataY->addItem(QString::number(value));
 
-    connect(ui->DataX, SIGNAL(currentTextChanged(QString)), this, SLOT(slotSelectDataX(QString)));
+    connect(ui->DataX, &QComboBox::currentTextChanged, this, &GraphDialog::slotSelectDataX);
 
-    ui->windowGraph->addItem(NEW_WINDOW);
+    ui->windowGraph->addItem(_NEW_WINDOW);
 }
 
 GraphDialog::~GraphDialog()
@@ -23,9 +24,9 @@ GraphDialog::~GraphDialog()
     delete ui;
 }
 
-int GraphDialog::getCurrentClusterLenght()
+size_t GraphDialog::getCurrentClusterLenght()
 {
-    return ui->DataY->currentText().toInt();
+    return ui->DataY->currentText().toULongLong();
 }
 
 QString GraphDialog::getCurrentX()
@@ -51,7 +52,7 @@ void GraphDialog::selectLastWindow()
 void GraphDialog::clearWindow()
 {
     ui->windowGraph->clear();
-    ui->windowGraph->addItem(NEW_WINDOW);
+    ui->windowGraph->addItem(_NEW_WINDOW);
 }
 
 void GraphDialog::appendWindow(QString value)

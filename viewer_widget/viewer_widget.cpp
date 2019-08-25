@@ -9,12 +9,9 @@ Viewer_widget::Viewer_widget(std::shared_ptr<const QSettings> spSetting, QWidget
     ui(new Ui::Viewer_widget)
 {
     ui->setupUi(this);
-
     makeMaskTab();
-
     ui->graphicsView->setSettings(spSetting);
     _graphicsView_origin.setScene(ui->graphicsView->getScenePtr());
-
     _graphicsView_origin.hideAllPanel();
     _graphicsView_origin.hideSettingsButton(true);
     _mask_viewer.hideAllPanel();

@@ -21,10 +21,8 @@ public:
 
 private:
     Ui::Table *ui;
-
     std::vector<std::vector<double>> *_vecBin;
 
-    // QWidget interface
 protected:
     virtual void resizeEvent(QResizeEvent *);
 };

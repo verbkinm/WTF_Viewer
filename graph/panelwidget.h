@@ -50,7 +50,7 @@ private:
 
     QVXYModelMapper mapper;
 
-    void    createTableData();
+    void createTableData();
 
     //отключение всех необходимых элементов, если список графов пуст!
     void    setDisableUnits(bool value);

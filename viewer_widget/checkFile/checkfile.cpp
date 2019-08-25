@@ -1,72 +1,84 @@
-#include "checkfile.h"
-#include <QFile>
 #include <QTemporaryFile>
 #include <QDebug>
 
-VectorFromTxtFile::VectorFromTxtFile(const QString &fileName)
+#include "checkfile.h"
+
+VectorFromTxtFile::VectorFromTxtFile(const QString &fileName) :
+    _row(0), _column(0),
+    _vector(0),
+    _maxCountElementString(0), _countStringsFile(0),
+    _countInLine(0)
 {
-     this->checkFile(fileName);
+    this->createVectorFromTxtFile(fileName);
 }
-QVector<double> VectorFromTxtFile::checkFile(const QString &fileName)
+std::vector<double> VectorFromTxtFile::createVectorFromTxtFile(const QString &fileName)
 {
     QFile originFile(fileName);
-    originFile.open(QIODevice::ReadOnly);
-
-    QTemporaryFile file;
-
-    if(file.open() )
+    if(!originFile.open(QIODevice::ReadOnly))
     {
-        file.write(originFile.readAll());
-
-        char c;
-        //замена символов табуляции, если они есть, на пробелы
-        while (!file.atEnd()){
-            file.getChar(&c);
-            if(c == '\t'){
-                qint64 pos = file.pos();
-                file.seek(--pos);
-                file.putChar(' ');
-            }
-        }
-
-        file.seek(0);
-
-        //переменная для наибольшего кол-ва элементов в строке
-        int maxCountElement = 0;
-        int countString  = 0;
-
-        //определяем наибольшее кол-во элементов в строке
-        while (!file.atEnd()) {
-            int counInLine = QString(file.readLine()).remove("\r\n").split(" ").length();
-            maxCountElement < counInLine ? maxCountElement = counInLine: 0 ;
-            countString++;
-        }
-        file.seek(0);
-
-        while (!file.atEnd()) {
-            QStringList splitString = QString(file.readLine()).remove("\r\n").split(" ");
-            int countInLine = splitString.length();
-
-            foreach (QString element, splitString)
-                _vector.append(element.toDouble());
-
-            //если в текущей строке элементов меньше чем в максимальной строке - добавляем нули
-            while (int(countInLine )!= maxCountElement)
-            {
-                _vector.append(0);
-                countInLine++;
-            }
-
-        }
-        _column = size_t(maxCountElement);
-        _row    = size_t(countString);
-        file.close();
+        qDebug() << "file " << originFile.fileName() << " can't open";
+        return _vector;
     }
-    else {
-        qDebug() << "file " << file.fileName() << " can't open";
+    if(!_file.open())
+    {
+        qDebug() << "file " << _file.fileName() << " can't open";
+        return _vector;
     }
-
+    _file.write(originFile.readAll());
     originFile.close();
-
+    tabToSpace();
+    setMaxCountElementsInString();
+    createDataVector();
+    _column = _maxCountElementString;
+    _row = _countStringsFile;
+    _file.close();
     return _vector;
+}
+
+void VectorFromTxtFile::tabToSpace()
+{
+    char c;
+    //замена символов табуляции, если они есть, на пробелы
+    while (!_file.atEnd())
+    {
+        _file.getChar(&c);
+        if(c == '\t')
+        {
+            qint64 pos = _file.pos();
+            _file.seek(--pos);
+            _file.putChar(' ');
+        }
+    }
+    _file.seek(0);
+}
+
+void VectorFromTxtFile::setMaxCountElementsInString()
+{
+    //определяем наибольшее кол-во элементов в строке и счетаем кол-во строк
+    while (!_file.atEnd())
+    {
+        size_t counInLine = static_cast<size_t>(QString(_file.readLine()).remove("\r\n").split(" ").length());
+        if(_maxCountElementString < counInLine)
+            _maxCountElementString = counInLine;
+        _countStringsFile++;
+    }
+    _file.seek(0);
+}
+
+void VectorFromTxtFile::createDataVector()
+{
+    while (!_file.atEnd())
+    {
+        QStringList splitString = QString(_file.readLine()).remove("\r\n").split(" ");
+        _countInLine = static_cast<size_t>(splitString.length());
+
+        for (auto element : splitString)
+            _vector.push_back(element.toDouble());
+        //если в текущей строке элементов меньше чем в максимальной строке - добавляем нули
+        while (_countInLine != _maxCountElementString)
+        {
+            _vector.push_back(0);
+            _countInLine++;
+        }
+    }
 }

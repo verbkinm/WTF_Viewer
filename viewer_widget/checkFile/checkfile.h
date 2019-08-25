@@ -2,18 +2,26 @@
 #define CHECKFILE_H
 
 #include <QVector>
+#include <QFile>
+#include <QTemporaryFile>
 
 struct VectorFromTxtFile
 {
-    size_t  _row = 0;
-    size_t  _column = 0;
-    QVector<double> _vector;
+    size_t _row;
+    size_t _column;
+    std::vector<double> _vector;
 
     VectorFromTxtFile(const QString &fileName);
+    std::vector<double> createVectorFromTxtFile(const QString &fileName);
 
-    QVector<double> checkFile(const QString &fileName);
+private:
+    size_t _maxCountElementString; //переменная для наибольшего кол-ва элементов в строке
+    size_t _countStringsFile; // кол-во строк в файле
+    size_t _countInLine;
+    QTemporaryFile _file;
+
+    void tabToSpace();
+    void setMaxCountElementsInString();
+    void createDataVector();
 };
-
-
-
 #endif // CHECKFILE_H

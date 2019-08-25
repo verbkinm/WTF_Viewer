@@ -19,31 +19,24 @@ public:
     int getRank() const;
     int getTransparency() const;
 
-
 private:
     Ui::MaskSettings *ui;
 
     size_t _BINNING_MAX_SIZE;
-
     std::vector<std::vector<double>> _vecBin;
-
-    enum TAB_NAME{MASK, CONVOLUTION, BACKPROJECTION};
-
     double minus_one_or_zero;
     size_t _binning;	//ранг бингования
 
-//    int** dynamicArrayInt(int N, int M);
-//    std::vector<std::vector<double> > dynamicArrayDouble(size_t N, size_t M);
-    int square_vychet(int i, int p);
-    void mask_construction(int N);
+    enum TAB_NAME{MASK, CONVOLUTION, BACKPROJECTION};
 
+    int square_vychet(int i, int p) const;
+    void mask_construction(int N);
 
 private slots:
     void slotGenerate();
     void slotOpenTXT();
     void slotSaveTXT();
     void slotBinningChanged(int);
-
     void slotTableShow();
 
 signals:
@@ -51,5 +44,4 @@ signals:
     void signalOpenTXT(QString);
     void signalSaveTXT();
 };
-
 #endif // MASKSETTINGS_H

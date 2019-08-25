@@ -15,47 +15,30 @@ using namespace std;
 
 
 /*	вычисление квадратного вычета по модулю p	*/
-int MaskSettings::square_vychet(int i, int p)
+int MaskSettings::square_vychet(int i, int p) const
 {
     int sign = -1;
     int vychet;
     int mas[100];
 
     for (int v_count = 0; v_count < 100; v_count++)
-    {
         mas[v_count] = 0;
-    }
     //массив обнуленный
 
     for (int v_count = 0; v_count < 100; v_count++)
-    {
         mas[v_count] = 0;
 
-    }
-
-    //конец вывода обнуленного массива
-
-
-    //вывод вычетов по заданному модулу
-
     int count = 0;
-
     for (int i = 1; i < p; i++)
     {
-
         int k = i * i;
-
         vychet = k % p;
-
         if (vychet != 0)
         {
             mas[count] = vychet;
             count = count + 1;
-
         }
-
     }
-
     int i2 = i * i;
     vychet = i2 % p;
 
@@ -63,19 +46,16 @@ int MaskSettings::square_vychet(int i, int p)
     {
         if (qAbs(i) == mas[count])
         {
-            sign = 1; goto finish;
+            sign = 1;
+            goto finish;
         }
         else
-        {
             count = count + 1;
-        }
     }
 
 finish:
-
     return(sign);
 }
-
 /*	 построение маски заданного ранга N	*/
 void MaskSettings::mask_construction(int N)
 {
@@ -162,7 +142,6 @@ void MaskSettings::mask_construction(int N)
             }
         }
     }
-
     ofstream decoded_f("output.txt", ofstream::out);	//запись в файл, он же (ВЫВОД НА ФОРМУ) binningcoded
     for (size_t i = 0; i < (N_to_size_t * 2 + 1)*_binning; i++)
     {
@@ -177,11 +156,9 @@ void MaskSettings::mask_construction(int N)
     emit signalGenerated("output.txt");
     decoded_f.close();
 }
-
 //---------------------------------------------
 //код Розы
 // <-
-
 MaskSettings::MaskSettings(QWidget *parent) :
     QWidget(parent),
     ui(new Ui::MaskSettings),
@@ -197,11 +174,8 @@ MaskSettings::MaskSettings(QWidget *parent) :
 
     connect(ui->open_txt, SIGNAL(clicked(bool)), this, SLOT(slotOpenTXT()));
     connect(ui->save_txt, SIGNAL(clicked(bool)), this, SLOT(slotSaveTXT()));
-
     connect(ui->binning, SIGNAL(valueChanged(int)), this, SLOT(slotBinningChanged(int)));
-
     connect(ui->binning_button, SIGNAL(clicked()), this, SLOT(slotTableShow()));
-
     connect(ui->generated, SIGNAL(clicked()), this, SLOT(slotGenerate()));
 }
 MaskSettings::~MaskSettings()
@@ -234,11 +208,9 @@ void MaskSettings::slotGenerate()
 }
 void MaskSettings::slotOpenTXT()
 {
-    QString file = QFileDialog::getOpenFileName(this,
-                                                "Open",
-                                                QDir::homePath(),
-                                                "TXT (*.txt)");
-    if(!file.isNull()){
+    QString file = QFileDialog::getOpenFileName(this, "Open", QDir::homePath(), "TXT (*.txt)");
+    if(!file.isNull())
+    {
         //ловится в классе viewer_widget
         emit signalOpenTXT(file);
         ui->save_txt->setEnabled(true);
@@ -258,7 +230,6 @@ void MaskSettings::slotBinningChanged(int value)
 void MaskSettings::slotTableShow()
 {
     Table table(ui->binning->value(), &_vecBin);
-
     if(table.exec() == QDialog::Accepted)
         table.saveData();
 }

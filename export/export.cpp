@@ -12,8 +12,8 @@ Export::Export(QString path, QWidget *parent) :
     this->path = path;
     ui->ExportTo->setText(path);
 
-    connect(ui->getDir, SIGNAL(clicked()), this, SLOT(slotDirDialog()));
-    connect(ui->gettFiles, SIGNAL(clicked()), this, SLOT(slotFileDialog()));
+    connect(ui->getDir, &QAbstractButton::clicked, this, &Export::slotDirDialog);
+    connect(ui->gettFiles, &QAbstractButton::clicked, this, &Export::slotFileDialog);
 }
 QString Export::getPath()
 {
@@ -50,7 +50,7 @@ void Export::slotFileDialog()
                                                           "Export Files",
                                                           path,
                                                           "TXT (*.txt)");
-    foreach (QString str, listFiles)
+    for (auto &str : listFiles)
         ui->filesToExport->setText(ui->filesToExport->text() + str + ";");
 }
 Export::~Export()

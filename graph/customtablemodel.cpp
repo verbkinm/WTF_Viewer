@@ -51,7 +51,8 @@ void CustomTableModel::setVector(QVector<QPointF> vector)
     m_columnCount = 2;
     m_rowCount = vector.count();
 
-    for (int i = 0; i < m_rowCount; i++) {
+    for (int i = 0; i < m_rowCount; i++)
+    {
         QVector<qreal>* dataVec = new QVector<qreal>(m_columnCount);
         for (int k = 0; k < dataVec->size(); k++) {
             if (k % 2 == 0)
@@ -124,7 +125,8 @@ QVariant CustomTableModel::data(const QModelIndex &index, int role) const
 
 bool CustomTableModel::setData(const QModelIndex &index, const QVariant &value, int role)
 {
-    if (index.isValid() && role == Qt::EditRole) {
+    if (index.isValid() && role == Qt::EditRole)
+    {
         m_data[index.row()]->replace(index.column(), value.toDouble());
         emit dataChanged(index, index);
         return true;

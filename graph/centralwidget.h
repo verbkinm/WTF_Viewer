@@ -29,85 +29,84 @@ public:
     CentralWidget(QWidget *parent = nullptr);
     ~CentralWidget();
 
-    void addSeries(QVector<QPointF> pointVector, QXYSeries::SeriesType type = QXYSeries::SeriesTypeLine,
+    void addSeries(std::vector<QPointF> &pointVector, QXYSeries::SeriesType type = QXYSeries::SeriesTypeLine,
                    QString legendTitle = "", QString axsisX_Title = "X", QString axsisY_Title = "Y");
-    void addSeries(QVector<QPointF> pointVector, QString legendTitle = "",
+    void addSeries(std::vector<QPointF> &pointVector, QString legendTitle = "",
                    QString axsisX_Title = "X", QString axsisY_Title = "Y");
 
-    void    setTitle(QString title);
-    QString getTitle();
-    QString getDataXType();
+    void setTitle(QString title);
 
-    void           createAxes();
+    QString getTitle() const;
+    QString getDataXType() const;
+
+    void createAxes();
 
 private:
-    QWidget        centralWidget;
-    QLabel         statusBarWidget;
+    QWidget centralWidget;
+    QLabel statusBarWidget;
 
-    ChartView      chartView;
-    Chart          chart;
+    ChartView chartView;
+    Chart chart;
 
-    QLineSeries    lineSeriesX;
-    QLineSeries    lineSeriesY;
+    QLineSeries lineSeriesX;
+    QLineSeries lineSeriesY;
 
-    QHBoxLayout    layout;
+    QHBoxLayout layout;
 
-    PanelWidget    panelWidget;
+    PanelWidget panelWidget;
 
-    QValueAxis*     pAxisX = nullptr;
-    QValueAxis*     pAxisY = nullptr;
+    QValueAxis* pAxisX;
+    QValueAxis* pAxisY;
 
-    double maxX = 0;
-    double maxY = 0;
-    double minX = std::numeric_limits<int>::max();
-    double minY = std::numeric_limits<int>::max();
+    double maxX;
+    double maxY;
+    double minX;
+    double minY;
 
-    QMenu         menuFile, menuView;
+    QMenu menuFile, menuView;
 
     //ось X и Y на всем полотне
-    void XYDefault();
+    void setLinersXYDefault();
 
     void createMenu();
 
-    double findMaxX(QXYSeries* series);
-    double findMinX(QXYSeries* series);
-    double findMaxY(QXYSeries* series);
-    double findMinY(QXYSeries* series);
+    double findMaxX(QXYSeries *);
+    double findMinX(QXYSeries *);
+    double findMaxY(QXYSeries *);
+    double findMinY(QXYSeries *);
+
+    void connectPanelWidgetSignals();
+    QXYSeries *createSeriesAccordingType(QXYSeries::SeriesType &type);
+    void fillSeriesOfPoints(std::vector<QPointF> &pointVector, QXYSeries *series);
+    void setMinAndMaxForXY(QPointF &point);
+    void setRangeAndTitleForAxes(const QString &axsisX_Title, const QString &axsisY_Title);
+    void setChartViewXYRange();
+    void setSeriesProperty(QXYSeries *series);
 
 private slots:
-    void    slotSetTheme            (int theme);
-    void    slotSetLegentPosition   (int position);
-    void    slotSetTitle            (QString title);
-    void    slotAnimation           (bool value);
-    void    slotAntialiasing        (bool value);
-
-    void    slotSetTcickCountX      (int value);
-    void    slotSetTcickCountY      (int value);
-
-    void    slotSaveBMP             ();
-
-    void    slotReRange             ();
-
-    void    slotResetZoomAndPosition();
-
-    void    slotViewXYCoordinate    (QPointF point);
-
-    void    slotSetRubberMode       (QChartView::RubberBand mode);
-    void    slotRangeXChanged       (qreal, qreal);
-    void    slotRangeYChanged       (qreal, qreal);
-
-    void    slotRangeXSet           (qreal, qreal);
-    void    slotRangeYSet           (qreal, qreal);
-
-    void    slotSeriesTypeChanged   ();
-
-public slots:
+    void slotSetTheme(int);
+    void slotSetLegentPosition(int);
+    void slotSetTitle(QString);
+    void slotAnimation(bool);
+    void slotAntialiasing(bool);
+    void slotSetTcickCountX(int);
+    void slotSetTcickCountY(int);
+    void slotSaveBMP();
+    void slotReRange();
+    void slotResetZoomAndPosition();
+    void slotViewXYCoordinate(QPointF);
+    void slotSetRubberMode(QChartView::RubberBand);
+    void slotRangeXChanged(qreal, qreal);
+    void slotRangeYChanged(qreal, qreal);
+    void slotRangeXSet(qreal, qreal);
+    void slotRangeYSet(qreal, qreal);
+    void slotSeriesTypeChanged();
 
 protected:
     virtual void closeEvent(QCloseEvent *);
 
 signals:
-    void signalCloseWindow(QObject*);
+    void signalCloseWindow(QObject *);
 };
 
 #endif // CENTRALWIDGET_H

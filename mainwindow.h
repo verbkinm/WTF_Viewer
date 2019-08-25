@@ -5,20 +5,15 @@
 #include <QSplitter>
 #include <QFileSystemModel>
 #include <QTreeView>
-#include <QStatusBar>
-#include <QMenuBar>
 #include <QMenu>
-#include <QEvent>
-#include <QTreeWidget>
-#include <QFileDialog>
-#include <QMessageBox>
-#include <QDir>
 #include <QSettings>
+#include <map>
 
 #include "viewer_widget\viewer_widget.h"
 #include "eventfilter\eventfilter.h"
 #include "graph/centralwidget.h"
 #include "settings/settingsimage.h"
+#include "graph/graphdialog.h"
 
 class MainWindow : public QMainWindow
 {
@@ -28,58 +23,37 @@ public:
     MainWindow(QWidget *parent = nullptr);
     ~MainWindow();
 
-    QSplitter           _splitter;
-    QFileSystemModel    _fs_model;
-    QTreeView           _treeView;
-
-    Viewer_widget*      pViewerWidget   = nullptr;
-    EventFilter         _eventFilter;
-
-    SettingsImage*      pSettingsImage  = nullptr;
-
 private:
-    const QString _Program_Version;
-
-    QMenu               _menuFile;
-    QMenu               _menuGraph;
-    QMenu               _menuAbout;
-    QMenu               _menuSettings;
-    QMenu               _menuCalibration;
-
-    QList<CentralWidget*> graphWindowList;
-
-    void                createMenu();
-
-    QString             currentActiveFile;
-
     std::shared_ptr<QSettings> settings;
+    QSplitter _splitter;
+    QFileSystemModel _fs_model;
+    QTreeView _treeView;
+    Viewer_widget _viewerWidget;
+    EventFilter _eventFilter;
+    const QString _programVersion;
+    QMenu _menuFile, _menuGraph, _menuAbout, _menuSettings, _menuCalibration;
+    std::map<QString, CentralWidget *> _graphWindowMap;
+    QString _currentActiveFile;
 
+    void createMenu();
     void openLastDir();
-
-protected:
-    virtual bool        event(QEvent *event);
+    void saveAccordingOptions(int, int &, int &, QImage &, const QString &);
+    void exportingFiles(const QString &);
+    void graphDialogExec(GraphDialog &, const Frames &);
+    std::vector<QPointF> createVectorAccordingGraphType(GraphDialog &, QString &, const Frames &);
 
 private slots:
-    void slotSelectFile(const QModelIndex&);
-
+    void slotSelectFile(const QModelIndex &);
     void slotAuthor();
     void slotPlotGraph();
     void slotGeneralCalibration();
     void slotPixelCalibration();
-
     void slotSettingsImage();
-
-    void slotExportFile();
-
-    void slotCloseGraphWindow(QObject* obj);
-
+    void slotExportFiles();
+    void slotCloseGraphWindow(QObject *);
     //при выборе типа данных для диаграммы по оси X, проверяем чтобы не было попытки добавить
     //новый график с одним типом к, существующим графикам с другим типом
-    void slotGrapgWindowCheck(QString value);
-
-    // QWidget interface
-protected:
-    virtual void closeEvent(QCloseEvent *);
+    void slotGrapgWindowCheck(const QString &);
 };
 
 #endif // MAINWINDOW_H
