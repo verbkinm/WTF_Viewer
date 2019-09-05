@@ -201,17 +201,42 @@ std::vector<QPointF> Frames::getVectorOfPointsFromClusters() const
     return vector;
 }
 
+double Frames::summarizeTotsInCluster(size_t frameNumber, size_t clusterNumber) const
+{
+    double sum = 0;
+
+    for (size_t eventNumber = 0; eventNumber < getClusterLength(frameNumber, clusterNumber); ++eventNumber)
+        sum += getEPoint(frameNumber, clusterNumber, eventNumber).tot;
+
+    return sum;
+}
+
 std::vector<double> Frames::getVectoValueTots() const
 {
-    std::vector<double> lenghtList;
+    std::vector<double> lenghtVector;
     for (size_t frameNumber = 0; frameNumber < getFrameCount(); ++frameNumber)
         for (size_t clusterNumber = 0; clusterNumber < getClusterCount(frameNumber); ++clusterNumber)
             for (size_t eventNumber = 0; eventNumber < getClusterLength(frameNumber, clusterNumber); ++eventNumber)
-                lenghtList.push_back(getEPoint(frameNumber, clusterNumber, eventNumber).tot);
+                lenghtVector.push_back(getEPoint(frameNumber, clusterNumber, eventNumber).tot);
 
-    std::sort(lenghtList.begin(), lenghtList.end());
-    auto last = std::unique(lenghtList.begin(), lenghtList.end());
-    lenghtList.erase(last, lenghtList.end());
+    std::sort(lenghtVector.begin(), lenghtVector.end());
+    auto last = std::unique(lenghtVector.begin(), lenghtVector.end());
+    lenghtVector.erase(last, lenghtVector.end());
 
-    return lenghtList;
+    return lenghtVector;
+}
+
+std::vector<double> Frames::getVectorSumValueTots() const
+{
+    std::vector<double> sumTotsVector;
+
+    for (size_t frameNumber = 0; frameNumber < getFrameCount(); ++frameNumber)
+        for (size_t clusterNumber = 0; clusterNumber < getClusterCount(frameNumber); ++clusterNumber)
+            sumTotsVector.push_back(summarizeTotsInCluster(frameNumber, clusterNumber));
+
+    std::sort(sumTotsVector.begin(), sumTotsVector.end());
+    auto last = std::unique(sumTotsVector.begin(), sumTotsVector.end());
+    sumTotsVector.erase(last, sumTotsVector.end());
+
+    return sumTotsVector;
 }

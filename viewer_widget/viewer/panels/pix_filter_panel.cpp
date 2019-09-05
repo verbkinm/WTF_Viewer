@@ -104,6 +104,11 @@ void Pix_Filter_Panel::setTotRange(const std::vector<double> &vector)
     ui->clogFilterPanel->setTotRange(vector);
 }
 
+void Pix_Filter_Panel::setTotRangeFull(const std::vector<double> &vector)
+{
+    ui->clogFilterPanel->setTotRangeFull(vector);
+}
+
 size_t Pix_Filter_Panel::getClusterBegin() const
 {
     return ui->clogFilterPanel->getClusterBegin();

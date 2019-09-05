@@ -17,6 +17,7 @@ public:
 
     std::vector<size_t> getClustersLengthVector() const;
     std::vector<double> getVectorOfLengthsOfTots() const;
+    std::vector<double> getVectorOfSumOfTots() const;
     Frames const &getFrames() const;
 
     void setFilter(const Filter_Clog &filter);

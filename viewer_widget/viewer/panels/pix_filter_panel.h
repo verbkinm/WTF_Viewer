@@ -30,6 +30,7 @@ public:
     void setTabEnable(int, bool);
     void setClusterRange(const std::vector<size_t> &);
     void setTotRange(const std::vector<double> &);
+    void setTotRangeFull(const std::vector<double> &vector);
 
     size_t getClusterBegin() const;
     size_t getClusterEnd() const;

@@ -14,7 +14,7 @@
 MainWindow::MainWindow(QWidget *parent): QMainWindow(parent),
     settings(std::make_shared<QSettings>(QSettings::IniFormat, QSettings::UserScope, "WTF.org", "WTF")),
     _viewerWidget(settings, this),
-    _programVersion("0.9.8.13")
+    _programVersion("0.9.8.14")
 {
     settings.get()->setIniCodec("UTF-8");
     _splitter.setOrientation(Qt::Horizontal);
@@ -168,6 +168,7 @@ std::vector<QPointF> MainWindow::createVectorAccordingGraphType(GraphDialog &gra
     if(graphDialog.getCurrentX() == "Tots")
     {
         legendText = graphDialog.getCurrentY() + "px";
+//        pointVector = frames.getVectoValueTots();
 //            vector = frames.get
     }
     if(graphDialog.getCurrentX() == "Clusters")

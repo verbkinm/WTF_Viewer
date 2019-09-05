@@ -10,9 +10,10 @@ ClogFilterPanel::ClogFilterPanel(QWidget *parent) :
 {
     ui->setupUi(this);
 
-    connect(ui->clusterRangeGroup,  SIGNAL(clicked(bool)), this, SLOT(slotEnableRange()));
-    connect(ui->totRangeGroup,      SIGNAL(clicked(bool)), this, SLOT(slotEnableRange()));
-    connect(ui->apply,              SIGNAL(clicked()),          this, SLOT(slotApplyFilter()) );
+    connect(ui->clusterRangeGroup, &QGroupBox::clicked, this, &ClogFilterPanel::slotEnableRange);
+    connect(ui->totRangeGroup, &QGroupBox::clicked, this, &ClogFilterPanel::slotEnableRange);
+    connect(ui->totRangeGroupFull, &QGroupBox::clicked, this, &ClogFilterPanel::slotEnableRange);
+    connect(ui->apply, &QAbstractButton::clicked, this, &ClogFilterPanel::slotApplyFilter );
 }
 
 ClogFilterPanel::~ClogFilterPanel()
@@ -162,6 +163,11 @@ void ClogFilterPanel::slotApplyFilter()
         totBeginLast = ui->totRangeBegin->currentText();
         totEndLast   = ui->totRangeEnd->currentText();
     }
+    if(ui->totRangeGroupFull->isChecked())
+    {
+        totBeginLastFull = ui->totRangeBeginFull->currentText();
+        totEndLastFull   = ui->totRangeEndFull->currentText();
+    }
 
     emit signalApplyFilter();
 }
@@ -205,6 +211,49 @@ void ClogFilterPanel::setTotRange(const std::vector<double> &vector)
         ui->totRangeEnd->setCurrentText(totEndLast);
     else
         ui->totRangeEnd->setCurrentText(totListModel.last());
+
+    connectSignals();
+}
+
+void ClogFilterPanel::setTotRangeFull(const std::vector<double> &vector)
+{
+    disconnectSignals();
+
+    ui->totRangeBeginFull->clear();
+    ui->totRangeEndFull->clear();
+
+    totListModelFull.clear();
+    totListBeginFull.clear();
+    totListEndFull.clear();
+
+    for(const auto &value : vector)
+        totListModelFull << QString::number(value);
+
+    ui->totRangeBeginFull->addItems(totListModelFull);
+
+    if(ui->totRangeGroupFull->isChecked())
+        ui->totRangeBeginFull->setCurrentText(totBeginLastFull);
+    else
+        ui->totRangeBeginFull->setCurrentText(totListModelFull.first());
+
+    int startFrom = 0;
+    for (int i = 0; i < totListModelFull.length(); ++i)
+        if(totListModelFull.at(i) == totBeginLastFull)
+        {
+            startFrom = i;
+            break;
+        }
+
+    for (int i = startFrom; i < totListModelFull.length(); ++i)
+        totListEndFull << totListModelFull.at(i);
+
+    ui->totRangeEndFull->clear();
+    ui->totRangeEndFull->addItems(totListEndFull);
+
+    if(totListEndFull.contains(totEndLastFull) && ui->totRangeGroupFull->isChecked())
+        ui->totRangeEndFull->setCurrentText(totEndLastFull);
+    else
+        ui->totRangeEndFull->setCurrentText(totListModelFull.last());
 
     connectSignals();
 }
@@ -296,10 +345,12 @@ void ClogFilterPanel::setTimePix(bool b)
 
 void ClogFilterPanel::disconnectSignals() const
 {
-    disconnect(ui->clusterRangeBegin,  SIGNAL(currentTextChanged(QString)), this, SLOT(slotDates(QString)));
-    disconnect(ui->clusterRangeEnd,    SIGNAL(currentTextChanged(QString)), this, SLOT(slotDates(QString)));
+    disconnect(ui->clusterRangeBegin,  &QComboBox::currentTextChanged, this, &ClogFilterPanel::slotDates);
+    disconnect(ui->clusterRangeEnd,    &QComboBox::currentTextChanged, this, &ClogFilterPanel::slotDates);
     disconnect(ui->totRangeBegin,  SIGNAL(currentTextChanged(QString)), this, SLOT(slotDates(QString)));
     disconnect(ui->totRangeEnd,    SIGNAL(currentTextChanged(QString)), this, SLOT(slotDates(QString)));
+    disconnect(ui->totRangeBeginFull,  SIGNAL(currentTextChanged(QString)), this, SLOT(slotDates(QString)));
+    disconnect(ui->totRangeEndFull,    SIGNAL(currentTextChanged(QString)), this, SLOT(slotDates(QString)));
 }
 
 void ClogFilterPanel::connectSignals() const
@@ -309,6 +360,9 @@ void ClogFilterPanel::connectSignals() const
 
     connect(ui->totRangeBegin,  SIGNAL(currentTextChanged(QString)), SLOT(slotDates(QString)));
     connect(ui->totRangeEnd,    SIGNAL(currentTextChanged(QString)), SLOT(slotDates(QString)));
+
+    connect(ui->totRangeBeginFull,  SIGNAL(currentTextChanged(QString)), SLOT(slotDates(QString)));
+    connect(ui->totRangeEndFull,    SIGNAL(currentTextChanged(QString)), SLOT(slotDates(QString)));
 }
 
 void ClogFilterPanel::slotEnableRange()
@@ -336,6 +390,7 @@ void ClogFilterPanel::slotEnableRange()
     }
     else if(groupBox->objectName() == "totRangeGroup")
     {
+//        ui->totRangeGroupFull->setChecked(false);
         if(groupBox->isChecked())
         {
             ui->totRangeBegin->setEnabled(true);
@@ -358,6 +413,10 @@ void ClogFilterPanel::slotEnableRange()
             if(!ui->allTotInCluster->isChecked())
                 ui->allTotInCluster->toggle();
         }
+    }
+    else if(groupBox->objectName() == "totRangeGroupFull")
+    {
+//        ui->totRangeGroup->setChecked(false);
     }
 }
 
