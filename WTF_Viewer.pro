@@ -40,8 +40,9 @@ SOURCES += \
     viewer_widget/checkFile/checkfile.cpp \
     viewer_widget/frames/frames.cpp \
     viewer_widget/frames/oneframe.cpp \
-    viewer_widget/viewer/panels/clogfilterpanel.cpp \
+    viewer_widget/viewer/panels/clogfilterpanel/clogfilterpanel.cpp \
     viewer_widget/masksettings.cpp \
+    viewer_widget/viewer/panels/clogfilterpanel/clogranges.cpp \
     viewer_widget/viewer/panels/pix_filter_panel.cpp \
     viewer_widget/table.cpp \
     viewer_widget/viewer/saver.cpp \
@@ -73,8 +74,9 @@ HEADERS += \
     viewer_widget/checkFile/checkfile.h \
     viewer_widget/frames/frames.h \
     viewer_widget/frames/oneframe.h \
-    viewer_widget/viewer/panels/clogfilterpanel.h \
+    viewer_widget/viewer/panels/clogfilterpanel/clogfilterpanel.h \
     viewer_widget/masksettings.h \
+    viewer_widget/viewer/panels/clogfilterpanel/clogranges.h \
     viewer_widget/viewer/panels/pix_filter_panel.h \
     viewer_widget/table.h \
     viewer_widget/viewer/saver.h \
@@ -102,7 +104,7 @@ FORMS += \
     graph/panelwidget.ui \
     loadcalibrationfiles.ui \
     settings/settingsimage.ui \
-    viewer_widget/viewer/panels/clogfilterpanel.ui \
+    viewer_widget/viewer/panels/clogfilterpanel/clogfilterpanel.ui \
     viewer_widget/masksettings.ui \
     viewer_widget/viewer/panels/pix_filter_panel.ui \
     viewer_widget/table.ui \

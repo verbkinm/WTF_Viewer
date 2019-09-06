@@ -28,8 +28,9 @@ public:
     void setToggleButtonEnable(bool);
     void setButtonCutDisable(bool);
     void setTabEnable(int, bool);
-    void setClusterRange(const std::vector<size_t> &);
-    void setTotRange(const std::vector<double> &);
+    void setClusterRange(const std::vector<size_t> &vector);
+    void setTotRange(const std::vector<double> &vector);
+    void setTotRangeFull(const std::vector<double> &vector);
 
     size_t getClusterBegin() const;
     size_t getClusterEnd() const;

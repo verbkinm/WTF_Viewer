@@ -32,7 +32,7 @@
       <enum>QTabWidget::Rounded</enum>
      </property>
      <property name="currentIndex">
-      <number>0</number>
+      <number>1</number>
      </property>
      <property name="movable">
       <bool>false</bool>
@@ -238,7 +238,7 @@
   <customwidget>
    <class>ClogFilterPanel</class>
    <extends>QWidget</extends>
-   <header>../WTF_Viewer/viewer_widget/viewer/panels/clogfilterpanel.h</header>
+   <header>../WTF_Viewer/viewer_widget/viewer/panels/clogfilterpanel/clogfilterpanel.h</header>
    <container>1</container>
   </customwidget>
   <customwidget>

@@ -41,6 +41,11 @@ std::vector<double> Viewer_Clog_Processor::getVectorOfLengthsOfTots() const
     return  _frames.getVectoValueTots();
 }
 
+std::vector<double> Viewer_Clog_Processor::getVectorOfSumOfTots() const
+{
+    return _frames.getVectorSumTots();
+}
+
 Frames const &Viewer_Clog_Processor::getFrames() const
 {
     return _frames;

@@ -23,8 +23,8 @@ Pix_Filter_Panel::Pix_Filter_Panel(QWidget *parent) :
 Pix_Filter_Panel::Pix_Filter_Panel(const Pix_Filter_Panel &object)
 {
     ui->tabWidget->setCurrentIndex(object.ui->tabWidget->currentIndex());
-    ui->clogFilterPanel->setCluster(object.ui->clogFilterPanel->isClusterEnable());
-    ui->clogFilterPanel->setTot(object.ui->clogFilterPanel->isTotEnable());
+    ui->clogFilterPanel->enableClusterGroup(object.ui->clogFilterPanel->isClusterEnable());
+    ui->clogFilterPanel->enableTotGroup(object.ui->clogFilterPanel->isTotEnable());
     ui->clogFilterPanel->setAllTotInCluster(object.ui->clogFilterPanel->isAllTotInCluster());
 
     ui->clogFilterPanel->setClusterBegin(static_cast<int>(object.ui->clogFilterPanel->getClusterBegin()));
@@ -34,9 +34,9 @@ Pix_Filter_Panel::Pix_Filter_Panel(const Pix_Filter_Panel &object)
     ui->clogFilterPanel->setTotEnd(static_cast<int>(object.ui->clogFilterPanel->getTotEnd()));
 
     if(object.ui->clogFilterPanel->isMediPix())
-        ui->clogFilterPanel->setMediPix(true);
+        ui->clogFilterPanel->checkedMediPix(true);
     else
-        ui->clogFilterPanel->setTimePix(true);
+        ui->clogFilterPanel->checkedTimePix(true);
 }
 
 Pix_Filter_Panel::~Pix_Filter_Panel()
@@ -91,7 +91,6 @@ void Pix_Filter_Panel::setButtonCutDisable(bool state)
 void Pix_Filter_Panel::setTabEnable(int number, bool state)
 {
     ui->tabWidget->setTabEnabled(number, state);
-
 }
 
 void Pix_Filter_Panel::setClusterRange(const std::vector<size_t> &vector)
@@ -102,6 +101,11 @@ void Pix_Filter_Panel::setClusterRange(const std::vector<size_t> &vector)
 void Pix_Filter_Panel::setTotRange(const std::vector<double> &vector)
 {
     ui->clogFilterPanel->setTotRange(vector);
+}
+
+void Pix_Filter_Panel::setTotRangeFull(const std::vector<double> &vector)
+{
+    ui->clogFilterPanel->setTotRangeFull(vector);
 }
 
 size_t Pix_Filter_Panel::getClusterBegin() const

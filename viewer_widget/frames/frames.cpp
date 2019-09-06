@@ -201,17 +201,42 @@ std::vector<QPointF> Frames::getVectorOfPointsFromClusters() const
     return vector;
 }
 
+double Frames::summarizeTotInCluster(size_t frameNumber, size_t clusterNumber) const
+{
+    double sum = 0;
+
+    for (size_t eventNumber = 0; eventNumber < getClusterLength(frameNumber, clusterNumber); ++eventNumber)
+        sum += getEPoint(frameNumber, clusterNumber, eventNumber).tot;
+
+    return sum;
+}
+
 std::vector<double> Frames::getVectoValueTots() const
 {
-    std::vector<double> lenghtList;
+    std::vector<double> lenghtVector;
     for (size_t frameNumber = 0; frameNumber < getFrameCount(); ++frameNumber)
         for (size_t clusterNumber = 0; clusterNumber < getClusterCount(frameNumber); ++clusterNumber)
             for (size_t eventNumber = 0; eventNumber < getClusterLength(frameNumber, clusterNumber); ++eventNumber)
-                lenghtList.push_back(getEPoint(frameNumber, clusterNumber, eventNumber).tot);
+                lenghtVector.push_back(getEPoint(frameNumber, clusterNumber, eventNumber).tot);
 
-    std::sort(lenghtList.begin(), lenghtList.end());
-    auto last = std::unique(lenghtList.begin(), lenghtList.end());
-    lenghtList.erase(last, lenghtList.end());
+    std::sort(lenghtVector.begin(), lenghtVector.end());
+    auto last = std::unique(lenghtVector.begin(), lenghtVector.end());
+    lenghtVector.erase(last, lenghtVector.end());
 
-    return lenghtList;
+    return lenghtVector;
+}
+
+std::vector<double> Frames::getVectorSumTots() const
+{
+    std::vector<double> sumtVector;
+    for (size_t frameNumber = 0; frameNumber < getFrameCount(); ++frameNumber)
+        for (size_t clusterNumber = 0; clusterNumber < getClusterCount(frameNumber); ++clusterNumber)
+            for (size_t eventNumber = 0; eventNumber < getClusterLength(frameNumber, clusterNumber); ++eventNumber)
+                sumtVector.push_back(summarizeTotInCluster(frameNumber, clusterNumber));
+
+    std::sort(sumtVector.begin(), sumtVector.end());
+    auto last = std::unique(sumtVector.begin(), sumtVector.end());
+    sumtVector.erase(last, sumtVector.end());
+
+    return sumtVector;
 }
