@@ -128,6 +128,16 @@ size_t Pix_Filter_Panel::getTotEnd() const
     return ui->clogFilterPanel->getTotEnd();
 }
 
+size_t Pix_Filter_Panel::getTotBeginFull() const
+{
+    return ui->clogFilterPanel->getTotBeginFull();
+}
+
+size_t Pix_Filter_Panel::getTotEndFull() const
+{
+    return ui->clogFilterPanel->getTotEndFull();
+}
+
 int Pix_Filter_Panel::getX() const
 {
     return ui->x->value();
@@ -166,6 +176,11 @@ bool Pix_Filter_Panel::isAllTotInCluster() const
 bool Pix_Filter_Panel::isMediPix() const
 {
     return ui->clogFilterPanel->isMediPix();
+}
+
+bool Pix_Filter_Panel::isFullTotRange() const
+{
+    return ui->clogFilterPanel->isFullTotRange();
 }
 
 void Pix_Filter_Panel::finishSelection() const

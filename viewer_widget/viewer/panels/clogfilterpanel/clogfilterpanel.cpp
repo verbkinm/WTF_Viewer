@@ -346,6 +346,11 @@ bool ClogFilterPanel::isMediPix() const
     return ui->midiPixRadioButton->isChecked();
 }
 
+bool ClogFilterPanel::isFullTotRange() const
+{
+    return ui->totRangeGroupFull->isChecked();
+}
+
 void ClogFilterPanel::setClusterBegin(int v)
 {
     ui->clusterRangeBegin->setCurrentText(QString::number(v));

@@ -28,8 +28,9 @@ private:
 
     bool isWithinRanges(size_t frameNumber, size_t clusterNumber);
 
-    void modifyPoint(size_t frameNumber, size_t clusterNumber);
+    void modifyPointAccordingFilter(size_t frameNumber, size_t clusterNumber);
     void modifyPointAccordingPixMode(OneFrame::ePoint &point);
+    void modifyPoint(size_t frameNumber, size_t clusterNumber);
     void generalCalibrationSettingsForEPoint(OneFrame::ePoint &point);
 
     virtual void createVec2D() override;

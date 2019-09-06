@@ -35,6 +35,7 @@ public:
     bool isAllTotInCluster() const;
 
     bool isMediPix() const;
+    bool isFullTotRange() const;
 
     void setClusterBegin(int v);
     void setClusterEnd(int v);

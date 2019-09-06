@@ -114,15 +114,22 @@ bool Frames::isTotInRange(size_t frameNumber, size_t clusterNumber, size_t totRa
     return false;
 }
 
+bool Frames::isSumTotClusterInRange(size_t frameNumber, size_t clusterNumber, size_t totRangeBeginFull, size_t totRangeEndFull) const
+{
+    double sum = summarizeTotInCluster(frameNumber, clusterNumber);
+    if(sum >= totRangeBeginFull && sum <= totRangeEndFull)
+        return true;
+    return false;
+}
+
 bool Frames::isLineContainsWholeFrame(const QString &line, QStringList &buff)
 {
     static bool firstStart = true;
     if(line.startsWith("Frame") && firstStart)
         firstStart = false;
     else if(line.startsWith("Frame") && !firstStart)
-    {
         return true;
-    }
+
     buff << line;
     return false;
 }
@@ -133,8 +140,10 @@ OneFrame::cluster Frames::getClusterTotInRange(size_t frameNumber, size_t cluste
     try
     {
         for (const auto &point : _vectorOfFrames.at(frameNumber).getClustersVector().at(clusterNumber))
+        {
             if(point.tot >= totRangeBegin && point.tot <= totRangeEnd)
                 ePointVector.push_back(point);
+        }
         return ePointVector;
     }
     catch(std::out_of_range&)

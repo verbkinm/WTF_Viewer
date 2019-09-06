@@ -14,7 +14,7 @@ QImage Viewer_Clog_Processor::getImage()
 
     for (size_t frameNumber = 0; frameNumber < _frames.getFrameCount(); ++frameNumber)
         for (size_t clusterNumber = 0; clusterNumber < _frames.getClusterCount(frameNumber); ++clusterNumber)
-            modifyPoint(frameNumber, clusterNumber);
+            modifyPointAccordingFilter(frameNumber, clusterNumber);
 
     rebuildVec2DAccordingToSettings();
     QImage imageFromVec2D = getImageFromVec2D();
@@ -56,18 +56,14 @@ void Viewer_Clog_Processor::setFilter(const Filter_Clog &filter)
     _filter = filter;
 }
 
-void Viewer_Clog_Processor::modifyPoint(size_t frameNumber, size_t clusterNumber)
+void Viewer_Clog_Processor::modifyPointAccordingFilter(size_t frameNumber, size_t clusterNumber)
 {
     if(!isWithinRanges(frameNumber, clusterNumber))
         return;
-    if(_filter._isAllTotInCluster)
-    {
-        for (size_t eventNumber = 0; eventNumber < _frames.getClusterLength(frameNumber, clusterNumber); ++eventNumber)
-        {
-            OneFrame::ePoint point = _frames.getEPoint(frameNumber, clusterNumber, eventNumber);
-            modifyPointAccordingPixMode(point);
-        }
-    }
+    if(_filter._isFullTotRange && _frames.isSumTotClusterInRange(frameNumber, clusterNumber, _filter._totRangeBeginFull, _filter._totRangeEndFull))
+        modifyPoint(frameNumber, clusterNumber);
+    else if(_filter._isAllTotInCluster)
+        modifyPoint(frameNumber, clusterNumber);
     else
     {
         OneFrame::cluster clusterEPoint = _frames.getClusterTotInRange(frameNumber, clusterNumber, _filter._totRangeBegin, _filter._totRangeEnd);
@@ -104,6 +100,15 @@ void Viewer_Clog_Processor::modifyPointAccordingPixMode(OneFrame::ePoint &point)
             _markers &= ~GENERAL_CALIBRATION;
 
         _vec2D.at(point.x).at(point.y) = _vec2D.at(point.x).at(point.y) + point.tot;
+    }
+}
+
+void Viewer_Clog_Processor::modifyPoint(size_t frameNumber, size_t clusterNumber)
+{
+    for (size_t eventNumber = 0; eventNumber < _frames.getClusterLength(frameNumber, clusterNumber); ++eventNumber)
+    {
+        OneFrame::ePoint point = _frames.getEPoint(frameNumber, clusterNumber, eventNumber);
+        modifyPointAccordingPixMode(point);
     }
 }
 

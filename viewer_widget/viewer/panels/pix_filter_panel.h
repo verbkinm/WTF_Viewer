@@ -34,8 +34,12 @@ public:
 
     size_t getClusterBegin() const;
     size_t getClusterEnd() const;
+
     size_t getTotBegin() const;
     size_t getTotEnd() const;
+    size_t getTotBeginFull() const;
+    size_t getTotEndFull() const;
+
     int getX() const;
     int getY() const;
     int getWidth() const;
@@ -45,6 +49,7 @@ public:
 
     bool isAllTotInCluster() const;
     bool isMediPix() const;
+    bool isFullTotRange() const;
 
     void finishSelection() const;
 
