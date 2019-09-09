@@ -168,6 +168,7 @@ std::vector<QPointF> MainWindow::createVectorAccordingGraphType(GraphDialog &gra
     if(graphDialog.getCurrentX() == "Tots")
     {
         legendText = graphDialog.getCurrentY() + "px";
+//        pointVector = frames.getVectoValueTots();
 //            vector = frames.get
     }
     if(graphDialog.getCurrentX() == "Clusters")

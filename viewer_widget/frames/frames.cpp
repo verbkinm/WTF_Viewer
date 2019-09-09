@@ -116,7 +116,7 @@ bool Frames::isTotInRange(size_t frameNumber, size_t clusterNumber, size_t totRa
 
 bool Frames::isSumTotClusterInRange(size_t frameNumber, size_t clusterNumber, size_t totRangeBeginFull, size_t totRangeEndFull) const
 {
-    double sum = summarizeTotInCluster(frameNumber, clusterNumber);
+    double sum = summarizeTotsInCluster(frameNumber, clusterNumber);
     if(sum >= totRangeBeginFull && sum <= totRangeEndFull)
         return true;
     return false;
@@ -210,7 +210,7 @@ std::vector<QPointF> Frames::getVectorOfPointsFromClusters() const
     return vector;
 }
 
-double Frames::summarizeTotInCluster(size_t frameNumber, size_t clusterNumber) const
+double Frames::summarizeTotsInCluster(size_t frameNumber, size_t clusterNumber) const
 {
     double sum = 0;
 
@@ -241,11 +241,25 @@ std::vector<double> Frames::getVectorSumTots() const
     for (size_t frameNumber = 0; frameNumber < getFrameCount(); ++frameNumber)
         for (size_t clusterNumber = 0; clusterNumber < getClusterCount(frameNumber); ++clusterNumber)
             for (size_t eventNumber = 0; eventNumber < getClusterLength(frameNumber, clusterNumber); ++eventNumber)
-                sumtVector.push_back(summarizeTotInCluster(frameNumber, clusterNumber));
+                sumtVector.push_back(summarizeTotsInCluster(frameNumber, clusterNumber));
 
     std::sort(sumtVector.begin(), sumtVector.end());
     auto last = std::unique(sumtVector.begin(), sumtVector.end());
     sumtVector.erase(last, sumtVector.end());
 
     return sumtVector;
+}
+std::vector<double> Frames::getVectorSumValueTots() const
+{
+    std::vector<double> sumTotsVector;
+
+    for (size_t frameNumber = 0; frameNumber < getFrameCount(); ++frameNumber)
+        for (size_t clusterNumber = 0; clusterNumber < getClusterCount(frameNumber); ++clusterNumber)
+            sumTotsVector.push_back(summarizeTotsInCluster(frameNumber, clusterNumber));
+
+    std::sort(sumTotsVector.begin(), sumTotsVector.end());
+    auto last = std::unique(sumTotsVector.begin(), sumTotsVector.end());
+    sumTotsVector.erase(last, sumTotsVector.end());
+
+    return sumTotsVector;
 }

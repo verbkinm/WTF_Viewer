@@ -19,6 +19,7 @@ public:
     std::vector<size_t> getClustersLengthVector() const;
     std::vector<double> getVectoValueTots() const;
     std::vector<double> getVectorSumTots() const;
+    std::vector<double> getVectorSumValueTots() const;
     OneFrame::cluster getClusterTotInRange(size_t frameNumber, size_t clusterNumber,
                                             size_t totRangeBegin, size_t totRangeEnd) const;
     const OneFrame::ePoint& getEPoint(size_t frameNumber, size_t clusterNumber, size_t eventNumber) const;
@@ -37,7 +38,8 @@ private:
     std::vector<QPointF> vectorOfPointsFromTots(size_t clusterLenght) const;
     void countingTot(size_t frameNumber, size_t clusterNumber, size_t clusterLenght, std::map<double, double> &map) const;
     std::vector<QPointF> getVectorOfPointsFromClusters() const;
-    double summarizeTotInCluster(size_t frameNumber, size_t clusterNumber) const;
+    double summarizeTotsInCluster(size_t frameNumber, size_t clusterNumber) const;
+
 
     std::vector<OneFrame> _vectorOfFrames;
 

@@ -10,10 +10,10 @@ ClogFilterPanel::ClogFilterPanel(QWidget *parent) :
 {
     ui->setupUi(this);
 
-    connect(ui->clusterRangeGroup,  SIGNAL(clicked(bool)), this, SLOT(slotEnableRange()));
-    connect(ui->totRangeGroup,      SIGNAL(clicked(bool)), this, SLOT(slotEnableRange()));
-    connect(ui->totRangeGroupFull, SIGNAL(clicked(bool)), this, SLOT(slotEnableRange()));
-    connect(ui->apply,              SIGNAL(clicked()),          this, SLOT(slotApplyFilter()) );
+    connect(ui->clusterRangeGroup, SIGNAL(clicked(bool)), SLOT(slotEnableRange()));
+    connect(ui->totRangeGroup, SIGNAL(clicked(bool)), SLOT(slotEnableRange()));
+    connect(ui->totRangeGroupFull, SIGNAL(clicked(bool)), SLOT(slotEnableRange()));
+    connect(ui->apply, SIGNAL(clicked()), SLOT(slotApplyFilter()) );
 }
 
 ClogFilterPanel::~ClogFilterPanel()
@@ -408,14 +408,14 @@ void ClogFilterPanel::checkedTimePix(bool b)
 
 void ClogFilterPanel::disconnectSignals() const
 {
-    disconnect(ui->clusterRangeBegin,  SIGNAL(currentTextChanged(QString)), this, SLOT(slotDates(QString)));
-    disconnect(ui->clusterRangeEnd,    SIGNAL(currentTextChanged(QString)), this, SLOT(slotDates(QString)));
+    disconnect(ui->clusterRangeBegin, SIGNAL(currentTextChanged(QString)), this, SLOT(slotDates(QString)));
+    disconnect(ui->clusterRangeEnd, SIGNAL(currentTextChanged(QString)), this, SLOT(slotDates(QString)));
 
-    disconnect(ui->totRangeBegin,  SIGNAL(currentTextChanged(QString)), this, SLOT(slotDates(QString)));
-    disconnect(ui->totRangeEnd,    SIGNAL(currentTextChanged(QString)), this, SLOT(slotDates(QString)));
+    disconnect(ui->totRangeBegin, SIGNAL(currentTextChanged(QString)), this, SLOT(slotDates(QString)));
+    disconnect(ui->totRangeEnd, SIGNAL(currentTextChanged(QString)), this, SLOT(slotDates(QString)));
 
-    disconnect(ui->totRangeBeginFull,  SIGNAL(currentTextChanged(QString)), this, SLOT(slotDates(QString)));
-    disconnect(ui->totRangeEndFull,    SIGNAL(currentTextChanged(QString)), this, SLOT(slotDates(QString)));
+    disconnect(ui->totRangeBeginFull, SIGNAL(currentTextChanged(QString)), this, SLOT(slotDates(QString)));
+    disconnect(ui->totRangeEndFull, SIGNAL(currentTextChanged(QString)), this, SLOT(slotDates(QString)));
 }
 
 void ClogFilterPanel::connectSignals() const
