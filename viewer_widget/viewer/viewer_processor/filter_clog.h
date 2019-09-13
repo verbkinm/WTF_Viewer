@@ -8,14 +8,14 @@ class Filter_Clog
 public:
     Filter_Clog();
 
-    size_t _clusterRangeBegin;
-    size_t _clusterRangeEnd;
+    double _clusterRangeBegin;
+    double _clusterRangeEnd;
 
-    size_t _totRangeBegin;
-    size_t _totRangeEnd;
+    double _totRangeBegin;
+    double _totRangeEnd;
 
-    size_t _totRangeBeginFull;
-    size_t _totRangeEndFull;
+    double _totRangeBeginFull;
+    double _totRangeEndFull;
 
     bool _isAllTotInCluster;
     bool _isMidiPix;

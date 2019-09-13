@@ -42,9 +42,10 @@ SOURCES += \
     viewer_widget/frames/oneframe.cpp \
     viewer_widget/viewer/panels/clogfilterpanel/clogfilterpanel.cpp \
     viewer_widget/masksettings.cpp \
-    viewer_widget/viewer/panels/clogfilterpanel/clogranges.cpp \
+    viewer_widget/viewer/panels/clogfilterpanel/rangewidget_extended.cpp \
     viewer_widget/viewer/panels/pix_filter_panel.cpp \
     viewer_widget/table.cpp \
+    viewer_widget/viewer/panels/clogfilterpanel/rangewidget.cpp \
     viewer_widget/viewer/saver.cpp \
     viewer_widget/viewer/panels/toolspanel.cpp \
     viewer_widget/viewer/viewer.cpp \
@@ -76,9 +77,10 @@ HEADERS += \
     viewer_widget/frames/oneframe.h \
     viewer_widget/viewer/panels/clogfilterpanel/clogfilterpanel.h \
     viewer_widget/masksettings.h \
-    viewer_widget/viewer/panels/clogfilterpanel/clogranges.h \
+    viewer_widget/viewer/panels/clogfilterpanel/rangewidget_extended.h \
     viewer_widget/viewer/panels/pix_filter_panel.h \
     viewer_widget/table.h \
+    viewer_widget/viewer/panels/clogfilterpanel/rangewidget.h \
     viewer_widget/viewer/saver.h \
     viewer_widget/viewer/panels/toolspanel.h \
     viewer_widget/viewer/viewer.h \
@@ -108,6 +110,7 @@ FORMS += \
     viewer_widget/masksettings.ui \
     viewer_widget/viewer/panels/pix_filter_panel.ui \
     viewer_widget/table.ui \
+    viewer_widget/viewer/panels/clogfilterpanel/rangewidget.ui \
     viewer_widget/viewer/panels/toolspanel.ui \
     viewer_widget/viewer/viewer.ui \
     viewer_widget/viewer/panels/viewer_button_panel.ui \

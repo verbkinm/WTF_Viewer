@@ -17,8 +17,8 @@ public:
     ~GraphDialog();
 
     size_t getCurrentClusterLenght();
-    QString getCurrentX();
-    QString getCurrentY();
+    QString getType();
+    QString getClusterSize();
     QString getCurrentWindowGraph();
 
     void selectLastWindow();

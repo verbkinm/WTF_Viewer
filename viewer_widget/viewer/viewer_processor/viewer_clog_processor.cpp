@@ -31,7 +31,7 @@ QImage Viewer_Clog_Processor::getRedrawnImage()
     return imageFromVec2D;
 }
 
-std::vector<size_t> Viewer_Clog_Processor::getClustersLengthVector() const
+std::vector<double> Viewer_Clog_Processor::getClustersLengthVector() const
 {
     return _frames.getClustersLengthVector();
 }

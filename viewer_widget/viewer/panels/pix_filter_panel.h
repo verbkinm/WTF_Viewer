@@ -13,7 +13,6 @@ class Pix_Filter_Panel : public QWidget
 
 public:
     Pix_Filter_Panel(QWidget *parent = nullptr);
-    Pix_Filter_Panel (const Pix_Filter_Panel &object);
     ~Pix_Filter_Panel();
 
     enum  {PIX_PROPERTY_TAB, CLOG_FILTER_TAB};
@@ -28,17 +27,17 @@ public:
     void setToggleButtonEnable(bool);
     void setButtonCutDisable(bool);
     void setTabEnable(int, bool);
-    void setClusterRange(const std::vector<size_t> &vector);
+    void setClusterRange(const std::vector<double> &vector);
     void setTotRange(const std::vector<double> &vector);
     void setTotRangeFull(const std::vector<double> &vector);
 
-    size_t getClusterBegin() const;
-    size_t getClusterEnd() const;
+    double getClusterBegin() const;
+    double getClusterEnd() const;
 
-    size_t getTotBegin() const;
-    size_t getTotEnd() const;
-    size_t getTotBeginFull() const;
-    size_t getTotEndFull() const;
+    double getTotBegin() const;
+    double getTotEnd() const;
+    double getTotBeginFull() const;
+    double getTotEndFull() const;
 
     int getX() const;
     int getY() const;

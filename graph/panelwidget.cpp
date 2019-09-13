@@ -187,7 +187,7 @@ void PanelWidget::slotSetSeriesType(int value)
     QChart* chart = seriesList.at(0)->chart();
 
     QString titleX = chart->axes(Qt::Horizontal).back()->titleText();
-    QString titleY = chart->axes(Qt::Vertical).back()->titleText();
+    QString titleY = chart->axes(Qt::Vertical).first()->titleText();
 
     disconnect(ui->seriesList,  SIGNAL(currentIndexChanged(int)), this,
                                 SLOT(slotSetSeriesPropery(int)));
@@ -242,13 +242,13 @@ void PanelWidget::slotSetSeriesType(int value)
     chart->createDefaultAxes();
 
     chart->axes(Qt::Horizontal).back()->setTitleText(titleX);
-    chart->axes(Qt::Vertical).back()->setTitleText(titleY);
+    chart->axes(Qt::Vertical).first()->setTitleText(titleY);
 
     (static_cast<QValueAxis*>(chart->axes(Qt::Horizontal).back()))->setTickCount(ui->tickCountX->value());
-    (static_cast<QValueAxis*>(chart->axes(Qt::Vertical).back()))->setTickCount(ui->tickCountY->value());
+    (static_cast<QValueAxis*>(chart->axes(Qt::Vertical).first()))->setTickCount(ui->tickCountY->value());
 
     chart->axes(Qt::Horizontal).back()->setRange(ui->axisXRangeMin->value(), ui->axisXRangeMax->value());
-    chart->axes(Qt::Vertical).back()->setRange(ui->axisYRangeMin->value(), ui->axisYRangeMax->value());
+    chart->axes(Qt::Vertical).first()->setRange(ui->axisYRangeMin->value(), ui->axisYRangeMax->value());
 
     emit signalSeriesTypeChange();
 }

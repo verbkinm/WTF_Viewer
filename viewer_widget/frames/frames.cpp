@@ -6,7 +6,7 @@
 
 Frames::Frames(QObject *parent) : QObject(parent)
 {
-
+    
 }
 
 size_t Frames::getFrameCount() const
@@ -58,7 +58,7 @@ void Frames::createFromFile(const QString &path)
         qDebug() << "Can't open CLOG file \"" << path <<"\"";
         return;
     }
-
+    
     QString line;
     QStringList buff;
     while(!file.atEnd())
@@ -74,11 +74,11 @@ void Frames::createFromFile(const QString &path)
         }
     }
     file.close();
-
+    
     OneFrame oneFrame;
     oneFrame.createFromStrings(buff);
     _vectorOfFrames.push_back(oneFrame);
-
+    
     emit signalFramesCreated();
 }
 
@@ -129,7 +129,7 @@ bool Frames::isLineContainsWholeFrame(const QString &line, QStringList &buff)
         firstStart = false;
     else if(line.startsWith("Frame") && !firstStart)
         return true;
-
+    
     buff << line;
     return false;
 }
@@ -151,88 +151,90 @@ OneFrame::cluster Frames::getClusterTotInRange(size_t frameNumber, size_t cluste
         return  ePointVector;
     }
 }
-std::vector<size_t> Frames::getClustersLengthVector() const
+std::vector<double> Frames::getClustersLengthVector() const
 {
-    std::vector<size_t> lenghtList;
+    std::vector<double> lenghtList;
     for (size_t frameNumber = 0; frameNumber < getFrameCount(); ++frameNumber)
         for (size_t clusterNumber = 0; clusterNumber < getClusterCount(frameNumber); ++clusterNumber)
             lenghtList.push_back(getClusterLength(frameNumber, clusterNumber));
-
+    
     std::sort(lenghtList.begin(), lenghtList.end());
     auto last = std::unique(lenghtList.begin(), lenghtList.end());
     lenghtList.erase(last, lenghtList.end());
-
+    
     return lenghtList;
 }
 
-std::vector<QPointF> Frames::vectorOfPointsFromTots(size_t clusterLenght) const
+std::vector<QPointF> Frames::getVectorOfPointsFromTots(size_t clusterLenght) const
 {
     //key = tot, value = count
     std::map<double, double> map;
-
+    
     for (size_t frameNumber = 0; frameNumber < getFrameCount(); ++frameNumber)
         for (size_t clusterNumber = 0; clusterNumber < getClusterCount(frameNumber); ++clusterNumber)
             countingTot(frameNumber, clusterNumber, clusterLenght, map);
-
+    
     std::vector<QPointF> vector;
     for (auto &[key, value] : map)
         vector.push_back(QPointF(key, value));
-
+    
     return vector;
 }
 
 void Frames::countingTot(size_t frameNumber, size_t clusterNumber, size_t clusterLenght, std::map<double, double> &map) const
 {
-    if(getClusterLength(frameNumber, clusterNumber) == clusterLenght)
+    if(getClusterLength(frameNumber, clusterNumber) == clusterLenght || clusterLenght == ALL_CLUSTER)
+    {
         for (size_t eventNumber = 0; eventNumber < getClusterLength(frameNumber, clusterNumber); ++eventNumber)
         {
             double key = getEPoint(frameNumber, clusterNumber, eventNumber).tot;
             map[key] = map[key] + 1;
         }
+    }
 }
 
 std::vector<QPointF> Frames::getVectorOfPointsFromClusters() const
 {
     //key = cluster, value = count
     std::map<size_t, size_t> map;
-
+    
     for (size_t frameNumber = 0; frameNumber < getFrameCount(); ++frameNumber)
         for (size_t clusterNumber = 0; clusterNumber < getClusterCount(frameNumber); ++clusterNumber)
         {
             size_t key = getClusterLength(frameNumber, clusterNumber);
             map[key] = map[key] + 1;
         }
-
+    
     std::vector<QPointF> vector;
     for (auto &[key, value] : map)
         vector.push_back(QPointF(key, value));
-
+    
     return vector;
 }
 
 double Frames::summarizeTotsInCluster(size_t frameNumber, size_t clusterNumber) const
 {
     double sum = 0;
-
+    
     for (size_t eventNumber = 0; eventNumber < getClusterLength(frameNumber, clusterNumber); ++eventNumber)
         sum += getEPoint(frameNumber, clusterNumber, eventNumber).tot;
-
+    
     return sum;
 }
 
 std::vector<double> Frames::getVectoValueTots() const
 {
-    std::vector<double> lenghtVector;
+    std::vector<double> totVector;
     for (size_t frameNumber = 0; frameNumber < getFrameCount(); ++frameNumber)
         for (size_t clusterNumber = 0; clusterNumber < getClusterCount(frameNumber); ++clusterNumber)
             for (size_t eventNumber = 0; eventNumber < getClusterLength(frameNumber, clusterNumber); ++eventNumber)
-                lenghtVector.push_back(getEPoint(frameNumber, clusterNumber, eventNumber).tot);
-
-    std::sort(lenghtVector.begin(), lenghtVector.end());
-    auto last = std::unique(lenghtVector.begin(), lenghtVector.end());
-    lenghtVector.erase(last, lenghtVector.end());
-
-    return lenghtVector;
+                totVector.push_back(getEPoint(frameNumber, clusterNumber, eventNumber).tot);
+    
+    std::sort(totVector.begin(), totVector.end());
+    auto last = std::unique(totVector.begin(), totVector.end());
+    totVector.erase(last, totVector.end());
+    
+    return totVector;
 }
 
 std::vector<double> Frames::getVectorSumTots() const
@@ -242,24 +244,24 @@ std::vector<double> Frames::getVectorSumTots() const
         for (size_t clusterNumber = 0; clusterNumber < getClusterCount(frameNumber); ++clusterNumber)
             for (size_t eventNumber = 0; eventNumber < getClusterLength(frameNumber, clusterNumber); ++eventNumber)
                 sumtVector.push_back(summarizeTotsInCluster(frameNumber, clusterNumber));
-
+    
     std::sort(sumtVector.begin(), sumtVector.end());
     auto last = std::unique(sumtVector.begin(), sumtVector.end());
     sumtVector.erase(last, sumtVector.end());
-
+    
     return sumtVector;
 }
 std::vector<double> Frames::getVectorSumValueTots() const
 {
     std::vector<double> sumTotsVector;
-
+    
     for (size_t frameNumber = 0; frameNumber < getFrameCount(); ++frameNumber)
         for (size_t clusterNumber = 0; clusterNumber < getClusterCount(frameNumber); ++clusterNumber)
             sumTotsVector.push_back(summarizeTotsInCluster(frameNumber, clusterNumber));
-
+    
     std::sort(sumTotsVector.begin(), sumTotsVector.end());
     auto last = std::unique(sumTotsVector.begin(), sumTotsVector.end());
     sumTotsVector.erase(last, sumTotsVector.end());
-
+    
     return sumTotsVector;
 }

@@ -20,25 +20,6 @@ Pix_Filter_Panel::Pix_Filter_Panel(QWidget *parent) :
     connect(ui->clogFilterPanel, SIGNAL(signalApplyFilter()), SIGNAL(signalApplyFilter()));
 }
 
-Pix_Filter_Panel::Pix_Filter_Panel(const Pix_Filter_Panel &object)
-{
-    ui->tabWidget->setCurrentIndex(object.ui->tabWidget->currentIndex());
-    ui->clogFilterPanel->enableClusterGroup(object.ui->clogFilterPanel->isClusterEnable());
-    ui->clogFilterPanel->enableTotGroup(object.ui->clogFilterPanel->isTotEnable());
-    ui->clogFilterPanel->setAllTotInCluster(object.ui->clogFilterPanel->isAllTotInCluster());
-
-    ui->clogFilterPanel->setClusterBegin(static_cast<int>(object.ui->clogFilterPanel->getClusterBegin()));
-    ui->clogFilterPanel->setClusterEnd(static_cast<int>(object.ui->clogFilterPanel->getClusterEnd()));
-
-    ui->clogFilterPanel->setTotBegin(static_cast<int>(object.ui->clogFilterPanel->getTotBegin()));
-    ui->clogFilterPanel->setTotEnd(static_cast<int>(object.ui->clogFilterPanel->getTotEnd()));
-
-    if(object.ui->clogFilterPanel->isMediPix())
-        ui->clogFilterPanel->checkedMediPix(true);
-    else
-        ui->clogFilterPanel->checkedTimePix(true);
-}
-
 Pix_Filter_Panel::~Pix_Filter_Panel()
 {
     delete ui;
@@ -93,7 +74,7 @@ void Pix_Filter_Panel::setTabEnable(int number, bool state)
     ui->tabWidget->setTabEnabled(number, state);
 }
 
-void Pix_Filter_Panel::setClusterRange(const std::vector<size_t> &vector)
+void Pix_Filter_Panel::setClusterRange(const std::vector<double> &vector)
 {
     ui->clogFilterPanel->setClusterRange(vector);
 }
@@ -108,32 +89,32 @@ void Pix_Filter_Panel::setTotRangeFull(const std::vector<double> &vector)
     ui->clogFilterPanel->setTotRangeFull(vector);
 }
 
-size_t Pix_Filter_Panel::getClusterBegin() const
+double Pix_Filter_Panel::getClusterBegin() const
 {
     return ui->clogFilterPanel->getClusterBegin();
 }
 
-size_t Pix_Filter_Panel::getClusterEnd() const
+double Pix_Filter_Panel::getClusterEnd() const
 {
     return ui->clogFilterPanel->getClusterEnd();
 }
 
-size_t Pix_Filter_Panel::getTotBegin() const
+double Pix_Filter_Panel::getTotBegin() const
 {
     return ui->clogFilterPanel->getTotBegin();
 }
 
-size_t Pix_Filter_Panel::getTotEnd() const
+double Pix_Filter_Panel::getTotEnd() const
 {
     return ui->clogFilterPanel->getTotEnd();
 }
 
-size_t Pix_Filter_Panel::getTotBeginFull() const
+double Pix_Filter_Panel::getTotBeginFull() const
 {
     return ui->clogFilterPanel->getTotBeginFull();
 }
 
-size_t Pix_Filter_Panel::getTotEndFull() const
+double Pix_Filter_Panel::getTotEndFull() const
 {
     return ui->clogFilterPanel->getTotEndFull();
 }

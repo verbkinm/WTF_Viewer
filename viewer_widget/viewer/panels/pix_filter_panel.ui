@@ -238,13 +238,13 @@
   <customwidget>
    <class>ClogFilterPanel</class>
    <extends>QWidget</extends>
-   <header>../WTF_Viewer/viewer_widget/viewer/panels/clogfilterpanel/clogfilterpanel.h</header>
+   <header location="global">../WTF_Viewer/viewer_widget/viewer/panels/clogfilterpanel/clogfilterpanel.h</header>
    <container>1</container>
   </customwidget>
   <customwidget>
    <class>ToolsPanel</class>
    <extends>QWidget</extends>
-   <header>../WTF_Viewer/viewer_widget/viewer/panels/toolspanel.h</header>
+   <header location="global">../WTF_Viewer/viewer_widget/viewer/panels/toolspanel.h</header>
    <container>1</container>
   </customwidget>
  </customwidgets>

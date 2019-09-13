@@ -5,7 +5,6 @@
 #include <QEvent>
 
 #include "../../../frames/frames.h"
-#include "clogranges.h"
 
 namespace Ui {
 class ClogFilterPanel;
@@ -19,16 +18,16 @@ public:
     explicit ClogFilterPanel(QWidget *parent = nullptr);
     ~ClogFilterPanel();
 
-    void setClusterRange(const std::vector<size_t> &vector);
+    void setClusterRange(const std::vector<double> &vector);
     void setTotRange(const std::vector<double> &vector);
     void setTotRangeFull(const std::vector<double> &vector);
 
-    size_t getClusterBegin() const;
-    size_t getClusterEnd() const;
-    size_t getTotBegin() const;
-    size_t getTotEnd() const;
-    size_t getTotBeginFull() const;
-    size_t getTotEndFull() const;
+    double getClusterBegin() const;
+    double getClusterEnd() const;
+    double getTotBegin() const;
+    double getTotEnd() const;
+    double getTotBeginFull() const;
+    double getTotEndFull() const;
 
     bool isClusterEnable() const;
     bool isTotEnable() const;
@@ -37,15 +36,6 @@ public:
     bool isMediPix() const;
     bool isFullTotRange() const;
 
-    void setClusterBegin(int v);
-    void setClusterEnd(int v);
-    void setTotBegin(int v);
-    void setTotEnd(int v);
-    void setTotBeginFull(int v);
-    void setTotEndFull(int v);
-
-    void enableClusterGroup(bool b);
-    void enableTotGroup(bool b);
     void setAllTotInCluster(bool b);
     void checkedMediPix(bool b);
     void checkedTimePix(bool b);
@@ -53,25 +43,27 @@ public:
 private:
     Ui::ClogFilterPanel *ui;
 
-    ClogRanges clusterRanges, totRanges, totFullRanges;
-    QStringList clusterListModel, clusterListBegin, clusterListEnd;
-    QString clusterBeginLast, clusterEndLast;
 
-    QStringList totListModel, totListBegin, totListEnd;
-    QString totBeginLast, totEndLast;
 
-    QStringList totListModelFull, totListBeginFull, totListEndFull;
-    QString totBeginLastFull, totEndLastFull;
+//    ClogRanges _clusterRanges, _totRanges, _totFullRanges;
+//    QStringList clusterListModel, clusterListBegin, clusterListEnd;
+////    QString clusterBeginLast, clusterEndLast;
 
-    void disconnectSignals() const;
-    void connectSignals() const;
+//    QStringList totListModel, totListBegin, totListEnd;
+//    QString totBeginLast, totEndLast;
 
-private slots:
-    void slotEnableRange();
-    void slotDates(QString value);
+//    QStringList totListModelFull, totListBeginFull, totListEndFull;
+//    QString totBeginLastFull, totEndLastFull;
 
-public slots:
-    void slotApplyFilter();
+//    void disconnectSignals() const;
+//    void connectSignals() const;
+
+//private slots:
+//    void slotEnableRange();
+//    void slotSetRange(int currentIndex);
+
+//public slots:
+//    void slotApplyFilter();
 
 signals:
     void signalApplyFilter();

@@ -14,7 +14,7 @@
 MainWindow::MainWindow(QWidget *parent): QMainWindow(parent),
     settings(std::make_shared<QSettings>(QSettings::IniFormat, QSettings::UserScope, "WTF.org", "WTF")),
     _viewerWidget(settings, this),
-    _programVersion("0.9.8.14")
+    _programVersion("0.9.8.15")
 {
     settings.get()->setIniCodec("UTF-8");
     _splitter.setOrientation(Qt::Horizontal);
@@ -144,7 +144,7 @@ void MainWindow::graphDialogExec(GraphDialog &graphDialog, const Frames &frames)
         if(_graphWindowMap.size() == 0 || graphDialog.getCurrentWindowGraph() == graphDialog._NEW_WINDOW)
         {
             CentralWidget* graphWindow = new CentralWidget(this);
-            graphWindow->addSeries(pointVector, legendText, graphDialog.getCurrentX(), "Count");
+            graphWindow->addSeries(pointVector, legendText, graphDialog.getType(), "Count");
             graphWindow->setTitle(chartTitle + QString::number(_graphWindowMap.size()));
             graphWindow->showMaximized();
             _graphWindowMap[graphWindow->getTitle()] = graphWindow;
@@ -156,7 +156,7 @@ void MainWindow::graphDialogExec(GraphDialog &graphDialog, const Frames &frames)
             for (auto [key, value] : _graphWindowMap)
                 if(key == graphDialog.getCurrentWindowGraph())
                     graphWindow = value;
-            graphWindow->addSeries(pointVector, legendText, graphDialog.getCurrentX(), "Count");
+            graphWindow->addSeries(pointVector, legendText, graphDialog.getType(), "Count");
             graphWindow->showMaximized();
         }
     }
@@ -165,18 +165,20 @@ void MainWindow::graphDialogExec(GraphDialog &graphDialog, const Frames &frames)
 std::vector<QPointF> MainWindow::createVectorAccordingGraphType(GraphDialog &graphDialog, QString &legendText, const Frames &frames)
 {
     std::vector<QPointF> pointVector;
-    if(graphDialog.getCurrentX() == "Tots")
+    if(graphDialog.getType() == "Tots")
     {
-        legendText = graphDialog.getCurrentY() + "px";
-//        pointVector = frames.getVectoValueTots();
-//            vector = frames.get
+        legendText = graphDialog.getClusterSize() + "px";
+        if(graphDialog.getClusterSize() == "All")
+            pointVector = frames.getVectorOfPointsFromTots(Frames::ALL_CLUSTER);
+        else
+            pointVector = frames.getVectorOfPointsFromTots(graphDialog.getClusterSize().toULongLong());
     }
-    if(graphDialog.getCurrentX() == "Clusters")
+    else if(graphDialog.getType() == "Clusters")
     {
         legendText = _currentActiveFile;
 //            vector = frames.get
     }
-    if(graphDialog.getCurrentX() == "Energy")
+    else if(graphDialog.getType() == "Energy")
     {
 //        QMessageBox::information(this, "oooooops", "Kiss my ass, my little unicorn! =))");
 //        return;
@@ -235,7 +237,7 @@ void MainWindow::slotPlotGraph()
     for(auto item : _graphWindowMap)
         graphDialog.appendWindow(item.first);
 
-    emit graphDialog.signalDataXChanged(graphDialog.getCurrentX());
+    emit graphDialog.signalDataXChanged(graphDialog.getType());
     graphDialogExec(graphDialog, frames);
 }
 

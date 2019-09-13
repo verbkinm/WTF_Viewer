@@ -24,7 +24,7 @@ CentralWidget::CentralWidget(QWidget *parent) : QMainWindow(parent),
 
     createAxes();
     chart.axes(Qt::Horizontal).back()->setTitleText("X");
-    chart.axes(Qt::Vertical).back()->setTitleText("Y");
+    chart.axes(Qt::Vertical).first()->setTitleText("Y");
     chart.setDropShadowEnabled(true);
 
     chartView.setChart(&chart);
@@ -205,8 +205,8 @@ void CentralWidget::setRangeAndTitleForAxes(const QString &axsisX_Title, const Q
 {
     chart.axes(Qt::Horizontal).back()->setRange(minX, maxX);
     chart.axes(Qt::Horizontal).back()->setTitleText(axsisX_Title);
-    chart.axes(Qt::Vertical).back()->setRange(minY, maxY);
-    chart.axes(Qt::Vertical).back()->setTitleText(axsisY_Title);
+    chart.axes(Qt::Vertical).first()->setRange(minY, maxY);
+    chart.axes(Qt::Vertical).first()->setTitleText(axsisY_Title);
 }
 
 void CentralWidget::setChartViewXYRange()
@@ -242,7 +242,7 @@ void CentralWidget::createAxes()
     chart.createDefaultAxes();
 
     pAxisX = qobject_cast<QValueAxis*>(chart.axes(Qt::Horizontal).back());
-    pAxisY = qobject_cast<QValueAxis*>(chart.axes(Qt::Vertical).back());
+    pAxisY = qobject_cast<QValueAxis*>(chart.axes(Qt::Vertical).first());
 
     connect(pAxisX, SIGNAL(rangeChanged(qreal, qreal)), this, SLOT(slotRangeXChanged(qreal, qreal)));
     connect(pAxisY, SIGNAL(rangeChanged(qreal, qreal)), this, SLOT(slotRangeYChanged(qreal, qreal)));
@@ -340,13 +340,13 @@ void CentralWidget::slotReRange()
     //Что-бы правильно работало нажатие Esc <<
 
     QString axisX_Title = chart.axes(Qt::Horizontal).back()->titleText();
-    QString axisY_Title = chart.axes(Qt::Vertical).back()->titleText();
+    QString axisY_Title = chart.axes(Qt::Vertical).first()->titleText();
 
     createAxes();
     chart.axes(Qt::Horizontal).back()->setRange(minX, maxX);
     chart.axes(Qt::Horizontal).back()->setTitleText(axisX_Title);
-    chart.axes(Qt::Vertical).back()->setRange(minY, maxY);
-    chart.axes(Qt::Vertical).back()->setTitleText(axisY_Title);
+    chart.axes(Qt::Vertical).first()->setRange(minY, maxY);
+    chart.axes(Qt::Vertical).first()->setTitleText(axisY_Title);
 }
 
 void CentralWidget::slotResetZoomAndPosition()
@@ -388,12 +388,12 @@ void CentralWidget::slotRangeYSet(qreal min, qreal max)
 void CentralWidget::slotSeriesTypeChanged()
 {
     QString axisX_Title = chart.axes(Qt::Horizontal).back()->titleText();
-    QString axisY_Title = chart.axes(Qt::Vertical).back()->titleText();
+    QString axisY_Title = chart.axes(Qt::Vertical).first()->titleText();
 
     createAxes();
 
     chart.axes(Qt::Horizontal).back()->setTitleText(axisX_Title);
-    chart.axes(Qt::Vertical).back()->setTitleText(axisY_Title);
+    chart.axes(Qt::Vertical).first()->setTitleText(axisY_Title);
 }
 
 void CentralWidget::closeEvent(QCloseEvent*)

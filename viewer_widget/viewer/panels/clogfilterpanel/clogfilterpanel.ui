@@ -14,153 +14,26 @@
    <string>Form</string>
   </property>
   <layout class="QVBoxLayout" name="verticalLayout">
+   <property name="leftMargin">
+    <number>0</number>
+   </property>
+   <property name="topMargin">
+    <number>0</number>
+   </property>
+   <property name="rightMargin">
+    <number>0</number>
+   </property>
+   <property name="bottomMargin">
+    <number>0</number>
+   </property>
    <item>
-    <widget class="QGroupBox" name="clusterRangeGroup">
-     <property name="toolTip">
-      <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Enable/Disable cluster range (when &lt;span style=&quot; font-weight:600;&quot;&gt;Disabled&lt;/span&gt; - selected all range)&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
-     </property>
-     <property name="title">
-      <string>Cluster range:</string>
-     </property>
-     <property name="checkable">
-      <bool>true</bool>
-     </property>
-     <property name="checked">
-      <bool>false</bool>
-     </property>
-     <layout class="QGridLayout" name="gridLayout">
-      <item row="2" column="1">
-       <widget class="QComboBox" name="clusterRangeEnd"/>
-      </item>
-      <item row="1" column="0">
-       <widget class="QLabel" name="label">
-        <property name="text">
-         <string>From</string>
-        </property>
-        <property name="alignment">
-         <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
-        </property>
-       </widget>
-      </item>
-      <item row="2" column="0">
-       <widget class="QLabel" name="label_2">
-        <property name="text">
-         <string>To</string>
-        </property>
-        <property name="alignment">
-         <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
-        </property>
-       </widget>
-      </item>
-      <item row="1" column="1">
-       <widget class="QComboBox" name="clusterRangeBegin"/>
-      </item>
-     </layout>
-    </widget>
+    <widget class="RangeWidget" name="clusterRangeGroup" native="true"/>
    </item>
    <item>
-    <widget class="QGroupBox" name="totRangeGroup">
-     <property name="enabled">
-      <bool>true</bool>
-     </property>
-     <property name="toolTip">
-      <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Enable/DisableTot range (when &lt;span style=&quot; font-weight:600;&quot;&gt;Disabled&lt;/span&gt; - selected all range)&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
-     </property>
-     <property name="title">
-      <string>Tot range:</string>
-     </property>
-     <property name="checkable">
-      <bool>true</bool>
-     </property>
-     <property name="checked">
-      <bool>false</bool>
-     </property>
-     <layout class="QGridLayout" name="gridLayout_2">
-      <item row="1" column="1">
-       <widget class="QComboBox" name="totRangeBegin"/>
-      </item>
-      <item row="1" column="0">
-       <widget class="QLabel" name="label_3">
-        <property name="text">
-         <string>From</string>
-        </property>
-        <property name="alignment">
-         <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
-        </property>
-       </widget>
-      </item>
-      <item row="2" column="1">
-       <widget class="QComboBox" name="totRangeEnd"/>
-      </item>
-      <item row="0" column="0" colspan="2">
-       <widget class="QCheckBox" name="allTotInCluster">
-        <property name="enabled">
-         <bool>false</bool>
-        </property>
-        <property name="text">
-         <string>all Tot in cluster</string>
-        </property>
-        <property name="checked">
-         <bool>true</bool>
-        </property>
-       </widget>
-      </item>
-      <item row="2" column="0">
-       <widget class="QLabel" name="label_4">
-        <property name="text">
-         <string>To</string>
-        </property>
-        <property name="alignment">
-         <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
-        </property>
-       </widget>
-      </item>
-     </layout>
-    </widget>
+    <widget class="RangeWidget_Extended" name="totRangeGroup" native="true"/>
    </item>
    <item>
-    <widget class="QGroupBox" name="totRangeGroupFull">
-     <property name="toolTip">
-      <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Enable/DisableTot range (when &lt;span style=&quot; font-weight:600;&quot;&gt;Disabled&lt;/span&gt; - selected all range)&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
-     </property>
-     <property name="title">
-      <string>Full Tot range:</string>
-     </property>
-     <property name="checkable">
-      <bool>true</bool>
-     </property>
-     <property name="checked">
-      <bool>false</bool>
-     </property>
-     <layout class="QGridLayout" name="gridLayout_3">
-      <item row="0" column="0">
-       <widget class="QLabel" name="label_5">
-        <property name="text">
-         <string>From</string>
-        </property>
-        <property name="alignment">
-         <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
-        </property>
-       </widget>
-      </item>
-      <item row="0" column="1">
-       <widget class="QComboBox" name="totRangeBeginFull"/>
-      </item>
-      <item row="1" column="1">
-       <widget class="QComboBox" name="totRangeEndFull"/>
-      </item>
-      <item row="1" column="0">
-       <widget class="QLabel" name="label_6">
-        <property name="text">
-         <string>To</string>
-        </property>
-        <property name="alignment">
-         <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
-        </property>
-       </widget>
-      </item>
-     </layout>
-    </widget>
+    <widget class="RangeWidget" name="totRangeGroupFull" native="true"/>
    </item>
    <item>
     <widget class="QGroupBox" name="pixGroup">
@@ -209,9 +82,21 @@
    </item>
   </layout>
  </widget>
+ <customwidgets>
+  <customwidget>
+   <class>RangeWidget</class>
+   <extends>QWidget</extends>
+   <header location="global">../WTF_Viewer/viewer_widget/viewer/panels/clogfilterpanel/rangewidget.h</header>
+   <container>1</container>
+  </customwidget>
+  <customwidget>
+   <class>RangeWidget_Extended</class>
+   <extends>QWidget</extends>
+   <header location="global">../WTF_Viewer/viewer_widget/viewer/panels/clogfilterpanel/rangewidget_extended.h</header>
+   <container>1</container>
+  </customwidget>
+ </customwidgets>
  <tabstops>
-  <tabstop>clusterRangeGroup</tabstop>
-  <tabstop>totRangeGroup</tabstop>
   <tabstop>midiPixRadioButton</tabstop>
   <tabstop>timePixRadioButton</tabstop>
   <tabstop>apply</tabstop>

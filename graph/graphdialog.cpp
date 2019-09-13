@@ -29,12 +29,12 @@ size_t GraphDialog::getCurrentClusterLenght()
     return ui->DataY->currentText().toULongLong();
 }
 
-QString GraphDialog::getCurrentX()
+QString GraphDialog::getType()
 {
     return ui->DataX->currentText();
 }
 
-QString GraphDialog::getCurrentY()
+QString GraphDialog::getClusterSize()
 {
     return ui->DataY->currentText();
 }

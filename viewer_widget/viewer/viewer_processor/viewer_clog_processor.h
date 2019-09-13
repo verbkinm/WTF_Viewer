@@ -15,7 +15,7 @@ public:
     virtual QImage getImage() override;
     virtual QImage getRedrawnImage() override;
 
-    std::vector<size_t> getClustersLengthVector() const;
+    std::vector<double> getClustersLengthVector() const;
     std::vector<double> getVectorOfLengthsOfTots() const;
     std::vector<double> getVectorOfSumOfTots() const;
     Frames const &getFrames() const;
