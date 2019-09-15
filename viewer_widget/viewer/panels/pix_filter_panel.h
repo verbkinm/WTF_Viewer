@@ -36,8 +36,8 @@ public:
 
     double getTotBegin() const;
     double getTotEnd() const;
-    double getTotBeginFull() const;
-    double getTotEndFull() const;
+//    double getTotBeginFull() const;
+//    double getTotEndFull() const;
 
     int getX() const;
     int getY() const;
@@ -48,7 +48,7 @@ public:
 
     bool isAllTotInCluster() const;
     bool isMediPix() const;
-    bool isFullTotRange() const;
+    bool isTotRangeChecked() const;
 
     void finishSelection() const;
 

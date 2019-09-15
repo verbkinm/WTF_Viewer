@@ -14,7 +14,7 @@
 MainWindow::MainWindow(QWidget *parent): QMainWindow(parent),
     settings(std::make_shared<QSettings>(QSettings::IniFormat, QSettings::UserScope, "WTF.org", "WTF")),
     _viewerWidget(settings, this),
-    _programVersion("0.9.8.15")
+    _programVersion("0.9.8.16 =))")
 {
     settings.get()->setIniCodec("UTF-8");
     _splitter.setOrientation(Qt::Horizontal);
@@ -140,11 +140,11 @@ void MainWindow::graphDialogExec(GraphDialog &graphDialog, const Frames &frames)
     QString chartTitle = "Graph ";
     if(graphDialog.exec() == QDialog::Accepted)
     {
-        std::vector<QPointF> pointVector = createVectorAccordingGraphType(graphDialog, legendText, frames);
+        std::map<double, double> map = createVectorAccordingGraphType(graphDialog, legendText, frames);
         if(_graphWindowMap.size() == 0 || graphDialog.getCurrentWindowGraph() == graphDialog._NEW_WINDOW)
         {
             CentralWidget* graphWindow = new CentralWidget(this);
-            graphWindow->addSeries(pointVector, legendText, graphDialog.getType(), "Count");
+            graphWindow->addSeries(map, legendText, graphDialog.getType(), "Count");
             graphWindow->setTitle(chartTitle + QString::number(_graphWindowMap.size()));
             graphWindow->showMaximized();
             _graphWindowMap[graphWindow->getTitle()] = graphWindow;
@@ -156,22 +156,22 @@ void MainWindow::graphDialogExec(GraphDialog &graphDialog, const Frames &frames)
             for (auto [key, value] : _graphWindowMap)
                 if(key == graphDialog.getCurrentWindowGraph())
                     graphWindow = value;
-            graphWindow->addSeries(pointVector, legendText, graphDialog.getType(), "Count");
+            graphWindow->addSeries(map, legendText, graphDialog.getType(), "Count");
             graphWindow->showMaximized();
         }
     }
 }
 
-std::vector<QPointF> MainWindow::createVectorAccordingGraphType(GraphDialog &graphDialog, QString &legendText, const Frames &frames)
+std::map<double, double> MainWindow::createVectorAccordingGraphType(GraphDialog &graphDialog, QString &legendText, const Frames &frames)
 {
-    std::vector<QPointF> pointVector;
+    std::map<double, double> map;
     if(graphDialog.getType() == "Tots")
     {
         legendText = graphDialog.getClusterSize() + "px";
         if(graphDialog.getClusterSize() == "All")
-            pointVector = frames.getVectorOfPointsFromTots(Frames::ALL_CLUSTER);
+            return frames.getVectorOfPointsFromTots(Frames::ALL_CLUSTER);
         else
-            pointVector = frames.getVectorOfPointsFromTots(graphDialog.getClusterSize().toULongLong());
+            return frames.getVectorOfPointsFromTots(graphDialog.getClusterSize().toULongLong());
     }
     else if(graphDialog.getType() == "Clusters")
     {
@@ -183,7 +183,7 @@ std::vector<QPointF> MainWindow::createVectorAccordingGraphType(GraphDialog &gra
 //        QMessageBox::information(this, "oooooops", "Kiss my ass, my little unicorn! =))");
 //        return;
     }
-    return pointVector;
+    return map;
 }
 void MainWindow::slotExportFiles()
 {

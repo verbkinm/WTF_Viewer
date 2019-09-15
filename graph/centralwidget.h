@@ -29,9 +29,9 @@ public:
     CentralWidget(QWidget *parent = nullptr);
     ~CentralWidget();
 
-    void addSeries(std::vector<QPointF> &pointVector, QXYSeries::SeriesType type = QXYSeries::SeriesTypeLine,
+    void addSeries(std::map<double, double> &map, QXYSeries::SeriesType type = QXYSeries::SeriesTypeLine,
                    QString legendTitle = "", QString axsisX_Title = "X", QString axsisY_Title = "Y");
-    void addSeries(std::vector<QPointF> &pointVector, QString legendTitle = "",
+    void addSeries(std::map<double, double> &map, QString legendTitle = "",
                    QString axsisX_Title = "X", QString axsisY_Title = "Y");
 
     void setTitle(QString title);
@@ -77,8 +77,8 @@ private:
 
     void connectPanelWidgetSignals();
     QXYSeries *createSeriesAccordingType(QXYSeries::SeriesType &type);
-    void fillSeriesOfPoints(std::vector<QPointF> &pointVector, QXYSeries *series);
-    void setMinAndMaxForXY(QPointF &point);
+    void fillSeriesOfPoints(std::map<double, double> &map, QXYSeries *series);
+    void setMinAndMaxForXY(double x, double y);
     void setRangeAndTitleForAxes(const QString &axsisX_Title, const QString &axsisY_Title);
     void setChartViewXYRange();
     void setSeriesProperty(QXYSeries *series);

@@ -47,11 +47,11 @@ CentralWidget::~CentralWidget()
     delete pAxisY;
 }
 
-void CentralWidget::addSeries(std::vector<QPointF> &pointVector, QXYSeries::SeriesType type, QString legendTitle, QString axsisX_Title, QString axsisY_Title)
+void CentralWidget::addSeries(std::map<double, double> &map, QXYSeries::SeriesType type, QString legendTitle, QString axsisX_Title, QString axsisY_Title)
 {
     QXYSeries* series = createSeriesAccordingType(type);
     series->setName(legendTitle);
-    fillSeriesOfPoints(pointVector, series);
+    fillSeriesOfPoints(map, series);
     setSeriesProperty(series);
     setChartViewXYRange();
     createAxes();
@@ -61,9 +61,9 @@ void CentralWidget::addSeries(std::vector<QPointF> &pointVector, QXYSeries::Seri
     panelWidget.addSeriesList(series);
 }
 
-void CentralWidget::addSeries(std::vector<QPointF> &pointVector, QString legendTitle, QString axsisX_Title, QString axsisY_Title)
+void CentralWidget::addSeries(std::map<double, double> &map, QString legendTitle, QString axsisX_Title, QString axsisY_Title)
 {
-    addSeries(pointVector, QXYSeries::SeriesType(panelWidget.getSeriesType()), legendTitle, axsisX_Title, axsisY_Title);
+    addSeries(map, QXYSeries::SeriesType(panelWidget.getSeriesType()), legendTitle, axsisX_Title, axsisY_Title);
 }
 
 void CentralWidget::setTitle(QString title)
@@ -184,21 +184,22 @@ QXYSeries *CentralWidget::createSeriesAccordingType(QAbstractSeries::SeriesType 
     return series;
 }
 
-void CentralWidget::fillSeriesOfPoints(std::vector<QPointF> &pointVector, QXYSeries *series)
+void CentralWidget::fillSeriesOfPoints(std::map<double, double> &map, QXYSeries *series)
 {
-    for(auto &point : pointVector)
+    for(auto [key, value] : map)
     {
-        *series << point;
-        setMinAndMaxForXY(point);
+        qDebug() << key << value;
+        *series << QPointF(key, value);
+        setMinAndMaxForXY(key, value);
     }
 }
 
-void CentralWidget::setMinAndMaxForXY(QPointF &point)
+void CentralWidget::setMinAndMaxForXY(double x, double y)
 {
-    if(point.x() > maxX) maxX = point.x();
-    if(point.y() > maxY) maxY = point.y();
-    if(point.x() < minX) minX = point.x();
-    if(point.y() < minY) minY = point.y();
+    if(x > maxX) maxX = x;
+    if(y > maxY) maxY = y;
+    if(x < minX) minX = x;
+    if(y < minY) minY = y;
 }
 
 void CentralWidget::setRangeAndTitleForAxes(const QString &axsisX_Title, const QString &axsisY_Title)

@@ -7,19 +7,11 @@ RangeWidget::RangeWidget(QWidget *parent) :
     ui(new Ui::RangeWidget)
 {
     ui->setupUi(this);
-
-    connect(ui->RangeWidgetGroup, SIGNAL(clicked(bool)), this, SLOT(slotRangeGroup(bool)));
-    connect(ui->RangeWidgetGroup, SIGNAL(clicked(bool)), this, SIGNAL(signalChecked(bool)));
 }
 
 RangeWidget::~RangeWidget()
 {
     delete ui;
-}
-
-void RangeWidget::setTitle(const QString &title)
-{
-    ui->RangeWidgetGroup->setTitle(title);
 }
 
 void RangeWidget::setRange(const std::vector<double> &vector)
@@ -43,17 +35,6 @@ void RangeWidget::setRange(const std::vector<double> &vector)
     connectSignals();
 }
 
-void RangeWidget::setChecked(bool checked)
-{
-    ui->RangeWidgetGroup->setChecked(checked);
-}
-
-void RangeWidget::setReversChecked(bool checked)
-{
-    setChecked(!checked);
-    slotRangeGroup(!checked);
-}
-
 double RangeWidget::getRangeBegin() const
 {
     return ui->rangeBegin->currentText().toULongLong();
@@ -62,11 +43,6 @@ double RangeWidget::getRangeBegin() const
 double RangeWidget::getRangeEnd() const
 {
     return ui->rangeEnd->currentText().toULongLong();
-}
-
-bool RangeWidget::isChecked() const
-{
-    return ui->RangeWidgetGroup->isChecked();
 }
 
 QGridLayout *RangeWidget::layout()
@@ -80,7 +56,7 @@ void RangeWidget::fillBeginComboBox()
     for(const auto &item : _vector)
         ui->rangeBegin->addItem(QString::number(item));
 
-    if(ui->RangeWidgetGroup->isChecked())
+    if(containsInVector(_beginLast))
         ui->rangeBegin->setCurrentText(_beginLast);
     else
         ui->rangeBegin->setCurrentIndex(0);
@@ -96,7 +72,7 @@ void RangeWidget::fillEndComboBox()
         it++;
     }
 
-    if(ui->RangeWidgetGroup->isChecked() && containsInVector(_endLast))
+    if(containsInVector(_endLast))
         ui->rangeEnd->setCurrentText(_endLast);
     else
         ui->rangeEnd->setCurrentText(QString::number(*_vector.rbegin()));
@@ -127,21 +103,21 @@ void RangeWidget::slotChangeEndRange(QString currentText)
     _endLast = currentText;
 }
 
-void RangeWidget::slotRangeGroup(bool checked)
-{
-    disconnectSignals();
-    if(checked)
-    {
-        ui->rangeBegin->setCurrentText(_beginLast);
-        ui->rangeEnd->setCurrentText(_endLast);
-    }
-    else
-    {
-        ui->rangeBegin->setCurrentIndex(0);
-        ui->rangeEnd->setCurrentText(QString::number(*_vector.rbegin()));
-    }
-    connectSignals();
-}
+//void RangeWidget::slotRangeGroup(bool checked)
+//{
+//    disconnectSignals();
+//    if(checked)
+//    {
+//        ui->rangeBegin->setCurrentText(_beginLast);
+//        ui->rangeEnd->setCurrentText(_endLast);
+//    }
+//    else
+//    {
+//        ui->rangeBegin->setCurrentIndex(0);
+//        ui->rangeEnd->setCurrentText(QString::number(*_vector.rbegin()));
+//    }
+//    connectSignals();
+//}
 
 void RangeWidget::slotChangeBeginRange(QString currentText)
 {

@@ -8,9 +8,7 @@
 
 QT_CHARTS_USE_NAMESPACE
 
-//![1]
 class ChartView : public QChartView
-//![1]
 {
     Q_OBJECT
 public:
@@ -31,7 +29,7 @@ public:
 
 public slots:
     void slotResetZoomAndPosition();
-//![2]
+
 protected:
     bool vieportEvent(QEvent *event);
     void mousePressEvent(QMouseEvent *event);
@@ -41,10 +39,7 @@ protected:
     void wheelEvent(QWheelEvent *event);
     bool event(QEvent* ev);
 
-//![2]
-
 private:
-    //точка с координатами Charts, где была нажата правая кнопка
     QPointF lastMousePos;
 
 signals:

@@ -1,6 +1,5 @@
 #include <QImage>
 #include <QtMath>
-
 #include "viewer_clog_processor.h"
 
 Viewer_Clog_Processor::Viewer_Clog_Processor() : Viewer_Processor()
@@ -58,30 +57,39 @@ void Viewer_Clog_Processor::setFilter(const Filter_Clog &filter)
 
 void Viewer_Clog_Processor::modifyPointAccordingFilter(size_t frameNumber, size_t clusterNumber)
 {
-    if(!isWithinRanges(frameNumber, clusterNumber))
+//    if(!isWithinRanges(frameNumber, clusterNumber))
+//        return;
+
+    if(!_frames.isClusterInRange(_frames.getClusterLength(frameNumber, clusterNumber), _filter._clusterRangeBegin, _filter._clusterRangeEnd))
         return;
-    if(_filter._isFullTotRange && _frames.isSumTotClusterInRange(frameNumber, clusterNumber, _filter._totRangeBeginFull, _filter._totRangeEndFull))
-        modifyPoint(frameNumber, clusterNumber);
-    else if(_filter._isAllTotInCluster)
-        modifyPoint(frameNumber, clusterNumber);
-    else
+
+    if(_filter._isTotRangeChecked && _frames.isTotInRange(frameNumber, clusterNumber, _filter._totRangeBegin, _filter._totRangeEnd))
     {
-        OneFrame::cluster clusterEPoint = _frames.getClusterTotInRange(frameNumber, clusterNumber, _filter._totRangeBegin, _filter._totRangeEnd);
-        for (auto &point : clusterEPoint)
-            modifyPointAccordingPixMode(point);
+        if(_filter._isAllTotInCluster)
+            modifyPoint(frameNumber, clusterNumber);
+        else
+        {
+            OneFrame::cluster clusterEPoint = _frames.getClusterTotInRange(frameNumber, clusterNumber, _filter._totRangeBegin, _filter._totRangeEnd);
+            for (auto &point : clusterEPoint)
+                modifyPointAccordingPixMode(point);
+        }
+    }
+    else if (!_filter._isTotRangeChecked && _frames.isSumTotClusterInRange(frameNumber, clusterNumber, _filter._totRangeBegin, _filter._totRangeEnd))
+    {
+        modifyPoint(frameNumber, clusterNumber);
     }
 }
 
-bool Viewer_Clog_Processor::isWithinRanges(size_t frameNumber, size_t clusterNumber)
-{
-    if(_frames.isClusterInRange(_frames.getClusterLength(frameNumber, clusterNumber), _filter._clusterRangeBegin, _filter._clusterRangeEnd)
-       &&
-       _frames.isTotInRange(frameNumber, clusterNumber, _filter._totRangeBegin, _filter._totRangeEnd)
-       )
-        return true;
+//bool Viewer_Clog_Processor::isWithinRanges(size_t frameNumber, size_t clusterNumber)
+//{
+//    if(_frames.isClusterInRange(_frames.getClusterLength(frameNumber, clusterNumber), _filter._clusterRangeBegin, _filter._clusterRangeEnd)
+//       &&
+//       _frames.isTotInRange(frameNumber, clusterNumber, _filter._totRangeBegin, _filter._totRangeEnd)
+//       )
+//        return true;
 
-    return false;
-}
+//    return false;
+//}
 
 void Viewer_Clog_Processor::modifyPointAccordingPixMode(OneFrame::ePoint &point)
 {

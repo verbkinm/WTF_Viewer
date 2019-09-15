@@ -40,7 +40,7 @@ private:
     void saveAccordingOptions(int, int &, int &, QImage &, const QString &);
     void exportingFiles(const QString &);
     void graphDialogExec(GraphDialog &, const Frames &);
-    std::vector<QPointF> createVectorAccordingGraphType(GraphDialog &, QString &, const Frames &);
+    std::map<double, double> createVectorAccordingGraphType(GraphDialog &, QString &, const Frames &);
 
 private slots:
     void slotSelectFile(const QModelIndex &);

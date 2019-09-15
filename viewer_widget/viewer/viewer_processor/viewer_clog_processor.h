@@ -26,7 +26,7 @@ private:
     Frames _frames;
     Filter_Clog _filter;
 
-    bool isWithinRanges(size_t frameNumber, size_t clusterNumber);
+//    bool isWithinRanges(size_t frameNumber, size_t clusterNumber);
 
     void modifyPointAccordingFilter(size_t frameNumber, size_t clusterNumber);
     void modifyPointAccordingPixMode(OneFrame::ePoint &point);

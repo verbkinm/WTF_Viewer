@@ -55,7 +55,7 @@ public:
     void updateColor(QColor color);
 
 private:
-    QList<QVector<qreal> * > m_data;
+    QList<QVector<qreal>*> m_data;
     QHash<QString, QRect> m_mapping;
     int m_columnCount;
     int m_rowCount;

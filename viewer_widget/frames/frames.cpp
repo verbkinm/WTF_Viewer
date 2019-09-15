@@ -99,7 +99,7 @@ bool Frames::isClusterInRange(size_t clusterLength, size_t clusterRangeBegin, si
     return false;
 }
 
-bool Frames::isTotInRange(size_t frameNumber, size_t clusterNumber, size_t totRangeBegin, size_t totRangeEnd) const
+bool Frames::isTotInRange(size_t frameNumber, size_t clusterNumber, double totRangeBegin, double totRangeEnd) const
 {
     try
     {
@@ -114,7 +114,7 @@ bool Frames::isTotInRange(size_t frameNumber, size_t clusterNumber, size_t totRa
     return false;
 }
 
-bool Frames::isSumTotClusterInRange(size_t frameNumber, size_t clusterNumber, size_t totRangeBeginFull, size_t totRangeEndFull) const
+bool Frames::isSumTotClusterInRange(size_t frameNumber, size_t clusterNumber, double totRangeBeginFull, double totRangeEndFull) const
 {
     double sum = summarizeTotsInCluster(frameNumber, clusterNumber);
     if(sum >= totRangeBeginFull && sum <= totRangeEndFull)
@@ -134,7 +134,7 @@ bool Frames::isLineContainsWholeFrame(const QString &line, QStringList &buff)
     return false;
 }
 
-OneFrame::cluster Frames::getClusterTotInRange(size_t frameNumber, size_t clusterNumber, size_t totRangeBegin, size_t totRangeEnd) const
+OneFrame::cluster Frames::getClusterTotInRange(size_t frameNumber, size_t clusterNumber, double totRangeBegin, double totRangeEnd) const
 {
     std::vector<OneFrame::ePoint> ePointVector;
     try
@@ -165,7 +165,7 @@ std::vector<double> Frames::getClustersLengthVector() const
     return lenghtList;
 }
 
-std::vector<QPointF> Frames::getVectorOfPointsFromTots(size_t clusterLenght) const
+std::map<double, double> Frames::getVectorOfPointsFromTots(size_t clusterLenght) const
 {
     //key = tot, value = count
     std::map<double, double> map;
@@ -173,12 +173,8 @@ std::vector<QPointF> Frames::getVectorOfPointsFromTots(size_t clusterLenght) con
     for (size_t frameNumber = 0; frameNumber < getFrameCount(); ++frameNumber)
         for (size_t clusterNumber = 0; clusterNumber < getClusterCount(frameNumber); ++clusterNumber)
             countingTot(frameNumber, clusterNumber, clusterLenght, map);
-    
-    std::vector<QPointF> vector;
-    for (auto &[key, value] : map)
-        vector.push_back(QPointF(key, value));
-    
-    return vector;
+
+    return map;
 }
 
 void Frames::countingTot(size_t frameNumber, size_t clusterNumber, size_t clusterLenght, std::map<double, double> &map) const

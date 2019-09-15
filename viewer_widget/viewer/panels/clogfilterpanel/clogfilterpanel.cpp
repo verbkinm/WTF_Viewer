@@ -10,15 +10,9 @@ ClogFilterPanel::ClogFilterPanel(QWidget *parent) :
 {
     ui->setupUi(this);
 
-    ui->clusterRangeGroup->setTitle("Cluster range:");
-    ui->clusterRangeGroup->setChecked(true);
-    ui->totRangeGroup->setTitle("Tot range:");
-    ui->totRangeGroup->setChecked(true);
-    ui->totRangeGroupFull->setTitle("Full tot range:");
-
     connect(ui->apply, SIGNAL(clicked()), SIGNAL(signalApplyFilter()) );
-    connect(ui->totRangeGroup, &RangeWidget::signalChecked, ui->totRangeGroupFull, &RangeWidget::setReversChecked);
-    connect(ui->totRangeGroupFull, &RangeWidget::signalChecked, ui->totRangeGroup, &RangeWidget::setReversChecked);
+    connect(ui->totRange, &QAbstractButton::clicked, this, &ClogFilterPanel::slotTotType);
+    connect(ui->totRangeFull, &QAbstractButton::clicked, this, &ClogFilterPanel::slotTotType);
 }
 
 ClogFilterPanel::~ClogFilterPanel()
@@ -71,16 +65,6 @@ double ClogFilterPanel::getTotEndFull() const
     return ui->totRangeGroupFull->getRangeEnd();
 }
 
-bool ClogFilterPanel::isClusterEnable() const
-{
-    return ui->clusterRangeGroup->isChecked();
-}
-
-bool ClogFilterPanel::isTotEnable() const
-{
-    return ui->totRangeGroup->isChecked();
-}
-
 bool ClogFilterPanel::isAllTotInCluster() const
 {
     return ui->totRangeGroup->isAllTotInCluster();
@@ -91,14 +75,9 @@ bool ClogFilterPanel::isMediPix() const
     return ui->midiPixRadioButton->isChecked();
 }
 
-bool ClogFilterPanel::isFullTotRange() const
+bool ClogFilterPanel::isTotRangeChecked() const
 {
-    return ui->totRangeGroupFull->isChecked();
-}
-
-void ClogFilterPanel::setAllTotInCluster(bool b)
-{
-    ui->totRangeGroup->setChecked(b);
+    return ui->totRange->isChecked();
 }
 
 void ClogFilterPanel::checkedMediPix(bool b)
@@ -111,9 +90,19 @@ void ClogFilterPanel::checkedTimePix(bool b)
     ui->timePixRadioButton->setChecked(b);
 }
 
+void ClogFilterPanel::slotTotType()
+{
+    QObject* obj = sender();
+    if(obj->objectName() == "totRange")
+        ui->stackedWidget->setCurrentIndex(0);
+    else
+        ui->stackedWidget->setCurrentIndex(1);
+}
+
 void ClogFilterPanel::keyReleaseEvent(QKeyEvent *event)
 {
     if(event->key() == Qt::Key_Enter || event->key() == Qt::Key_Return)
         emit signalApplyFilter();
 }
+
 

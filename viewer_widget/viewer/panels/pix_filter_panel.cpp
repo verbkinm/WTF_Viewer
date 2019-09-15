@@ -101,23 +101,29 @@ double Pix_Filter_Panel::getClusterEnd() const
 
 double Pix_Filter_Panel::getTotBegin() const
 {
-    return ui->clogFilterPanel->getTotBegin();
+    if(isTotRangeChecked())
+        return ui->clogFilterPanel->getTotBegin();
+    else
+        return ui->clogFilterPanel->getTotBeginFull();
 }
 
 double Pix_Filter_Panel::getTotEnd() const
 {
-    return ui->clogFilterPanel->getTotEnd();
+    if(isTotRangeChecked())
+        return ui->clogFilterPanel->getTotEnd();
+    else
+        return ui->clogFilterPanel->getTotEndFull();
 }
 
-double Pix_Filter_Panel::getTotBeginFull() const
-{
-    return ui->clogFilterPanel->getTotBeginFull();
-}
+//double Pix_Filter_Panel::getTotBeginFull() const
+//{
+//    return ui->clogFilterPanel->getTotBeginFull();
+//}
 
-double Pix_Filter_Panel::getTotEndFull() const
-{
-    return ui->clogFilterPanel->getTotEndFull();
-}
+//double Pix_Filter_Panel::getTotEndFull() const
+//{
+//    return ui->clogFilterPanel->getTotEndFull();
+//}
 
 int Pix_Filter_Panel::getX() const
 {
@@ -159,9 +165,9 @@ bool Pix_Filter_Panel::isMediPix() const
     return ui->clogFilterPanel->isMediPix();
 }
 
-bool Pix_Filter_Panel::isFullTotRange() const
+bool Pix_Filter_Panel::isTotRangeChecked() const
 {
-    return ui->clogFilterPanel->isFullTotRange();
+    return ui->clogFilterPanel->isTotRangeChecked();
 }
 
 void Pix_Filter_Panel::finishSelection() const

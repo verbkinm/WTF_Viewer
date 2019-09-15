@@ -20,15 +20,14 @@ public:
     std::vector<double> getVectoValueTots() const;
     std::vector<double> getVectorSumTots() const;
     std::vector<double> getVectorSumValueTots() const;
-    OneFrame::cluster getClusterTotInRange(size_t frameNumber, size_t clusterNumber,
-                                            size_t totRangeBegin, size_t totRangeEnd) const;
-    std::vector<QPointF> getVectorOfPointsFromTots(size_t clusterLenght) const;
+    OneFrame::cluster getClusterTotInRange(size_t frameNumber, size_t clusterNumber, double totRangeBegin, double totRangeEnd) const;
+    std::map<double, double> getVectorOfPointsFromTots(size_t clusterLenght) const;
 
     const OneFrame::ePoint& getEPoint(size_t frameNumber, size_t clusterNumber, size_t eventNumber) const;
 
     bool isClusterInRange(size_t clusterLength, size_t clusterRangeBegin, size_t clusterRangeEnd) const;
-    bool isTotInRange (size_t frameNumber, size_t clusterNumber, size_t totRangeBegin, size_t totRangeEnd) const;
-    bool isSumTotClusterInRange (size_t frameNumber, size_t clusterNumber, size_t totRangeBeginFull, size_t totRangeEndFull) const;
+    bool isTotInRange (size_t frameNumber, size_t clusterNumber, double totRangeBegin, double totRangeEnd) const;
+    bool isSumTotClusterInRange (size_t frameNumber, size_t clusterNumber, double totRangeBeginFull, double totRangeEndFull) const;
 
     void createFromFile(const QString& path);
     void clear();
