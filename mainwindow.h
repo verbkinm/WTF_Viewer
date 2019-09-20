@@ -32,7 +32,7 @@ private:
     EventFilter _eventFilter;
     const QString _programVersion;
     QMenu _menuFile, _menuGraph, _menuAbout, _menuSettings, _menuCalibration;
-    std::map<QString, CentralWidget *> _graphWindowMap;
+    std::list<CentralWidget *> _graphWindowMap;
     QString _currentActiveFile;
 
     void createMenu();

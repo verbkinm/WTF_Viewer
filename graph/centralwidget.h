@@ -19,6 +19,7 @@
 #include "chart.h"
 #include "chartview.h"
 #include "panelwidget.h"
+#include "rangeaxis.h"
 
 QT_CHARTS_USE_NAMESPACE
 
@@ -29,8 +30,6 @@ public:
     CentralWidget(QWidget *parent = nullptr);
     ~CentralWidget();
 
-    void addSeries(std::map<double, double> &map, QXYSeries::SeriesType type = QXYSeries::SeriesTypeLine,
-                   QString legendTitle = "", QString axsisX_Title = "X", QString axsisY_Title = "Y");
     void addSeries(std::map<double, double> &map, QString legendTitle = "",
                    QString axsisX_Title = "X", QString axsisY_Title = "Y");
 
@@ -38,47 +37,49 @@ public:
 
     QString getTitle() const;
     QString getDataXType() const;
-
-    void createAxes();
+    QHBoxLayout getLayout() const;
 
 private:
-    QWidget centralWidget;
-    QLabel statusBarWidget;
+    QWidget _centralWidget;
+    QLabel _statusBarWidget;
 
-    ChartView chartView;
-    Chart chart;
+    ChartView _chartView;
+    Chart _chart;
 
-    QLineSeries lineSeriesX;
-    QLineSeries lineSeriesY;
+    QLineSeries _lineSeriesX;
+    QLineSeries _lineSeriesY;
 
-    QHBoxLayout layout;
+    QHBoxLayout _layout;
 
-    PanelWidget panelWidget;
+    PanelWidget _panelWidget;
 
-    QValueAxis* pAxisX;
-    QValueAxis* pAxisY;
+    QValueAxis* _pAxisX;
+    QValueAxis* _pAxisY;
 
-    double maxX;
-    double maxY;
-    double minX;
-    double minY;
+    RangeAxis _rangeX, _rangeY;
 
-    QMenu menuFile, menuView;
+    QMenu _menuFile, _menuView;
+
+    void addSeries(std::map<double, double> &map, QXYSeries::SeriesType type = QXYSeries::SeriesTypeLine,
+                   QString legendTitle = "", QString axsisX_Title = "X", QString axsisY_Title = "Y");
 
     //ось X и Y на всем полотне
     void setLinersXYDefault();
+    void repaintXYAxes();
 
+    void createAxes();
     void createMenu();
+    QXYSeries *createSeriesAccordingType(QXYSeries::SeriesType &type);
 
-    double findMaxX(QXYSeries *);
-    double findMinX(QXYSeries *);
-    double findMaxY(QXYSeries *);
-    double findMinY(QXYSeries *);
+    double findMaxX(QXYSeries *series);
+    double findMinX(QXYSeries *series);
+    double findMaxY(QXYSeries *series);
+    double findMinY(QXYSeries *series);
 
     void connectPanelWidgetSignals();
-    QXYSeries *createSeriesAccordingType(QXYSeries::SeriesType &type);
     void fillSeriesOfPoints(std::map<double, double> &map, QXYSeries *series);
-    void setMinAndMaxForXY(double x, double y);
+
+    void setMinAndMaxForXY(QXYSeries *series);
     void setRangeAndTitleForAxes(const QString &axsisX_Title, const QString &axsisY_Title);
     void setChartViewXYRange();
     void setSeriesProperty(QXYSeries *series);

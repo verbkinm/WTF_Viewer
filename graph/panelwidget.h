@@ -5,12 +5,10 @@
 #include <QLineSeries>
 #include <QSplineSeries>
 #include <QScatterSeries>
-
 #include <QSlider>
 #include <QVXYModelMapper>
 
 #include "customtablemodel.h"
-//#include <QXYSeries>
 
 
 #include <QtCharts/QChartView>
@@ -30,70 +28,68 @@ public:
     explicit PanelWidget(QWidget *parent = nullptr);
     ~PanelWidget();
 
-    void    addSeriesList(QXYSeries* series);
+    void addSeriesInList(QXYSeries* series);
     QList<QXYSeries*>* getSeriesList();
-    int     getSeriesType();
+    int getSeriesType();
 
-    void    setTitle(QString title);
-
-    void    setRangeAxisX(qreal, qreal);
-    void    setRangeAxisY(qreal, qreal);
-
+    void setTitle(QString title);
+    void setRangeAxisX(qreal min, qreal max);
+    void setRangeAxisY(qreal min, qreal max);
 
 private:
     Ui::PanelWidget *ui;
 
-    QList<QXYSeries*> seriesList;
-    QList<CustomTableModel*> modelList;
+    QList<QXYSeries*> _seriesList;
+    QList<CustomTableModel*> _modelList;
 
-    QXYSeries*      currentSeries = nullptr;
+    QXYSeries* _currentSeries;
 
-    QVXYModelMapper mapper;
+    QVXYModelMapper _mapper;
 
     void createTableData();
-
+    void recreateSeries(int numberSeries, int seriesType);
+    QXYSeries *newSeries(int seriesType);
     //отключение всех необходимых элементов, если список графов пуст!
-    void    setDisableUnits(bool value);
+    void setDisableUnits(bool value);
 
 
 signals:
-    void    signalChangeTheme(int);
-    void    signalSetLegendPosition(int);
-    void    signalSetTitile(QString);
+    void signalChangeTheme(int);
+    void signalSetLegendPosition(int);
+    void signalSetTitile(QString);
 
-    void    signalAnimation(bool);
-    void    signalAntialiasing(bool);
+    void signalAnimation(bool);
+    void signalAntialiasing(bool);
 
-    void    signalTickCountChangeX(int);
-    void    signalTickCountChangeY(int);
+    void signalTickCountChangeX(int);
+    void signalTickCountChangeY(int);
 
-    void    signalSeriesDeleted();
+    void signalSeriesDeleted();
 
-    void    signalRubberMode(QChartView::RubberBand);
+    void signalRubberMode(QChartView::RubberBand);
 
-    void    signalAxisXRangeChanged(qreal, qreal);
-    void    signalAxisYRangeChanged(qreal, qreal);
+    void signalAxisXRangeChanged(qreal, qreal);
+    void signalAxisYRangeChanged(qreal, qreal);
 
-    void    signalSeriesTypeChange();
-
+    void signalSeriesTypeChanged();
 
 private slots:
-    void    slotSetSeriesPropery(int value);
-    void    slotSetPointVisible(bool value);
+    void slotSetSeriesPropery(int value);
+    void slotSetPointVisible(bool value);
 
-    void    slotSetSeriesColor  ();
-    void    slotSetSeriesType   (int value);
-    void    slotHideSeries      (bool value);
-    void    slotSetSeriesPenWidth(int value);
+    void slotSetSeriesColor();
+    void slotSetSeriesType(int seriesType);
+    void slotHideSeries(bool value);
+    void slotSetSeriesPenWidth(int value);
 
-    void    slotDeleteSeries();
+    void slotDeleteSeries();
 
-    void    slotSaveToCSV();
+    void slotSaveToCSV();
 
-    void    on_actionSetRubberMode_triggered();
+    void on_actionSetRubberMode_triggered();
 
-    void    slotAxisXRangeChanged   ();
-    void    slotAxisYRangeChanged   ();
+    void slotAxisXRangeChanged();
+    void slotAxisYRangeChanged();
 };
 
 #endif // PANELWIDGET_H

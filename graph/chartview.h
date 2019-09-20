@@ -5,6 +5,7 @@
 #include <QtWidgets/QRubberBand>
 
 #include <QValueAxis>
+#include "rangeaxis.h"
 
 QT_CHARTS_USE_NAMESPACE
 
@@ -14,18 +15,7 @@ class ChartView : public QChartView
 public:
     ChartView(QWidget *parent = nullptr);
 
-    struct rangeAxis
-    {
-        rangeAxis(double min = std::numeric_limits<int>::min(), double max = 0) {
-            this->min = min;
-            this->max = max;
-
-        }
-        double min;
-        double max;
-    };
-
-    struct rangeAxis rangeX, rangeY;
+    void setRangeDefault(const RangeAxis &rangeX, const RangeAxis &rangeY);
 
 public slots:
     void slotResetZoomAndPosition();
@@ -40,7 +30,8 @@ protected:
     bool event(QEvent* ev);
 
 private:
-    QPointF lastMousePos;
+    QPointF _lastMousePos;
+    RangeAxis _rangeX, _rangeY;
 
 signals:
     void signalMousePosition(QPointF);

@@ -14,7 +14,7 @@
 MainWindow::MainWindow(QWidget *parent): QMainWindow(parent),
     settings(std::make_shared<QSettings>(QSettings::IniFormat, QSettings::UserScope, "WTF.org", "WTF")),
     _viewerWidget(settings, this),
-    _programVersion("0.9.8.16 =))")
+    _programVersion("0.9.8.17")
 {
     settings.get()->setIniCodec("UTF-8");
     _splitter.setOrientation(Qt::Horizontal);
@@ -136,10 +136,11 @@ void MainWindow::exportingFiles(const QString &path)
 
 void MainWindow::graphDialogExec(GraphDialog &graphDialog, const Frames &frames)
 {
-    QString legendText;
-    QString chartTitle = "Graph ";
     if(graphDialog.exec() == QDialog::Accepted)
     {
+        QString legendText;
+        QString chartTitle = "Graph ";
+
         std::map<double, double> map = createVectorAccordingGraphType(graphDialog, legendText, frames);
         if(_graphWindowMap.size() == 0 || graphDialog.getCurrentWindowGraph() == graphDialog._NEW_WINDOW)
         {
@@ -147,15 +148,15 @@ void MainWindow::graphDialogExec(GraphDialog &graphDialog, const Frames &frames)
             graphWindow->addSeries(map, legendText, graphDialog.getType(), "Count");
             graphWindow->setTitle(chartTitle + QString::number(_graphWindowMap.size()));
             graphWindow->showMaximized();
-            _graphWindowMap[graphWindow->getTitle()] = graphWindow;
+            _graphWindowMap.push_back(graphWindow);
             connect(graphWindow, &CentralWidget::signalCloseWindow, this, &MainWindow::slotCloseGraphWindow);
         }
         else
         {
             CentralWidget* graphWindow = nullptr;
-            for (auto [key, value] : _graphWindowMap)
-                if(key == graphDialog.getCurrentWindowGraph())
-                    graphWindow = value;
+            for (auto &item : _graphWindowMap)
+                if(item->getTitle() == graphDialog.getCurrentWindowGraph())
+                    graphWindow = item;
             graphWindow->addSeries(map, legendText, graphDialog.getType(), "Count");
             graphWindow->showMaximized();
         }
@@ -196,7 +197,7 @@ void MainWindow::slotExportFiles()
 
 void MainWindow::slotCloseGraphWindow(QObject *obj)
 {
-    _graphWindowMap.erase(static_cast<CentralWidget*>(obj)->getTitle());
+    _graphWindowMap.remove(static_cast<CentralWidget*>(obj));
     delete obj;
 }
 
@@ -204,11 +205,10 @@ void MainWindow::slotGrapgWindowCheck(const QString &data)
 {
     GraphDialog* gd = static_cast<GraphDialog*>(sender());
     gd->clearWindow();
-    for (auto [key, value] : _graphWindowMap)
+    for (auto &item : _graphWindowMap)
     {
-        if(value->getDataXType() != data)
-            continue;
-        gd->appendWindow(key);
+        if(item->getDataXType() == data)
+            gd->appendWindow(item->getTitle());
     }
     gd->selectLastWindow();
 }
@@ -234,8 +234,8 @@ void MainWindow::slotPlotGraph()
     connect(&graphDialog, &GraphDialog::signalDataXChanged, this, &MainWindow::slotGrapgWindowCheck);
 
     //наполняем список GraphDialog существующими графиками
-    for(auto item : _graphWindowMap)
-        graphDialog.appendWindow(item.first);
+    for(auto &item : _graphWindowMap)
+        graphDialog.appendWindow(item->getTitle());
 
     emit graphDialog.signalDataXChanged(graphDialog.getType());
     graphDialogExec(graphDialog, frames);
@@ -285,7 +285,5 @@ void MainWindow::slotSelectFile(const QModelIndex& index)
 
 MainWindow::~MainWindow()
 {
-    for (auto item : _graphWindowMap)
-        delete item.second;
-    _graphWindowMap.clear();
+    _graphWindowMap.erase(_graphWindowMap.begin(), _graphWindowMap.end());
 }

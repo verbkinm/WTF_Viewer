@@ -1,21 +1,19 @@
-#include "panelwidget.h"
-#include "ui_panelwidget.h"
-
-#include "centralwidget.h"
-
 #include <QChart>
 #include <QXYSeries>
 #include <QColorDialog>
 #include <QValueAxis>
 #include <QMessageBox>
 #include <QFileDialog>
+#include <QTextStream>
 
-#include <QDebug>
-
+#include "panelwidget.h"
+#include "ui_panelwidget.h"
+#include "centralwidget.h"
 
 PanelWidget::PanelWidget(QWidget *parent) :
     QWidget(parent),
-    ui(new Ui::PanelWidget)
+    ui(new Ui::PanelWidget),
+    _currentSeries(nullptr)
 {
     ui->setupUi(this);
 
@@ -51,68 +49,118 @@ PanelWidget::PanelWidget(QWidget *parent) :
 PanelWidget::~PanelWidget()
 {
     delete ui;
-    for (auto series :seriesList)
+    for (auto series : _seriesList)
         delete series;
-    for (auto model : modelList)
+    for (auto model : _modelList)
         delete model;
 }
 
-void PanelWidget::addSeriesList(QXYSeries *series)
+void PanelWidget::addSeriesInList(QXYSeries *series)
 {
-    seriesList.append(series);
+    _seriesList.append(series);
     CustomTableModel* model = new CustomTableModel();
     model->setVector(series->pointsVector());
-    modelList.append(model);
+    _modelList.append(model);
     ui->seriesList->addItem(series->name());
 }
 
 QList<QXYSeries *>* PanelWidget::getSeriesList()
 {
-    return &seriesList;
+    return &_seriesList;
 }
 
 void PanelWidget::createTableData()
 {
-    CustomTableModel* model = modelList.at(ui->seriesList->currentIndex());
+    CustomTableModel* model = _modelList.at(ui->seriesList->currentIndex());
     ui->tableView->setModel(model);
     ui->tableView->horizontalHeader()->setSectionResizeMode(QHeaderView::Stretch);
     ui->tableView->verticalHeader()->setSectionResizeMode(QHeaderView::Stretch);
 
-    mapper.setXColumn(0);
-    mapper.setYColumn(1);
-    mapper.setSeries(currentSeries);
-    mapper.setModel(model);
+    _mapper.setXColumn(0);
+    _mapper.setYColumn(1);
+    _mapper.setSeries(_currentSeries);
+    _mapper.setModel(model);
 
-    QString seriesColorHex = "#000000";
-
-    seriesColorHex = "#" + QString::number(currentSeries->pen().color().rgb(), 16).right(6).toUpper();
+    QString seriesColorHex = "#" + QString::number(_currentSeries->pen().color().rgb(), 16).right(6).toUpper();
     model->addMapping(seriesColorHex, QRect(0, 0, 2, model->rowCount()));
+}
+
+void PanelWidget::recreateSeries(int numberSeries, int seriesType)
+{
+    QChart* chart = _seriesList.at(0)->chart();
+    QXYSeries* series = newSeries(seriesType);
+    QXYSeries* seriestmp = _seriesList.at(numberSeries);
+    _seriesList.replace(numberSeries, series);
+
+    *series << seriestmp->points();
+    series->setColor(seriestmp->color());
+    series->setName(seriestmp->name());
+
+    if(series->type() == QAbstractSeries::SeriesTypeScatter)
+    {
+        QScatterSeries* scatSer = static_cast<QScatterSeries*>(series);
+        scatSer->setMarkerSize(seriestmp->pen().width());
+        scatSer->setBorderColor(seriestmp->pen().color());
+        scatSer->setPen(seriestmp->pen());
+    }
+    else
+        series->setPen(seriestmp->pen());
+
+    series->setPointsVisible(seriestmp->pointsVisible());
+    series->setVisible(seriestmp->isVisible());
+
+    chart->removeSeries(seriestmp);
+    delete seriestmp;
+    chart->addSeries(series);
+
+    ui->seriesList->addItem(series->name());
+}
+
+QXYSeries *PanelWidget::newSeries(int seriesType)
+{
+    QXYSeries* series = nullptr;
+
+    switch (seriesType)
+    {
+        case 0:
+            series = new QLineSeries;
+            break;
+        case 1:
+            series = new QSplineSeries;
+            break;
+        case 2:
+            series = new QScatterSeries;
+            break;
+        default:
+            break;
+    }
+    return series;
 }
 
 void PanelWidget::setDisableUnits(bool value)
 {
-    ui->tab_2->setDisabled(value);
+    ui->tab_series->setDisabled(value);
     ui->seriesType->setDisabled(value);
 }
 
 int PanelWidget::getSeriesType()
 {
     int type = ui->seriesType->currentIndex();
-    switch (type) {
-    case 0:
-        type = QXYSeries::SeriesTypeLine;
-        break;
-    case 1:
-        type = QXYSeries::SeriesTypeSpline;
-        break;
-    case 2:
-        type = QXYSeries::SeriesTypeScatter;
-        break;
-    default:
-        type = QXYSeries::SeriesTypeLine;
-        break;
+    switch (type)
+    {
+        case 0:
+            type = QXYSeries::SeriesTypeLine;
+            break;
+        case 1:
+            type = QXYSeries::SeriesTypeSpline;
+            break;
+        case 2:
+            type = QXYSeries::SeriesTypeScatter;
+            break;
+        default:
+            type = QXYSeries::SeriesTypeLine;
+            break;
     }
-
     return type;
 }
 
@@ -125,157 +173,109 @@ void PanelWidget::slotSetSeriesPropery(int value)
 {
     if(value < 0)
     {
-        currentSeries = nullptr;
+        _currentSeries = nullptr;
         setDisableUnits(true);
-
         return;
     }
     else
         setDisableUnits(false);
 
-    QXYSeries* series = seriesList.at(value);
+    QXYSeries* series = _seriesList.at(value);
     QPixmap pix(16, 16);
     pix.fill(series->color());
     ui->colorSelect->setIcon(QIcon(pix));
 
-    currentSeries = series;
+    _currentSeries = series;
 
-    ui->pointVisible->setChecked(currentSeries->pointsVisible());
-    ui->hide->setChecked(!currentSeries->isVisible());
+    ui->pointVisible->setChecked(_currentSeries->pointsVisible());
+    ui->hide->setChecked(!_currentSeries->isVisible());
 
-    if(currentSeries->type() == QAbstractSeries::SeriesTypeScatter)
+    if(_currentSeries->type() == QAbstractSeries::SeriesTypeScatter)
     {
-        QScatterSeries* scatSer = static_cast<QScatterSeries*>(currentSeries);
-        ui->penWidth->setValue(int(scatSer->markerSize()));
+        QScatterSeries* scatSer = static_cast<QScatterSeries*>(_currentSeries);
+        ui->penWidth->setValue(static_cast<int>((scatSer->markerSize())));
     }
     else
-        ui->penWidth->setValue(currentSeries->pen().width());
+        ui->penWidth->setValue(_currentSeries->pen().width());
 
     createTableData();
 }
 
 void PanelWidget::slotSetPointVisible(bool value)
 {
-    currentSeries->setPointsVisible(value);
+    _currentSeries->setPointsVisible(value);
 }
 
 void PanelWidget::slotSetSeriesColor()
 {
-    QColor color = QColorDialog::getColor(currentSeries->pen().color(), this);
-    if(color.spec())
+    QColor color = QColorDialog::getColor(_currentSeries->pen().color(), this);
+    if(!color.spec())
+        return;
+
+    _currentSeries->setColor(color);
+    if(_currentSeries->type() == QAbstractSeries::SeriesTypeScatter)
     {
-        currentSeries->setColor(color);
-        if(currentSeries->type() == QAbstractSeries::SeriesTypeScatter)
-        {
-            QScatterSeries* scatSer = static_cast<QScatterSeries*>(currentSeries);
-            scatSer->setBorderColor(color);
-        }
-
-        QPixmap pix(16, 16);
-        pix.fill(color);
-        ui->colorSelect->setIcon(QIcon(pix));
-
-        //обновление цвета в TableView
-        modelList.at(ui->seriesList->currentIndex())->updateColor(color);
+        QScatterSeries* scatSer = static_cast<QScatterSeries*>(_currentSeries);
+        scatSer->setBorderColor(color);
     }
+    QPixmap pix(16, 16);
+    pix.fill(color);
+    ui->colorSelect->setIcon(QIcon(pix));
+
+    _modelList.at(ui->seriesList->currentIndex())->updateColor(color);
 }
 
-void PanelWidget::slotSetSeriesType(int value)
+void PanelWidget::slotSetSeriesType(int seriesType)
 {
-    QXYSeries* series = nullptr;
+    QChart* chart = _seriesList.at(0)->chart();
 
-    QChart* chart = seriesList.at(0)->chart();
-
-    QString titleX = chart->axes(Qt::Horizontal).back()->titleText();
+    QString titleX = chart->axes(Qt::Horizontal).first()->titleText();
     QString titleY = chart->axes(Qt::Vertical).first()->titleText();
 
-    disconnect(ui->seriesList,  SIGNAL(currentIndexChanged(int)), this,
-                                SLOT(slotSetSeriesPropery(int)));
-
+    disconnect(ui->seriesList, SIGNAL(currentIndexChanged(int)), this, SLOT(slotSetSeriesPropery(int)));
     ui->seriesList->clear();
+    connect(ui->seriesList, SIGNAL(currentIndexChanged(int)), SLOT(slotSetSeriesPropery(int)));
 
-    connect(ui->seriesList,     SIGNAL(currentIndexChanged(int)), this,
-                                SLOT(slotSetSeriesPropery(int)));
-
-    for (int i = 0; i < seriesList.length(); ++i)
-    {
-        switch (value) {
-        case 0:
-            series = new QLineSeries;
-            break;
-        case 1:
-            series = new QSplineSeries;
-            break;
-        case 2:
-            series = new QScatterSeries;
-            break;
-        default:
-            break;
-        }
-
-        QXYSeries* seriestmp = seriesList.at(i);
-        seriesList.replace(i, series);
-
-        *series << seriestmp->points();
-        series->setColor(seriestmp->color());
-        series->setName(seriestmp->name());
-        if(series->type() == QAbstractSeries::SeriesTypeScatter)
-        {
-            QScatterSeries* scatSer = static_cast<QScatterSeries*>(series);
-            scatSer->setMarkerSize(seriestmp->pen().width());
-            scatSer->setBorderColor(seriestmp->pen().color());
-            scatSer->setPen(seriestmp->pen());
-        }
-        else
-            series->setPen(seriestmp->pen());
-
-        series->setPointsVisible(seriestmp->pointsVisible());
-        series->setVisible(seriestmp->isVisible());
-
-        chart->removeSeries(seriestmp);
-        delete seriestmp;
-        chart->addSeries(series);
-
-        ui->seriesList->addItem(series->name());
-    }
+    for (int i = 0; i < _seriesList.length(); ++i)
+        recreateSeries(i, seriesType);
 
     chart->createDefaultAxes();
 
-    chart->axes(Qt::Horizontal).back()->setTitleText(titleX);
+    chart->axes(Qt::Horizontal).first()->setTitleText(titleX);
     chart->axes(Qt::Vertical).first()->setTitleText(titleY);
 
-    (static_cast<QValueAxis*>(chart->axes(Qt::Horizontal).back()))->setTickCount(ui->tickCountX->value());
+    (static_cast<QValueAxis*>(chart->axes(Qt::Horizontal).first()))->setTickCount(ui->tickCountX->value());
     (static_cast<QValueAxis*>(chart->axes(Qt::Vertical).first()))->setTickCount(ui->tickCountY->value());
 
     chart->axes(Qt::Horizontal).back()->setRange(ui->axisXRangeMin->value(), ui->axisXRangeMax->value());
     chart->axes(Qt::Vertical).first()->setRange(ui->axisYRangeMin->value(), ui->axisYRangeMax->value());
 
-    emit signalSeriesTypeChange();
+    emit signalSeriesTypeChanged();
 }
 
 void PanelWidget::slotHideSeries(bool value)
 {
     if(value)
-        currentSeries->hide();
+        _currentSeries->hide();
     else
-        currentSeries->setVisible(true);
+        _currentSeries->setVisible(true);
 }
 
 void PanelWidget::slotSetSeriesPenWidth(int value)
 {
-    if(currentSeries->type() == QAbstractSeries::SeriesTypeScatter)
+    if(_currentSeries->type() == QAbstractSeries::SeriesTypeScatter)
     {
-        QScatterSeries* scatSer = static_cast<QScatterSeries*>(currentSeries);
+        QScatterSeries* scatSer = static_cast<QScatterSeries*>(_currentSeries);
         scatSer->setMarkerSize(value);
-        QPen pen = currentSeries->pen();
+        QPen pen = _currentSeries->pen();
         pen.setWidth(value);
         scatSer->setPen(pen);
     }
     else
     {
-        QPen pen = currentSeries->pen();
+        QPen pen = _currentSeries->pen();
         pen.setWidth(value);
-        currentSeries->setPen(pen);
+        _currentSeries->setPen(pen);
     }
 }
 
@@ -288,18 +288,17 @@ void PanelWidget::slotDeleteSeries()
 
     if(msgBox.exec() == QMessageBox::Ok)
     {
-        QChart* chart = currentSeries->chart();
-        chart->removeSeries(currentSeries);
+        QChart* chart = _currentSeries->chart();
+        chart->removeSeries(_currentSeries);
 
-        delete currentSeries;
+        delete _currentSeries;
 
         int index = ui->seriesList->currentIndex();
 
-        delete modelList.at(index);
+        delete _modelList.at(index);
 
-
-        seriesList.removeAt(index);
-        modelList.removeAt(index);
+        _seriesList.removeAt(index);
+        _modelList.removeAt(index);
 
         ui->seriesList->removeItem(index);
     }
@@ -310,19 +309,19 @@ void PanelWidget::slotSaveToCSV()
 {
     QString fileName = QFileDialog::getSaveFileName(this,
                                                     ("Save as CSV"),
-                                                    QDir::rootPath() + currentSeries->name(),
+                                                    QDir::rootPath() + _currentSeries->name(),
                                                     "CSV (*.csv);;All files (*.*)");
-    if(fileName != "")
-    {
-        QFile file(fileName);
-        QTextStream writeStrime(&file);
+    if(fileName == "")
+        return;
 
-        if(file.open(QFile::WriteOnly))
-            foreach (QPointF point, currentSeries->points())
-                writeStrime <<   point.x() << ";" << point.y() << "\n";
+    QFile file(fileName);
+    QTextStream writeStrime(&file);
 
-        file.close();
-    }
+    if(file.open(QFile::WriteOnly))
+        foreach (QPointF point, _currentSeries->points())
+            writeStrime <<   point.x() << ";" << point.y() << "\n";
+
+    file.close();
 }
 
 void PanelWidget::on_actionSetRubberMode_triggered()
