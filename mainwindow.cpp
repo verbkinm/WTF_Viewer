@@ -14,7 +14,7 @@
 MainWindow::MainWindow(QWidget *parent): QMainWindow(parent),
     settings(std::make_shared<QSettings>(QSettings::IniFormat, QSettings::UserScope, "WTF.org", "WTF")),
     _viewerWidget(settings, this),
-    _programVersion("0.9.8.17")
+    _programVersion("0.9.8.18")
 {
     settings.get()->setIniCodec("UTF-8");
     _splitter.setOrientation(Qt::Horizontal);
@@ -170,19 +170,22 @@ std::map<double, double> MainWindow::createVectorAccordingGraphType(GraphDialog 
     {
         legendText = graphDialog.getClusterSize() + "px";
         if(graphDialog.getClusterSize() == "All")
-            return frames.getVectorOfPointsFromTots(Frames::ALL_CLUSTER);
+            return frames.getMapOfTotPoints(Frames::ALL_CLUSTER);
         else
-            return frames.getVectorOfPointsFromTots(graphDialog.getClusterSize().toULongLong());
+            return frames.getMapOfTotPoints(graphDialog.getClusterSize().toULongLong());
     }
     else if(graphDialog.getType() == "Clusters")
     {
         legendText = _currentActiveFile;
-//            vector = frames.get
+        return frames.getMapOfClusterSize();
     }
     else if(graphDialog.getType() == "Energy")
     {
-//        QMessageBox::information(this, "oooooops", "Kiss my ass, my little unicorn! =))");
-//        return;
+        legendText = graphDialog.getClusterSize() + "px";
+        if(graphDialog.getClusterSize() == "All")
+            return frames.getMapOfTotPointsSummarize(Frames::ALL_CLUSTER);
+        else
+            return frames.getMapOfTotPointsSummarize(graphDialog.getClusterSize().toULongLong());
     }
     return map;
 }

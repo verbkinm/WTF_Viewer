@@ -165,7 +165,7 @@ std::vector<double> Frames::getClustersLengthVector() const
     return lenghtList;
 }
 
-std::map<double, double> Frames::getVectorOfPointsFromTots(size_t clusterLenght) const
+std::map<double, double> Frames::getMapOfTotPoints(size_t clusterLenght) const
 {
     //key = tot, value = count
     std::map<double, double> map;
@@ -173,6 +173,43 @@ std::map<double, double> Frames::getVectorOfPointsFromTots(size_t clusterLenght)
     for (size_t frameNumber = 0; frameNumber < getFrameCount(); ++frameNumber)
         for (size_t clusterNumber = 0; clusterNumber < getClusterCount(frameNumber); ++clusterNumber)
             countingTot(frameNumber, clusterNumber, clusterLenght, map);
+
+    return map;
+}
+
+std::map<double, double> Frames::getMapOfTotPointsSummarize(size_t clusterLenght) const
+{
+    //key = tot, value = count
+    std::map<double, double> map;
+
+    for (size_t frameNumber = 0; frameNumber < getFrameCount(); ++frameNumber)
+    {
+        for (size_t clusterNumber = 0; clusterNumber < getClusterCount(frameNumber); ++clusterNumber)
+        {
+            if(getClusterLength(frameNumber, clusterNumber) == clusterLenght || clusterLenght == ALL_CLUSTER)
+            {
+                double sum = summarizeTotsInCluster(frameNumber, clusterNumber);
+                map[sum] = map[sum] + 1;
+            }
+        }
+    }
+
+    return map;
+}
+
+std::map<double, double> Frames::getMapOfClusterSize() const
+{
+    //key = cluster, value = count
+    std::map<double, double> map;
+
+    for (size_t frameNumber = 0; frameNumber < getFrameCount(); ++frameNumber)
+    {
+        for (size_t clusterNumber = 0; clusterNumber < getClusterCount(frameNumber); ++clusterNumber)
+        {
+            size_t lenght = getClusterLength(frameNumber, clusterNumber);
+            map[lenght] = map[lenght] + 1;
+        }
+    }
 
     return map;
 }
@@ -188,6 +225,12 @@ void Frames::countingTot(size_t frameNumber, size_t clusterNumber, size_t cluste
         }
     }
 }
+
+//void Frames::countingClusters(size_t frameNumber, size_t clusterNumber, std::map<double, double> &map) const
+//{
+//    size_t lenght = getClusterLength(frameNumber, clusterNumber);
+//    map[lenght] = map[lenght] + 1;
+//}
 
 std::vector<QPointF> Frames::getVectorOfPointsFromClusters() const
 {
