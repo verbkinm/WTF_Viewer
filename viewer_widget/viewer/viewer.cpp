@@ -221,12 +221,10 @@ Filter_Clog Viewer::createFilterFromPixFilterPanel()
     if(!_spPixFilterPanel)
         return filter;
 
-    filter._clusterRangeBegin = static_cast<size_t>(_spPixFilterPanel->getClusterBegin());
-    filter._clusterRangeEnd = static_cast<size_t>(_spPixFilterPanel->getClusterEnd());
-    filter._totRangeBegin = _spPixFilterPanel->getTotBegin();
-    filter._totRangeEnd = _spPixFilterPanel->getTotEnd();
-//    filter._totRangeBeginFull = _spPixFilterPanel->getTotBeginFull();
-//    filter._totRangeEndFull = _spPixFilterPanel->getTotEndFull();
+    filter._clusterRange.setMin(static_cast<size_t>(_spPixFilterPanel->getClusterBegin()));
+    filter._clusterRange.setMax(static_cast<size_t>(_spPixFilterPanel->getClusterEnd()));
+    filter._totRange.setMin(_spPixFilterPanel->getTotBegin());
+    filter._totRange.setMax(_spPixFilterPanel->getTotEnd());
     filter._isAllTotInCluster = _spPixFilterPanel->isAllTotInCluster();
     filter._isMidiPix = _spPixFilterPanel->isMediPix();
     filter._isTotRangeChecked = _spPixFilterPanel->isTotRangeChecked();

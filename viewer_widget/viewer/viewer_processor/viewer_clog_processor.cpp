@@ -37,7 +37,7 @@ std::vector<double> Viewer_Clog_Processor::getClustersLengthVector() const
 
 std::vector<double> Viewer_Clog_Processor::getVectorOfLengthsOfTots() const
 {
-    return  _frames.getVectoValueTots();
+    return  _frames.getVectorValueTots();
 }
 
 std::vector<double> Viewer_Clog_Processor::getVectorOfSumOfTots() const
@@ -60,21 +60,21 @@ void Viewer_Clog_Processor::modifyPointAccordingFilter(size_t frameNumber, size_
 //    if(!isWithinRanges(frameNumber, clusterNumber))
 //        return;
 
-    if(!_frames.isClusterInRange(_frames.getClusterLength(frameNumber, clusterNumber), _filter._clusterRangeBegin, _filter._clusterRangeEnd))
+    if(!_frames.isClusterInRange(_frames.getClusterLength(frameNumber, clusterNumber), _filter._clusterRange))
         return;
 
-    if(_filter._isTotRangeChecked && _frames.isTotInRange(frameNumber, clusterNumber, _filter._totRangeBegin, _filter._totRangeEnd))
+    if(_filter._isTotRangeChecked && _frames.isTotInRange(frameNumber, clusterNumber, _filter._totRange))
     {
         if(_filter._isAllTotInCluster)
             modifyPoint(frameNumber, clusterNumber);
         else
         {
-            OneFrame::cluster clusterEPoint = _frames.getClusterTotInRange(frameNumber, clusterNumber, _filter._totRangeBegin, _filter._totRangeEnd);
+            OneFrame::cluster clusterEPoint = _frames.getClusterInTotRange(frameNumber, clusterNumber, _filter._totRange);
             for (auto &point : clusterEPoint)
                 modifyPointAccordingPixMode(point);
         }
     }
-    else if (!_filter._isTotRangeChecked && _frames.isSumTotClusterInRange(frameNumber, clusterNumber, _filter._totRangeBegin, _filter._totRangeEnd))
+    else if (!_filter._isTotRangeChecked && _frames.isSumTotClusterInRange(frameNumber, clusterNumber, _filter._totRange))
     {
         modifyPoint(frameNumber, clusterNumber);
     }

@@ -115,16 +115,6 @@ double Pix_Filter_Panel::getTotEnd() const
         return ui->clogFilterPanel->getTotEndFull();
 }
 
-//double Pix_Filter_Panel::getTotBeginFull() const
-//{
-//    return ui->clogFilterPanel->getTotBeginFull();
-//}
-
-//double Pix_Filter_Panel::getTotEndFull() const
-//{
-//    return ui->clogFilterPanel->getTotEndFull();
-//}
-
 int Pix_Filter_Panel::getX() const
 {
     return ui->x->value();

@@ -19,7 +19,7 @@
 #include "chart.h"
 #include "chartview.h"
 #include "panelwidget.h"
-#include "rangeaxis.h"
+#include "range.h"
 
 QT_CHARTS_USE_NAMESPACE
 
@@ -56,7 +56,7 @@ private:
     QValueAxis* _pAxisX;
     QValueAxis* _pAxisY;
 
-    RangeAxis _rangeX, _rangeY;
+    Range<double> _rangeX, _rangeY;
 
     QMenu _menuFile, _menuView;
 

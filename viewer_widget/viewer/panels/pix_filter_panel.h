@@ -36,8 +36,6 @@ public:
 
     double getTotBegin() const;
     double getTotEnd() const;
-//    double getTotBeginFull() const;
-//    double getTotEndFull() const;
 
     int getX() const;
     int getY() const;

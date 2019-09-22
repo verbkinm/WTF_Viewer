@@ -9,7 +9,7 @@ ChartView::ChartView(QWidget *parent) :
     setRubberBand(QChartView::RectangleRubberBand);
 }
 
-void ChartView::setRangeDefault(const RangeAxis &rangeX, const RangeAxis &rangeY)
+void ChartView::setRangeDefault(const Range<double> &rangeX, const Range<double> &rangeY)
 {
     _rangeX = rangeX;
     _rangeY = rangeY;

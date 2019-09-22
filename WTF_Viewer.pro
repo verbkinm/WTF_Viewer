@@ -36,7 +36,6 @@ SOURCES += \
     graph/customtablemodel.cpp \
     graph/graphdialog.cpp \
     graph/panelwidget.cpp \
-    graph/rangeaxis.cpp \
     settings/settingsimage.cpp \
     viewer_widget/checkFile/checkfile.cpp \
     viewer_widget/frames/frames.cpp \
@@ -72,7 +71,7 @@ HEADERS += \
     graph/customtablemodel.h \
     graph/graphdialog.h \
     graph/panelwidget.h \
-    graph/rangeaxis.h \
+    graph/range.h \
     settings/settingsimage.h \
     viewer_widget/checkFile/checkfile.h \
     viewer_widget/frames/frames.h \
