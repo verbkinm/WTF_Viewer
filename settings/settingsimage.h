@@ -21,10 +21,8 @@ public:
 
 
 private slots:
-    void    on_actionAccepted_triggered();
-
-    void    on_actionReject_triggered();
-
+    void on_actionAccepted_triggered();
+    void on_actionReject_triggered();
     void on_actionsetColor_triggered();
 
 private:

@@ -3,6 +3,7 @@
 #include <QMessageBox>
 #include <QStatusBar>
 #include <QDebug>
+#include <QtMath>
 
 #include "mainwindow.h"
 #include "export\export.h"
@@ -182,10 +183,46 @@ std::map<double, double> MainWindow::createVectorAccordingGraphType(GraphDialog 
     else if(graphDialog.getType() == "Energy")
     {
         legendText = graphDialog.getClusterSize() + "px";
+
+        double A = (settings->value("GeneralCalibration/A").toDouble());
+        double B = (settings->value("GeneralCalibration/B").toDouble());
+        double C = (settings->value("GeneralCalibration/C").toDouble());
+        double T = (settings->value("GeneralCalibration/T").toDouble());
+
         if(graphDialog.getClusterSize() == "All")
-            return frames.getMapOfTotPointsSummarize(Frames::ALL_CLUSTER);
+        {
+            std::map<double, double> sumTot = frames.getMapOfTotPointsSummarize(Frames::ALL_CLUSTER);
+            std::map<double, double> sumEnergy;
+
+            for(auto [key, value] : sumTot)
+            {
+                double parA = A;
+                double parB = B - key - A * T;
+                double parC = key * T - B * T - C;
+
+                double newValue = ( -parB + ( qSqrt(parB * parB - 4 * parA * parC)) ) / (2 * parA);
+
+                sumEnergy[value] = newValue;
+            }
+            return sumEnergy;
+        }
         else
-            return frames.getMapOfTotPointsSummarize(graphDialog.getClusterSize().toULongLong());
+        {
+            std::map<double, double> sumTot = frames.getMapOfTotPointsSummarize(graphDialog.getClusterSize().toULongLong());
+            std::map<double, double> sumEnergy;
+
+            for(auto [key, value] : sumTot)
+            {
+                double parA = A;
+                double parB = B - key - A * T;
+                double parC = key * T - B * T - C;
+
+                double newValue = ( -parB + ( qSqrt(parB * parB - 4 * parA * parC)) ) / (2 * parA);
+
+                sumEnergy[value] = newValue;
+            }
+            return sumEnergy;
+        }
     }
     return map;
 }
@@ -233,7 +270,7 @@ void MainWindow::slotPlotGraph()
         return;
 
     const Frames &frames = _viewerWidget.getFrames().first;
-    GraphDialog graphDialog(frames, this);
+    GraphDialog graphDialog(settings, frames, this);
     connect(&graphDialog, &GraphDialog::signalDataXChanged, this, &MainWindow::slotGrapgWindowCheck);
 
     //наполняем список GraphDialog существующими графиками

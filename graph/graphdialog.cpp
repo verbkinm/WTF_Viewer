@@ -3,10 +3,11 @@
 
 #include <QDebug>
 
-GraphDialog::GraphDialog(const Frames &frames, QWidget *parent) :
+GraphDialog::GraphDialog(std::shared_ptr<QSettings> settings, const Frames &frames, QWidget *parent) :
     QDialog(parent),
     _NEW_WINDOW("New Window"),
-    ui(new Ui::GraphDialog)
+    ui(new Ui::GraphDialog),
+    pSettings(settings)
 {
     ui->setupUi(this);
 
@@ -17,6 +18,16 @@ GraphDialog::GraphDialog(const Frames &frames, QWidget *parent) :
     connect(ui->DataX, &QComboBox::currentTextChanged, this, &GraphDialog::slotSelectDataX);
 
     ui->windowGraph->addItem(_NEW_WINDOW);
+
+    pSettings->beginGroup("GeneralCalibration");
+
+    ui->A->setValue(pSettings->value("A", 0.0).toDouble());
+    ui->B->setValue(pSettings->value("B", 0.0).toDouble());
+    ui->C->setValue(pSettings->value("C", 0.0).toDouble());
+    ui->T->setValue(pSettings->value("T", 0.0).toDouble());
+    ui->coefficients->setChecked(pSettings->value("apply", false).toBool());
+
+    pSettings->endGroup();
 }
 
 GraphDialog::~GraphDialog()

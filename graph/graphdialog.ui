@@ -38,6 +38,9 @@
         <property name="prefix">
          <string>A=</string>
         </property>
+        <property name="minimum">
+         <double>-99.000000000000000</double>
+        </property>
        </widget>
       </item>
       <item row="0" column="1">
@@ -51,6 +54,9 @@
         <property name="prefix">
          <string>B=</string>
         </property>
+        <property name="minimum">
+         <double>-99.000000000000000</double>
+        </property>
        </widget>
       </item>
       <item row="1" column="0">
@@ -60,6 +66,9 @@
         </property>
         <property name="prefix">
          <string>C=</string>
+        </property>
+        <property name="minimum">
+         <double>-99.000000000000000</double>
         </property>
        </widget>
       </item>
@@ -73,6 +82,9 @@
         </property>
         <property name="prefix">
          <string>T=</string>
+        </property>
+        <property name="minimum">
+         <double>-99.000000000000000</double>
         </property>
        </widget>
       </item>

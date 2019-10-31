@@ -14,7 +14,7 @@ class GeneralCalibration : public QDialog
     Q_OBJECT
 
 public:
-    explicit GeneralCalibration(std::shared_ptr<QSettings> pSettings, QWidget *parent = nullptr);
+    explicit GeneralCalibration(std::shared_ptr<QSettings> settings, QWidget *parent = nullptr);
     ~GeneralCalibration();
 
     double getA();
