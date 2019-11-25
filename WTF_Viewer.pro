@@ -27,6 +27,8 @@ CONFIG += c++17
 SOURCES += \
 
 
+
+
     calibration/generalcalibration.cpp \
     calibration/pixelcalibration.cpp \
     eventfilter/eventfilter.cpp \
