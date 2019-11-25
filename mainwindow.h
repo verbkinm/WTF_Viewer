@@ -5,20 +5,15 @@
 #include <QSplitter>
 #include <QFileSystemModel>
 #include <QTreeView>
-#include <QStatusBar>
-#include <QMenuBar>
 #include <QMenu>
-#include <QEvent>
-#include <QTreeWidget>
-#include <QFileDialog>
-#include <QMessageBox>
-#include <QDir>
 #include <QSettings>
+#include <map>
 
-#include "viewer\viewer_widget.h"
+#include "viewer_widget\viewer_widget.h"
 #include "eventfilter\eventfilter.h"
 #include "graph/centralwidget.h"
 #include "settings/settingsimage.h"
+#include "graph/graphdialog.h"
 
 class MainWindow : public QMainWindow
 {
@@ -28,53 +23,37 @@ public:
     MainWindow(QWidget *parent = nullptr);
     ~MainWindow();
 
-    QSplitter*          pSplitter       = nullptr;
-    QFileSystemModel*   pFSModel        = nullptr;
-    QTreeView*          pTreeView       = nullptr;
-
-    Viewer_widget*      pViewerWidget   = nullptr;
-    EventFilter*        pEventFilter    = nullptr;
-
-    SettingsImage*      pSettingsImage  = nullptr;
-
 private:
+    std::shared_ptr<QSettings> settings;
+    QSplitter _splitter;
+    QFileSystemModel _fs_model;
+    QTreeView _treeView;
+    Viewer_widget _viewerWidget;
+    EventFilter _eventFilter;
+    const QString _programVersion;
+    QMenu _menuFile, _menuGraph, _menuAbout, _menuSettings, _menuCalibration;
+    std::list<CentralWidget *> _graphWindowMap;
+    QString _currentActiveFile;
 
-    QMenu*              pMenuFile       = nullptr;
-    QMenu*              pMenuGraph      = nullptr;
-    QMenu*              pMenuAbout      = nullptr;
-    QMenu*              pMenuSettings   = nullptr;
-
-
-    QList<CentralWidget*> graphWindowList;
-
-    void                createMenu();
-
-    QString             currentActiveFile;
-
-    QSettings           settings;
-
-protected:
-    virtual bool        event(QEvent *event);
+    void createMenu();
+    void openLastDir();
+    void saveAccordingOptions(int, int &, int &, QImage &, const QString &);
+    void exportingFiles(const QString &);
+    void graphDialogExec(GraphDialog &, const Frames &);
+    std::map<double, double> createVectorAccordingGraphType(GraphDialog &, QString &, const Frames &);
 
 private slots:
-    void slotSelectFile(const QModelIndex&);
-
+    void slotSelectFile(const QModelIndex &);
     void slotAuthor();
     void slotPlotGraph();
-
+    void slotGeneralCalibration();
+    void slotPixelCalibration();
     void slotSettingsImage();
-
-    void slotExportFile();
-
-    void slotCloseGraphWindow(QObject* obj);
-
+    void slotExportFiles();
+    void slotCloseGraphWindow(QObject *);
     //при выборе типа данных для диаграммы по оси X, проверяем чтобы не было попытки добавить
     //новый график с одним типом к, существующим графикам с другим типом
-    void slotGrapgWindowCheck(QString value);
-
-    // QWidget interface
-protected:
-    virtual void closeEvent(QCloseEvent *);
+    void slotGrapgWindowCheck(const QString &);
 };
 
 #endif // MAINWINDOW_H
