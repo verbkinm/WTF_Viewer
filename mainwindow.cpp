@@ -15,7 +15,7 @@
 MainWindow::MainWindow(QWidget *parent): QMainWindow(parent),
     settings(std::make_shared<QSettings>(QSettings::IniFormat, QSettings::UserScope, "WTF.org", "WTF")),
     _viewerWidget(settings, this),
-    _programVersion("0.9.8.19")
+    _programVersion("0.9.8.20")
 {
     settings.get()->setIniCodec("UTF-8");
     _splitter.setOrientation(Qt::Horizontal);
@@ -164,68 +164,6 @@ void MainWindow::graphDialogExec(GraphDialog &graphDialog, const Frames &frames)
     }
 }
 
-std::map<double, double> MainWindow::createVectorAccordingGraphType(GraphDialog &graphDialog, QString &legendText, const Frames &frames)
-{
-    std::map<double, double> map;
-    if(graphDialog.getType() == "Tots")
-    {
-        legendText = graphDialog.getClusterSize() + "px";
-        if(graphDialog.getClusterSize() == "All")
-            return frames.getMapOfTotPoints(Frames::ALL_CLUSTER);
-        else
-            return frames.getMapOfTotPoints(graphDialog.getClusterSize().toULongLong());
-    }
-    else if(graphDialog.getType() == "Clusters")
-    {
-        legendText = _currentActiveFile;
-        return frames.getMapOfClusterSize();
-    }
-    else if(graphDialog.getType() == "Energy")
-    {
-        legendText = graphDialog.getClusterSize() + "px";
-
-        double A = (settings->value("GeneralCalibration/A").toDouble());
-        double B = (settings->value("GeneralCalibration/B").toDouble());
-        double C = (settings->value("GeneralCalibration/C").toDouble());
-        double T = (settings->value("GeneralCalibration/T").toDouble());
-
-        if(graphDialog.getClusterSize() == "All")
-        {
-            std::map<double, double> sumTot = frames.getMapOfTotPointsSummarize(Frames::ALL_CLUSTER);
-            std::map<double, double> sumEnergy;
-
-            for(auto [key, value] : sumTot)
-            {
-                double parA = A;
-                double parB = B - key - A * T;
-                double parC = key * T - B * T - C;
-
-                double newValue = ( -parB + ( qSqrt(parB * parB - 4 * parA * parC)) ) / (2 * parA);
-
-                sumEnergy[value] = newValue;
-            }
-            return sumEnergy;
-        }
-        else
-        {
-            std::map<double, double> sumTot = frames.getMapOfTotPointsSummarize(graphDialog.getClusterSize().toULongLong());
-            std::map<double, double> sumEnergy;
-
-            for(auto [key, value] : sumTot)
-            {
-                double parA = A;
-                double parB = B - key - A * T;
-                double parC = key * T - B * T - C;
-
-                double newValue = ( -parB + ( qSqrt(parB * parB - 4 * parA * parC)) ) / (2 * parA);
-
-                sumEnergy[value] = newValue;
-            }
-            return sumEnergy;
-        }
-    }
-    return map;
-}
 void MainWindow::slotExportFiles()
 {
     QFileInfo file(_fs_model.filePath(_treeView.currentIndex()));
@@ -233,12 +171,6 @@ void MainWindow::slotExportFiles()
         exportingFiles(file.absoluteFilePath());
     else if(file.isFile())
         exportingFiles(file.absolutePath());
-}
-
-void MainWindow::slotCloseGraphWindow(QObject *obj)
-{
-    _graphWindowMap.remove(static_cast<CentralWidget*>(obj));
-    delete obj;
 }
 
 void MainWindow::slotGrapgWindowCheck(const QString &data)
@@ -253,14 +185,89 @@ void MainWindow::slotGrapgWindowCheck(const QString &data)
     gd->selectLastWindow();
 }
 
+std::map<double, double> MainWindow::createVectorAccordingGraphType(GraphDialog &graphDialog, QString &legendText, const Frames &frames)
+{
+    std::map<double, double> map;
+    if(graphDialog.getType() == "Tots")
+    {
+        legendText = graphDialog.getClusterSize() + "px";
+        if(graphDialog.getClusterSize() == "All")
+            return frames.getMapOfTotPointsSummarize(Frames::ALL_CLUSTER);
+        else
+            return frames.getMapOfTotPointsSummarize(graphDialog.getClusterSize().toULongLong());
+    }
+
+
+
+    else if(graphDialog.getType() == "Clusters")
+    {
+        legendText = _currentActiveFile;
+        return frames.getMapOfClusterSize();
+    }
+
+
+//    else if(graphDialog.getType() == "Energy")
+//    {
+//        legendText = graphDialog.getClusterSize() + "px";
+
+//        double A = (settings->value("GeneralCalibration/A").toDouble());
+//        double B = (settings->value("GeneralCalibration/B").toDouble());
+//        double C = (settings->value("GeneralCalibration/C").toDouble());
+//        double T = (settings->value("GeneralCalibration/T").toDouble());
+
+//        if(graphDialog.getClusterSize() == "All")
+//        {
+//           return frames.getMapOfEnergySum(Frames::ALL_CLUSTER, A, B, C, T);
+
+////            std::map<double, double> energy;
+
+////            for(auto [key, value] : tots)
+////            {
+////                double parA = - A;
+////                double parB = key + A * T - B;
+////                double parC = -(key * T)  + B * T + C;
+
+////                double newValue = ( -parB - ( qSqrt((parB * parB) - (4 * parA * parC))) ) / (2 * parA);
+
+////                energy[value] = newValue;
+////            }
+////            return energy;
+//        }
+//        else
+//        {
+//            std::map<double, double> tots = frames.getMapOfTotPoints(graphDialog.getClusterSize().toULongLong());
+//            std::map<double, double> energy;
+
+//            for(auto [key, value] : tots)
+//            {
+//                double parA = - A;
+//                double parB = key + A * T - B;
+//                double parC = -(key * T)  + B * T + C;
+
+//                double newValue = ( -parB - ( qSqrt((parB * parB) - (4 * parA * parC))) ) / (2 * parA);
+
+//                energy[value] = newValue;
+//            }
+//            return energy;
+//        }
+//    }
+    return map;
+}
+
+void MainWindow::slotCloseGraphWindow(QObject *obj)
+{
+    _graphWindowMap.remove(static_cast<CentralWidget*>(obj));
+    delete obj;
+}
+
 void MainWindow::slotAuthor()
 {
     QString text = "<h3>WTF_Viewer " + _programVersion + "</h3> <br>"
-                   "WTF(What flies?)<br>"
-                   "Author: Verbkin Mikhail <br>"
-                   "Email: <a href=\"mailto:verbkinm@yandex.ru\" >verbkinm@yandex.ru</a> <br>"
-                   "Source code: <a href='https://github.com/verbkinm/wtf_viewer'>github.com</a> <br><br>"
-                   "The program for my dear friend! =))";
+                                                         "WTF(What flies?)<br>"
+                                                         "Author: Verbkin Mikhail <br>"
+                                                         "Email: <a href=\"mailto:verbkinm@yandex.ru\" >verbkinm@yandex.ru</a> <br>"
+                                                         "Source code: <a href='https://github.com/verbkinm/wtf_viewer'>github.com</a> <br><br>"
+                                                         "The program for my dear friend! =))";
     QMessageBox::about(this, "Author", text);
 }
 
