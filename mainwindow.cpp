@@ -10,12 +10,12 @@
 #include "calibration/generalcalibration.h"
 #include "viewer_widget/viewer/viewer_processor/viewer_txt_processor.h"
 #include "settings/settingsimage.h"
-
+#include "settings/settingsclogfile.h"
 
 MainWindow::MainWindow(QWidget *parent): QMainWindow(parent),
     settings(std::make_shared<QSettings>(QSettings::IniFormat, QSettings::UserScope, "WTF.org", "WTF")),
     _viewerWidget(settings, this),
-    _programVersion("0.9.8.20")
+    _programVersion("0.9.8.21")
 {
     settings.get()->setIniCodec("UTF-8");
     _splitter.setOrientation(Qt::Horizontal);
@@ -49,6 +49,7 @@ void MainWindow::createMenu()
     _menuFile.addAction(QIcon(":/exit"), "Exit", QApplication::instance(), SLOT(quit()));
     _menuSettings.setTitle("Settings");
     _menuSettings.addAction(QIcon(":/image"), "Image", this, SLOT(slotSettingsImage()));
+    _menuSettings.addAction(QIcon(":/image"), "Open clog file settings", this, SLOT(slotSettingsOpenClogFile()));
     _menuGraph.setTitle("Graph");
     _menuGraph.addAction(QIcon(":/graph"), "Plot the graph", this, SLOT(slotPlotGraph()));
     _menuGraph.setDisabled(true);
@@ -82,26 +83,26 @@ void MainWindow::saveAccordingOptions(int options, int &error, int &correct, QIm
 {
     switch (options)
     {
-        case (Export::BW) :
-            if(image.save(fullName+".bmp", "BMP"))
-                correct++;
-            else
-                error++;
-            break;
-        case (Export::WB) :
-            image.invertPixels();
-            if(image.save(fullName+"_INVERSION.bmp", "BMP"))
-                correct++;
-            else
-                error++;
-            break;
-        case (Export::BW_AND_WB) :
-            if(image.save(fullName+".bmp", "BMP"))
-                correct++;
-            image.invertPixels();
-            if(image.save(fullName+"_INVERSION.bmp", "BMP"))
-                correct++;
-            break;
+    case (Export::BW) :
+        if(image.save(fullName+".bmp", "BMP"))
+            correct++;
+        else
+            error++;
+        break;
+    case (Export::WB) :
+        image.invertPixels();
+        if(image.save(fullName+"_INVERSION.bmp", "BMP"))
+            correct++;
+        else
+            error++;
+        break;
+    case (Export::BW_AND_WB) :
+        if(image.save(fullName+".bmp", "BMP"))
+            correct++;
+        image.invertPixels();
+        if(image.save(fullName+"_INVERSION.bmp", "BMP"))
+            correct++;
+        break;
     }
 }
 
@@ -206,51 +207,51 @@ std::map<double, double> MainWindow::createVectorAccordingGraphType(GraphDialog 
     }
 
 
-//    else if(graphDialog.getType() == "Energy")
-//    {
-//        legendText = graphDialog.getClusterSize() + "px";
+    //    else if(graphDialog.getType() == "Energy")
+    //    {
+    //        legendText = graphDialog.getClusterSize() + "px";
 
-//        double A = (settings->value("GeneralCalibration/A").toDouble());
-//        double B = (settings->value("GeneralCalibration/B").toDouble());
-//        double C = (settings->value("GeneralCalibration/C").toDouble());
-//        double T = (settings->value("GeneralCalibration/T").toDouble());
+    //        double A = (settings->value("GeneralCalibration/A").toDouble());
+    //        double B = (settings->value("GeneralCalibration/B").toDouble());
+    //        double C = (settings->value("GeneralCalibration/C").toDouble());
+    //        double T = (settings->value("GeneralCalibration/T").toDouble());
 
-//        if(graphDialog.getClusterSize() == "All")
-//        {
-//           return frames.getMapOfEnergySum(Frames::ALL_CLUSTER, A, B, C, T);
+    //        if(graphDialog.getClusterSize() == "All")
+    //        {
+    //           return frames.getMapOfEnergySum(Frames::ALL_CLUSTER, A, B, C, T);
 
-////            std::map<double, double> energy;
+    ////            std::map<double, double> energy;
 
-////            for(auto [key, value] : tots)
-////            {
-////                double parA = - A;
-////                double parB = key + A * T - B;
-////                double parC = -(key * T)  + B * T + C;
+    ////            for(auto [key, value] : tots)
+    ////            {
+    ////                double parA = - A;
+    ////                double parB = key + A * T - B;
+    ////                double parC = -(key * T)  + B * T + C;
 
-////                double newValue = ( -parB - ( qSqrt((parB * parB) - (4 * parA * parC))) ) / (2 * parA);
+    ////                double newValue = ( -parB - ( qSqrt((parB * parB) - (4 * parA * parC))) ) / (2 * parA);
 
-////                energy[value] = newValue;
-////            }
-////            return energy;
-//        }
-//        else
-//        {
-//            std::map<double, double> tots = frames.getMapOfTotPoints(graphDialog.getClusterSize().toULongLong());
-//            std::map<double, double> energy;
+    ////                energy[value] = newValue;
+    ////            }
+    ////            return energy;
+    //        }
+    //        else
+    //        {
+    //            std::map<double, double> tots = frames.getMapOfTotPoints(graphDialog.getClusterSize().toULongLong());
+    //            std::map<double, double> energy;
 
-//            for(auto [key, value] : tots)
-//            {
-//                double parA = - A;
-//                double parB = key + A * T - B;
-//                double parC = -(key * T)  + B * T + C;
+    //            for(auto [key, value] : tots)
+    //            {
+    //                double parA = - A;
+    //                double parB = key + A * T - B;
+    //                double parC = -(key * T)  + B * T + C;
 
-//                double newValue = ( -parB - ( qSqrt((parB * parB) - (4 * parA * parC))) ) / (2 * parA);
+    //                double newValue = ( -parB - ( qSqrt((parB * parB) - (4 * parA * parC))) ) / (2 * parA);
 
-//                energy[value] = newValue;
-//            }
-//            return energy;
-//        }
-//    }
+    //                energy[value] = newValue;
+    //            }
+    //            return energy;
+    //        }
+    //    }
     return map;
 }
 
@@ -305,6 +306,13 @@ void MainWindow::slotSettingsImage()
     SettingsImage settingsImage(settings, this);
     if(settingsImage.exec() == QDialog::Accepted)
         settingsImage.writeSettings();
+}
+
+void MainWindow::slotSettingsOpenClogFile()
+{
+    SettingsClogFile scf(settings, this);
+    if(scf.exec() == QDialog::Accepted)
+        scf.writeSettings();
 }
 void MainWindow::slotSelectFile(const QModelIndex& index)
 {

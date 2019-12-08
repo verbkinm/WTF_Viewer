@@ -30,6 +30,7 @@ SOURCES += \
     graph/customtablemodel.cpp \
     graph/graphdialog.cpp \
     graph/panelwidget.cpp \
+    settings/settingsclogfile.cpp \
     settings/settingsimage.cpp \
     viewer_widget/checkFile/checkfile.cpp \
     viewer_widget/frames/frames.cpp \
@@ -66,6 +67,7 @@ HEADERS += \
     graph/graphdialog.h \
     graph/panelwidget.h \
     graph/range.h \
+    settings/settingsclogfile.h \
     settings/settingsimage.h \
     viewer_widget/checkFile/checkfile.h \
     viewer_widget/frames/frames.h \
@@ -100,6 +102,7 @@ FORMS += \
     graph/graphdialog.ui \
     graph/panelwidget.ui \
     loadcalibrationfiles.ui \
+    settings/settingsclogfile.ui \
     settings/settingsimage.ui \
     viewer_widget/viewer/panels/clogfilterpanel/clogfilterpanel.ui \
     viewer_widget/masksettings.ui \

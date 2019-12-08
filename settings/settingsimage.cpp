@@ -23,18 +23,18 @@ SettingsImage::~SettingsImage()
 
 void SettingsImage::writeSettings()
 {
-    pSettings.get()->beginGroup("SettingsImage");
+    pSettings->beginGroup("SettingsImage");
 
-    pSettings.get()->setValue("FrameGroupBox", ui->FrameGroupBox->isChecked());
-    pSettings.get()->setValue("frameWidth",    ui->frameWidth->value());
-    pSettings.get()->setValue("frameValue",    ui->frameValue->value());
+    pSettings->setValue("FrameGroupBox", ui->FrameGroupBox->isChecked());
+    pSettings->setValue("frameWidth",    ui->frameWidth->value());
+    pSettings->setValue("frameValue",    ui->frameValue->value());
 
-    pSettings.get()->setValue("MasquradingGroupBox",   ui->MasquradingGroupBox->isChecked());
-    pSettings.get()->setValue("maskBefore",            ui->maskBefore->isChecked());
-    pSettings.get()->setValue("maskAfter",             ui->maskAfter->isChecked());
-    pSettings.get()->setValue("maskValue",             ui->maskValue->value());
-    pSettings.get()->setValue("maskNewValue",          ui->maskNewValue->value());
-    pSettings.get()->setValue("maskColor",             ui->maskColor->icon().pixmap(16, 16).toImage().pixelColor(0,0).name());
+    pSettings->setValue("MasquradingGroupBox",   ui->MasquradingGroupBox->isChecked());
+    pSettings->setValue("maskBefore",            ui->maskBefore->isChecked());
+    pSettings->setValue("maskAfter",             ui->maskAfter->isChecked());
+    pSettings->setValue("maskValue",             ui->maskValue->value());
+    pSettings->setValue("maskNewValue",          ui->maskNewValue->value());
+    pSettings->setValue("maskColor",             ui->maskColor->icon().pixmap(16, 16).toImage().pixelColor(0,0).name());
 
     pSettings->endGroup();
 }

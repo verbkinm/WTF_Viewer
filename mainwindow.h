@@ -49,6 +49,7 @@ private slots:
     void slotGeneralCalibration();
     void slotPixelCalibration();
     void slotSettingsImage();
+    void slotSettingsOpenClogFile();
     void slotExportFiles();
     void slotCloseGraphWindow(QObject *);
     //при выборе типа данных для диаграммы по оси X, проверяем чтобы не было попытки добавить

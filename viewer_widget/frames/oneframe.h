@@ -35,6 +35,7 @@ public:
     const std::vector<cluster> &getClustersVector() const;
 
     const ePoint &getEPoint(size_t clusterNumber, size_t eventNumber) const;
+    ePoint &getPointer_to_EPoint(size_t clusterNumber, size_t eventNumber);
 
     const ePoint empty_ePoint;
 

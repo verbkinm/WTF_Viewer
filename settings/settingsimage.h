@@ -17,8 +17,7 @@ public:
     explicit SettingsImage(std::shared_ptr<QSettings> pSettings, QWidget *parent = nullptr);
     ~SettingsImage();
 
-    void    writeSettings();
-
+    void writeSettings();
 
 private slots:
     void on_actionAccepted_triggered();
@@ -30,7 +29,7 @@ private:
     Ui::SettingsImage *ui;
 
 
-    void    readSettings();
+    void readSettings();
 };
 
 #endif // SETTINGSIMAGE_H

@@ -92,7 +92,11 @@ const OneFrame::ePoint &OneFrame::getEPoint(size_t clusterNumber, size_t eventNu
     {
         return empty_ePoint;
     }
+}
 
+OneFrame::ePoint &OneFrame::getPointer_to_EPoint(size_t clusterNumber, size_t eventNumber)
+{
+    return _vectorOfCluster[clusterNumber][eventNumber];
 }
 
 void OneFrame::setFrameProperties(QString &string)

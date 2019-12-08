@@ -50,6 +50,11 @@ const OneFrame::ePoint& Frames::getEPoint(size_t frameNumber, size_t clusterNumb
     }
 }
 
+OneFrame::ePoint &Frames::getPointer_to_EPoint(size_t frameNumber, size_t clusterNumber, size_t eventNumber)
+{
+    return _vectorOfFrames[frameNumber].getPointer_to_EPoint(clusterNumber, eventNumber);
+}
+
 void Frames::createFromFile(const QString &path)
 {
     QFile file(path);

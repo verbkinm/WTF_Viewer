@@ -57,8 +57,8 @@ void Viewer_Clog_Processor::setFilter(const Filter_Clog &filter)
 
 void Viewer_Clog_Processor::modifyPointAccordingFilter(size_t frameNumber, size_t clusterNumber)
 {
-//    if(!isWithinRanges(frameNumber, clusterNumber))
-//        return;
+    //    if(!isWithinRanges(frameNumber, clusterNumber))
+    //        return;
 
     if(!_frames.isClusterInRange(_frames.getClusterLength(frameNumber, clusterNumber), _filter._clusterRange))
         return;
@@ -101,7 +101,7 @@ void Viewer_Clog_Processor::modifyPointAccordingPixMode(OneFrame::ePoint &point)
     {
         if( checkSettingsPtr() && _spSettings->value("GeneralCalibration/apply").toBool())
         {
-            generalCalibrationSettingsForEPoint(point);
+            //            generalCalibrationSettingsForEPoint(point);
             _markers |= GENERAL_CALIBRATION;
         }
         else
@@ -142,7 +142,18 @@ void Viewer_Clog_Processor::createVec2D()
     _frames.createFromFile(_fileName);
     _columns  = CLOG_SIZE;
     _rows     = CLOG_SIZE;
-//    allocateEmptyVec2D(_vec2D, _columns, _rows);
+
+    if(_spSettings->value("SettingsClogFile/generalCalibration").toBool())
+    {
+        for (size_t frameNumber = 0; frameNumber < _frames.getFrameCount(); ++frameNumber)
+        {
+            for (size_t clusterNumber = 0; clusterNumber < _frames.getClusterCount(frameNumber); ++clusterNumber)
+            {
+                for (size_t eventNumber = 0; eventNumber < _frames.getClusterLength(frameNumber, clusterNumber); ++eventNumber)
+                    generalCalibrationSettingsForEPoint(_frames.getPointer_to_EPoint(frameNumber, clusterNumber, eventNumber));
+            }
+        }
+    }
 }
 
 void Viewer_Clog_Processor::resetDataToDefault()

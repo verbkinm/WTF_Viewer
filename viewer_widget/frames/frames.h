@@ -25,6 +25,7 @@ public:
     std::map<double, double> getMapOfClusterSize() const;
 
     const OneFrame::ePoint& getEPoint(size_t frameNumber, size_t clusterNumber, size_t eventNumber) const;
+    OneFrame::ePoint &getPointer_to_EPoint(size_t frameNumber, size_t clusterNumber, size_t eventNumber);
 
     bool isClusterInRange(size_t clusterLength, Range<size_t> range) const;
     bool isTotInRange (size_t frameNumber, size_t clusterNumber, Range<double> range) const;
@@ -38,11 +39,10 @@ public:
 private:
     const std::vector<OneFrame>& getFramesVector() const;
     bool isLineContainsWholeFrame(const QString &line, QStringList &buff);
-    void generalCalibrationSettingsForArray(OneFrame::ePoint &point);
+//    void generalCalibrationSettingsForArray(OneFrame::ePoint &point);
     void countingTot(size_t frameNumber, size_t clusterNumber, size_t clusterLenght, std::map<double, double> &map) const;
     std::vector<QPointF> getVectorOfPointsFromClusters() const;
     double summarizeTotsInCluster(size_t frameNumber, size_t clusterNumber) const;
-
 
     std::vector<OneFrame> _vectorOfFrames;
 
