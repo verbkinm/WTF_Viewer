@@ -43,5 +43,6 @@ signals:
     void signalGenerated(QString);
     void signalOpenTXT(QString);
     void signalSaveTXT();
+    void signalReconstruct_deconv();
 };
 #endif // MASKSETTINGS_H

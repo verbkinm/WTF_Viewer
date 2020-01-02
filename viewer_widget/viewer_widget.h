@@ -39,8 +39,12 @@ private:
 
     enum tabsName {VIEW_AND_EDIT, MASK};
 
+    QString processing_arrays(const std::vector<std::vector<double>> &origin_array,
+                              const std::vector<std::vector<double>> &mask_array);
+
 private slots:
     void slotTabChanged(int);
+    void slotReconstruct_deconv();
 };
 
 #endif // VIEWER_WIDGET_H

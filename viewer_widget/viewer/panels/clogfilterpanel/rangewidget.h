@@ -18,12 +18,13 @@ public:
     ~RangeWidget();
 
     void setRange(const std::vector<double> &vector);
+    void setTitle(const QString &title);
 
     double getRangeBegin() const;
     double getRangeEnd() const;
 
 protected:
-    QGridLayout *layout();
+//    QGridLayout *layout();
 
 private:
     Ui::RangeWidget *ui;

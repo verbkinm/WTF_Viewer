@@ -49,7 +49,8 @@ void Viewer::setEmptyImageOnViewerScene()
     _pCurrentScene->clear();
     ui->graphicsView->resetTransform();
     _pCurrentScene->setSceneRect(QRect(0,0, 50,50));
-    _pCurrentScene->addText("Select file!");
+    auto item = _pCurrentScene->addText("Select file!");
+    item->setObjectName("incorrectFile");
 }
 void Viewer::setSceneReadOnly(bool state)
 {
@@ -74,6 +75,11 @@ void Viewer::hideSettingsButton(bool state)
     _spMenuFile = nullptr;
     ui->button_settings->setVisible(!state);
     ui->marker_label->setVisible(!state);
+}
+
+std::vector<std::vector<double>> Viewer::getVec2D() const
+{
+    return _spViewerProcessor->getVec2D();
 }
 
 void Viewer::setEnablePanels(bool state)
@@ -295,7 +301,7 @@ void Viewer::slotApplyClogFilter()
 {
     QApplication::setOverrideCursor(QCursor(Qt::WaitCursor));
     Filter_Clog filter = createFilterFromPixFilterPanel();
-    std::static_pointer_cast<Viewer_Clog_Processor>(_spViewerProcessor).get()->setFilter(filter);
+    std::static_pointer_cast<Viewer_Clog_Processor>(_spViewerProcessor)->setFilter(filter);
     setImage(_spViewerProcessor->getImage());
     QApplication::restoreOverrideCursor();
 }

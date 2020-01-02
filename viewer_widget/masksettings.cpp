@@ -172,11 +172,12 @@ MaskSettings::MaskSettings(QWidget *parent) :
     ui->tabWidget->setTabEnabled(CONVOLUTION, false);
     ui->tabWidget->setTabEnabled(BACKPROJECTION, false);
 
-    connect(ui->open_txt, SIGNAL(clicked(bool)), this, SLOT(slotOpenTXT()));
-    connect(ui->save_txt, SIGNAL(clicked(bool)), this, SLOT(slotSaveTXT()));
-    connect(ui->binning, SIGNAL(valueChanged(int)), this, SLOT(slotBinningChanged(int)));
-    connect(ui->binning_button, SIGNAL(clicked()), this, SLOT(slotTableShow()));
-    connect(ui->generated, SIGNAL(clicked()), this, SLOT(slotGenerate()));
+    connect(ui->open_txt, SIGNAL(clicked(bool)), SLOT(slotOpenTXT()));
+    connect(ui->save_txt, SIGNAL(clicked(bool)), SLOT(slotSaveTXT()));
+    connect(ui->binning, SIGNAL(valueChanged(int)), SLOT(slotBinningChanged(int)));
+    connect(ui->binning_button, SIGNAL(clicked()), SLOT(slotTableShow()));
+    connect(ui->generated, SIGNAL(clicked()), SLOT(slotGenerate()));
+    connect(ui->reconstruct_deconv, SIGNAL(clicked()), SIGNAL(signalReconstruct_deconv()));
 }
 MaskSettings::~MaskSettings()
 {
@@ -204,7 +205,6 @@ void MaskSettings::slotGenerate()
     //    cout << "Rang maski = ";
     //    cin >> rang;
     mask_construction(rang - 1);
-
 }
 void MaskSettings::slotOpenTXT()
 {

@@ -152,6 +152,9 @@
       </layout>
      </widget>
      <widget class="QWidget" name="Convolution">
+      <property name="enabled">
+       <bool>false</bool>
+      </property>
       <attribute name="title">
        <string>Convolution</string>
       </attribute>
@@ -160,7 +163,7 @@
         <widget class="QTextBrowser" name="LogBox"/>
        </item>
        <item row="1" column="0">
-        <widget class="QPushButton" name="Reconstruct_deconv">
+        <widget class="QPushButton" name="reconstruct_deconv">
          <property name="text">
           <string>Reconstruct</string>
          </property>
@@ -169,6 +172,9 @@
       </layout>
      </widget>
      <widget class="QWidget" name="Backprojection">
+      <property name="enabled">
+       <bool>false</bool>
+      </property>
       <attribute name="title">
        <string>Backprojection</string>
       </attribute>

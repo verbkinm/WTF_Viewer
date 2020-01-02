@@ -35,20 +35,25 @@ void RangeWidget::setRange(const std::vector<double> &vector)
     connectSignals();
 }
 
+void RangeWidget::setTitle(const QString &title)
+{
+    ui->RangeWidgetGroup->setTitle(title);
+}
+
 double RangeWidget::getRangeBegin() const
 {
-    return ui->rangeBegin->currentText().toULongLong();
+    return ui->rangeBegin->currentText().toDouble();
 }
 
 double RangeWidget::getRangeEnd() const
 {
-    return ui->rangeEnd->currentText().toULongLong();
+    return ui->rangeEnd->currentText().toDouble();
 }
 
-QGridLayout *RangeWidget::layout()
-{
-    return ui->gridLayout;
-}
+//QGridLayout *RangeWidget::layout()
+//{
+//    return ui->gridLayout;
+//}
 
 void RangeWidget::fillBeginComboBox()
 {
@@ -65,12 +70,14 @@ void RangeWidget::fillBeginComboBox()
 void RangeWidget::fillEndComboBox()
 {
     ui->rangeEnd->clear();
-    auto it = std::find(_vector.begin(), _vector.end(), _beginLast.toULongLong());
+    auto it = std::find(_vector.begin(), _vector.end(), _beginLast.toDouble());
     while (it != _vector.end())
     {
         ui->rangeEnd->addItem(QString::number(*it));
         it++;
     }
+//    for(const auto &item : _vector)
+//        ui->rangeEnd->addItem(QString::number(item));
 
     if(containsInVector(_endLast))
         ui->rangeEnd->setCurrentText(_endLast);
@@ -79,7 +86,7 @@ void RangeWidget::fillEndComboBox()
 }
 bool RangeWidget::containsInVector(QString str_value)
 {
-    double digit_value = str_value.toULongLong();
+    double digit_value = str_value.toDouble();
     auto it = std::find(_vector.begin(), _vector.end(), digit_value);
     if(it != _vector.end())
         return true;

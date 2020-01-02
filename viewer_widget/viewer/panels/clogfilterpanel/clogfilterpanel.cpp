@@ -13,6 +13,10 @@ ClogFilterPanel::ClogFilterPanel(QWidget *parent) :
     connect(ui->apply, SIGNAL(clicked()), SIGNAL(signalApplyFilter()) );
     connect(ui->totRange, &QAbstractButton::clicked, this, &ClogFilterPanel::slotTotType);
     connect(ui->totRangeFull, &QAbstractButton::clicked, this, &ClogFilterPanel::slotTotType);
+
+    ui->clusterRangeGroup->setTitle("Clusters:");
+    ui->totRangeGroup->setTitle("Tots/Energy:");
+    ui->totRangeGroupFull->setTitle("Tots/Energy:");
 }
 
 ClogFilterPanel::~ClogFilterPanel()

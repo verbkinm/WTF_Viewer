@@ -12,6 +12,7 @@ public:
 
     bool isAllTotInCluster();
 
+private:
     QCheckBox _allTotInCluster;
 };
 

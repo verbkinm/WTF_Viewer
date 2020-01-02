@@ -3,6 +3,7 @@
 #include "viewer_widget.h"
 #include "ui_viewer_widget.h"
 #include "checkFile/checkfile.h"
+#include "iostream"
 
 Viewer_widget::Viewer_widget(std::shared_ptr<const QSettings> spSetting, QWidget *parent) :
     QWidget(parent), _spSettings(spSetting),
@@ -19,6 +20,7 @@ Viewer_widget::Viewer_widget(std::shared_ptr<const QSettings> spSetting, QWidget
     connect(&_mask_settings, SIGNAL(signalOpenTXT(QString)), &_mask_viewer, SLOT(slotSetImageFile(QString)));
     connect(&_mask_settings, SIGNAL(signalSaveTXT()), &_mask_viewer, SLOT(slotSaveTXT()));
     connect(&_mask_settings, SIGNAL(signalGenerated(QString)), &_mask_viewer, SLOT(slotSetImageFile(QString)));
+    connect(&_mask_settings, SIGNAL(signalReconstruct_deconv()), SLOT(slotReconstruct_deconv()));
     connect(ui->tabWidget, SIGNAL(currentChanged(int)), SLOT(slotTabChanged(int)));
 }
 
@@ -57,6 +59,11 @@ void Viewer_widget::makeMaskTab()
     _main_splitter.setStretchFactor(0,1);
 }
 
+QString Viewer_widget::processing_arrays(const std::vector<std::vector<double> > &origin_array, const std::vector<std::vector<double> > &mask_array)
+{
+
+}
+
 void Viewer_widget::slotTabChanged(int value)
 {
     /* при смене вкладки на Mask делаем так, чтобы на этой вкладке на виджете graphicsView
@@ -66,4 +73,37 @@ void Viewer_widget::slotTabChanged(int value)
         ui->graphicsView->setSceneReadOnly(true);
     else if(value == VIEW_AND_EDIT)
         ui->graphicsView->setSceneReadOnly(false);
+}
+
+void Viewer_widget::slotReconstruct_deconv()
+{
+    if(ui->graphicsView->getScenePtr()->items().length() == 1)
+    {
+        auto item = qgraphicsitem_cast<QGraphicsTextItem*>(ui->graphicsView->getScenePtr()->items().at(0));
+        if(item && item->objectName() == "incorrectFile")
+            return;
+    }
+
+    auto originArray = ui->graphicsView->getVec2D();
+    auto maskArray = _mask_viewer.getVec2D();
+
+    _graphicsView_Result.setImageFileName(processing_arrays(originArray, maskArray));
+
+
+//    for(auto vec : originArray)
+//    {
+//        for(auto item : vec)
+//        {
+//            std::cout << item;
+//        }
+//        std::cout << std::endl << std::flush;
+//    }
+
+//    for(auto vec : maskArray)
+//    {
+//        for(auto item : vec)
+//        {
+//            std::cout << item << std::endl << std::flush;
+//        }
+//    }
 }

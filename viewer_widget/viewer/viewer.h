@@ -40,6 +40,8 @@ public:
     void hideAllPanel();
     void hideSettingsButton(bool);
 
+    std::vector<std::vector<double>> getVec2D() const;
+
 private:
     Ui::Viewer *ui;
     std::shared_ptr<Viewer_Processor> _spViewerProcessor; // обработчик данных
