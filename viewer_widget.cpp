@@ -73,10 +73,7 @@ QString Viewer_widget::processing_arrays(const std::vector<std::vector<double> >
     double image256[256][256];
 
 
-
 /*______________________Resize_function_____________________*/
-    qDebug()<<"Mask rank = "<<mask_array.size();
-    qDebug()<<"Resized image to 248. Start.";
     {    for (int j = 0; j < 248; j++)
         {
             tmp = (float)(j) / (float)(248 - 1) * (256 - 1);
@@ -137,10 +134,8 @@ QString Viewer_widget::processing_arrays(const std::vector<std::vector<double> >
 
             }
         }
-        qDebug()<<"Done!";
     }
 /*______________________Decoded_function_____________________*/
-     qDebug()<<"Decoding function. Start.";
     {
             for (int k = 0; k < 240; k++)
                 for (int l = 0; l < 240; l++)
@@ -165,9 +160,8 @@ QString Viewer_widget::processing_arrays(const std::vector<std::vector<double> >
                     }
             }
     }
-    qDebug()<<"Done!";
+
     /*______________________Resize_function_____________________*/
-    qDebug()<<"Resized image to 256. Start.";
     {        for (int j = 0; j < 256; j++)
         {
                 tmp = (float)(j) / (float)(256 - 1) * (240 - 1);
@@ -228,15 +222,13 @@ QString Viewer_widget::processing_arrays(const std::vector<std::vector<double> >
 
                 }
             }
-    qDebug()<<"Done!";
-    qDebug()<<"Start to save file.";
+
             FILE* image_f;
             image_f = fopen("image.txt", "wb");
             fwrite(image256, sizeof(image256), 1, image_f);
             fclose(image_f);
-    qDebug()<<"Some file was saved somewhere!";
     }
-return("image22.txt");
+
 }
 
 void Viewer_widget::slotTabChanged(int value)
