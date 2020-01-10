@@ -1,5 +1,4 @@
 #include <iostream>
-#include <cmath>
 
 #include <QMessageBox>
 #include <QtMath>
@@ -509,23 +508,6 @@ void Viewer::slotCut()
 void Viewer::slotRotatePlus()
 {
     ////        ui->angle->setValue(ui->angle->value() + 90);
-
-    for (int i = 0; i < h_old; h_old++)
-        for (int j = 0; j < w_old; w_old++)
-        {
-            double par_a = floor( abs(i * sin ( angle * 0.174533) + h_old / 2) );
-            double par_b = floor( abs(j * cos ( angle * 0.174533) + w_old / 2) );
-
-            if ( (par_a >= 0) && (par_a < h_old) && (par_b >= 0) && (par_b < w_old))
-            {
-                newArrayOrigin[i][j] = arrayOrigin[par_a][par_b];
-            }
-
-            else newArrayOrigin[i][j] = 0;
-        }
-
-        slotRepaint();
-
     //    size_t matrix_rang = row;
     //    for (size_t i = 0; i < row / 2; i++)
     //    {
@@ -542,24 +524,6 @@ void Viewer::slotRotatePlus()
 }
 void Viewer::slotRotateMinus()
 {
-
-
-    for (int i = 0; i < h_old; h_old++)
-        for (int j = 0; j < w_old; w_old++)
-        {
-            double par_a = floor( abs(i * cos ( angle * 0.174533) + h_old / 2) );
-            double par_b = floor( abs(j * sin ( angle * 0.174533) + w_old / 2) );
-
-            if ( (par_a >= 0) && (par_a < h_old) && (par_b >= 0) && (par_b < w_old))
-            {
-                newArrayOrigin[i][j] = arrayOrigin[par_a][par_b];
-            }
-
-            else newArrayOrigin[i][j] = 0;
-        }
-
-        slotRepaint();
-
     //    size_t matrix_rang = row;
     //    for (size_t i = 0; i < row / 2; i++)
     //    {
@@ -578,20 +542,20 @@ void Viewer::slotRotateMinus()
 
 void Viewer::slotMirrorHorizontal()
 {
-        for (size_t i = 0; i < row / 2; i++)
-                    std::swap(arrayOrigin[i], arrayOrigin[row - i - 1]);
+    //    for (size_t i = 0; i < row / 2; i++)
+    //                std::swap(arrayOrigin[i], arrayOrigin[row - i - 1]);
 
-        slotRepaint();
+    //    slotRepaint();
 }
 void Viewer::slotMirrorVertical()
 {
-        for (size_t i = 0; i < row; i++)
-        {
-            for (size_t j = 0; j < row / 2; j++)
-                        std::swap(arrayOrigin[i][j], arrayOrigin[i][row - j - 1]);
-        }
+    //    for (size_t i = 0; i < row; i++)
+    //    {
+    //        for (size_t j = 0; j < row / 2; j++)
+    //                    std::swap(arrayOrigin[i][j], arrayOrigin[i][row - j - 1]);
+    //    }
 
-        slotRepaint();
+    //    slotRepaint();
 }
 void Viewer::slotResetTransform()
 {
