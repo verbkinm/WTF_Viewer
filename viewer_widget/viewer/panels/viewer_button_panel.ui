@@ -92,7 +92,7 @@
       <item>
        <widget class="QPushButton" name="horizontal_mirror">
         <property name="enabled">
-         <bool>false</bool>
+         <bool>true</bool>
         </property>
         <property name="toolTip">
          <string>horizontal_mirror</string>
@@ -109,7 +109,7 @@
       <item>
        <widget class="QPushButton" name="vertical_mirror">
         <property name="enabled">
-         <bool>false</bool>
+         <bool>true</bool>
         </property>
         <property name="toolTip">
          <string>vertical_mirror</string>
@@ -126,7 +126,7 @@
       <item>
        <widget class="QPushButton" name="rotate_plus">
         <property name="enabled">
-         <bool>false</bool>
+         <bool>true</bool>
         </property>
         <property name="toolTip">
          <string>+90º</string>
@@ -143,7 +143,7 @@
       <item>
        <widget class="QDoubleSpinBox" name="angle">
         <property name="enabled">
-         <bool>false</bool>
+         <bool>true</bool>
         </property>
         <property name="wrapping">
          <bool>false</bool>
@@ -177,7 +177,7 @@
       <item>
        <widget class="QPushButton" name="rotate_minus">
         <property name="enabled">
-         <bool>false</bool>
+         <bool>true</bool>
         </property>
         <property name="toolTip">
          <string>-90º</string>
@@ -201,7 +201,7 @@
       <item>
        <widget class="QPushButton" name="reset_transform">
         <property name="enabled">
-         <bool>false</bool>
+         <bool>true</bool>
         </property>
         <property name="toolTip">
          <string>reset transformation</string>

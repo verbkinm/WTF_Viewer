@@ -47,13 +47,11 @@ int MaskSettings::square_vychet(int i, int p) const
         if (qAbs(i) == mas[count])
         {
             sign = 1;
-            goto finish;
+            break;
         }
         else
             count = count + 1;
     }
-
-finish:
     return(sign);
 }
 /*	 построение маски заданного ранга N	*/
