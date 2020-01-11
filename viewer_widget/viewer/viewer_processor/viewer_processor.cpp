@@ -225,7 +225,6 @@ void Viewer_Processor::createFrameInVec2D()
     size_t  width = static_cast<size_t>(_spSettings->value("SettingsImage/frameWidth").toInt());
     if(width > _columns || width > _rows)
         width = 0;
-//        width = (_columns > _rows) ? _rows : _columns;
     int value = _spSettings->value("SettingsImage/frameValue", -1).toInt();
     //верх
     for (size_t  x = 0; x < _columns; ++x)

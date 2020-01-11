@@ -57,9 +57,6 @@ void Viewer_Clog_Processor::setFilter(const Filter_Clog &filter)
 
 void Viewer_Clog_Processor::modifyPointAccordingFilter(size_t frameNumber, size_t clusterNumber)
 {
-    //    if(!isWithinRanges(frameNumber, clusterNumber))
-    //        return;
-
     if(!_frames.isClusterInRange(_frames.getClusterLength(frameNumber, clusterNumber), _filter._clusterRange))
         return;
 
@@ -80,33 +77,19 @@ void Viewer_Clog_Processor::modifyPointAccordingFilter(size_t frameNumber, size_
     }
 }
 
-//bool Viewer_Clog_Processor::isWithinRanges(size_t frameNumber, size_t clusterNumber)
-//{
-//    if(_frames.isClusterInRange(_frames.getClusterLength(frameNumber, clusterNumber), _filter._clusterRangeBegin, _filter._clusterRangeEnd)
-//       &&
-//       _frames.isTotInRange(frameNumber, clusterNumber, _filter._totRangeBegin, _filter._totRangeEnd)
-//       )
-//        return true;
-
-//    return false;
-//}
-
 void Viewer_Clog_Processor::modifyPointAccordingPixMode(OneFrame::ePoint &point)
 {
     if(point.x >= _columns || point.y >= _rows )
         return;
+
     if(_filter._isMidiPix)
+    {
+        setMarkersGeneralOrTot();
         _vec2D.at(point.x).at(point.y) = _vec2D.at(point.x).at(point.y) + 1;
+    }
     else
     {
-        if( checkSettingsPtr() && _spSettings->value("GeneralCalibration/apply").toBool())
-        {
-            //            generalCalibrationSettingsForEPoint(point);
-            _markers |= GENERAL_CALIBRATION;
-        }
-        else
-            _markers &= ~GENERAL_CALIBRATION;
-
+        setMarkersGeneralOrTot();
         _vec2D.at(point.x).at(point.y) = _vec2D.at(point.x).at(point.y) + point.tot;
     }
 }
@@ -137,6 +120,23 @@ void Viewer_Clog_Processor::generalCalibrationSettingsForEPoint(OneFrame::ePoint
     point.tot = ( -parB + ( qSqrt(parB * parB - 4 * parA * parC)) ) / (2 * parA);
 }
 
+void Viewer_Clog_Processor::setMarkersGeneralOrTot()
+{
+    if(!checkSettingsPtr())
+        return;
+
+    if(_spSettings->value("SettingsClogFile/totMode").toBool())
+    {
+        _markers |= TOT_MODE;
+        _markers &= ~GENERAL_CALIBRATION;
+    }
+    else if(_spSettings->value("SettingsClogFile/generalCalibration").toBool())
+    {
+        _markers |= GENERAL_CALIBRATION;
+        _markers &= ~TOT_MODE;
+    }
+}
+
 void Viewer_Clog_Processor::createVec2D()
 {
     _frames.createFromFile(_fileName);
@@ -146,13 +146,9 @@ void Viewer_Clog_Processor::createVec2D()
     if(_spSettings->value("SettingsClogFile/generalCalibration").toBool())
     {
         for (size_t frameNumber = 0; frameNumber < _frames.getFrameCount(); ++frameNumber)
-        {
             for (size_t clusterNumber = 0; clusterNumber < _frames.getClusterCount(frameNumber); ++clusterNumber)
-            {
                 for (size_t eventNumber = 0; eventNumber < _frames.getClusterLength(frameNumber, clusterNumber); ++eventNumber)
                     generalCalibrationSettingsForEPoint(_frames.getPointer_to_EPoint(frameNumber, clusterNumber, eventNumber));
-            }
-        }
     }
 }
 
@@ -170,38 +166,3 @@ void Viewer_Clog_Processor::resetDataToDefault()
     _markers = NO_MARKERS;
     _frames.clear();
 }
-
-//void Viewer_Clog_Processor::rebuildVec2DAccordingToSettings()
-//{
-//    if(!checkSettingsPtr())
-//        return;
-//    if(_pSettings->value("SettingsImage/FrameGroupBox").toBool())
-//    {
-//        createFrameInVec2D();
-//        _markers |= BORDER;
-//    }
-//    else
-//        _markers &= ~BORDER;
-//    if(_pSettings->value("SettingsImage/MasquradingGroupBox").toBool())
-//    {
-//        createMaskInVec2D();
-//        _markers |= MASKING;
-//    }
-//    else
-//        _markers &= ~MASKING;
-//}
-
-//void Viewer_Clog_Processor::rebuildImageAccordingToSettings(QImage &image)
-//{
-//    if(!checkSettingsPtr())
-//        return;
-
-//    if(_pSettings->value("SettingsImage/MasquradingGroupBox").toBool())
-//    {
-//        //рисуем маскированые пиксели выбраным цветом
-//        for (size_t  x = 0; x < _columns; ++x)
-//            for (size_t  y = 0; y < _rows; ++y)
-//                if(_vec2DMask.at(x).at(y) > 0)
-//                    image.setPixelColor(static_cast<int>(x), static_cast<int>(y), QColor(_pSettings->value("SettingsImage/maskColor").toString()));
-//    }
-//}
