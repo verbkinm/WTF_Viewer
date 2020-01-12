@@ -45,9 +45,6 @@ private:
     double summarizeTotsInCluster(size_t frameNumber, size_t clusterNumber) const;
 
     std::vector<OneFrame> _vectorOfFrames;
-
-signals:
-    void signalFramesCreated();
 };
 
 #endif // FRAMES_H

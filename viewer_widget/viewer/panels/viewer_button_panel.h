@@ -15,6 +15,8 @@ public:
     explicit Viewer_Button_Panel(QWidget *parent = nullptr);
     ~Viewer_Button_Panel();
 
+    double getAngle();
+
 private:
     Ui::Viewer_Button_Panel *ui;
 

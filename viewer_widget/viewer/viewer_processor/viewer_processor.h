@@ -15,7 +15,8 @@ public:
         NO_MARKERS = 0x0,
         BORDER = 0x1,
         MASKING = 0x2,
-        GENERAL_CALIBRATION = 0x4
+        GENERAL_CALIBRATION = 0x4,
+        TOT_MODE = 0x8
     };
     Q_DECLARE_FLAGS(Markers_Flags, marker)
     Viewer_Processor::Markers_Flags _markers;
