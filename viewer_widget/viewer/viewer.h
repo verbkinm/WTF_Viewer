@@ -67,7 +67,7 @@ private:
     QGraphicsPixmapItem *_itemImage ;
     QGraphicsRectItem *_itemRect;
     FingerSlide *_pEventFilterScene;    //фильтр событий для сцены
-    FingerSlide *_pEventFilterViewPort;//фильтр событий для представления
+    FingerSlide *_pEventFilterViewPort; //фильтр событий для представления
     std::unique_ptr<QMenu> _spMenuFile;
     //объект сцены
     QGraphicsScene* _pCurrentScene;

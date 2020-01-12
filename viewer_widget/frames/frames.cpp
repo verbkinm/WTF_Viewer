@@ -1,6 +1,6 @@
 #include <QFile>
 #include <QPointF>
-#include <QDebug>
+#include <iostream>
 
 #include "frames.h"
 
@@ -60,7 +60,7 @@ void Frames::createFromFile(const QString &path)
     QFile file(path);
     if(!file.open(QFile::ReadOnly))
     {
-        qDebug() << "Can't open CLOG file \"" << path <<"\"";
+        std::cerr << "Can't open CLOG file \"" << path.toStdString() <<"\"";
         return;
     }
     
@@ -83,8 +83,6 @@ void Frames::createFromFile(const QString &path)
     OneFrame oneFrame;
     oneFrame.createFromStrings(buff);
     _vectorOfFrames.push_back(oneFrame);
-    
-    emit signalFramesCreated();
 }
 
 void Frames::clear()
