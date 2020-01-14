@@ -29,3 +29,8 @@ Viewer_Button_Panel::~Viewer_Button_Panel()
 {
     delete ui;
 }
+
+double Viewer_Button_Panel::getAngle()
+{
+    return ui->angle->value();
+}

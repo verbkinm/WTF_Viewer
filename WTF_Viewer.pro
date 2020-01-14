@@ -104,6 +104,7 @@ FORMS += \
     loadcalibrationfiles.ui \
     settings/settingsclogfile.ui \
     settings/settingsimage.ui \
+    viewer_widget/batch_processing.ui \
     viewer_widget/viewer/panels/clogfilterpanel/clogfilterpanel.ui \
     viewer_widget/masksettings.ui \
     viewer_widget/viewer/panels/pix_filter_panel.ui \
