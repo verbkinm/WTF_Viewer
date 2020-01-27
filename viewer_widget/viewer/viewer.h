@@ -43,6 +43,24 @@ public:
     std::vector<std::vector<double>> getVec2D() const;
 
 private:
+    void setImage(const QImage &);
+    void setSceneDefault();
+    void setEmptyImageOnViewerScene();     //вывести вместо изображения надпись - "Select file!"
+    void setEnablePanels(bool);
+
+    void resetTransform();
+    void connect_pEventFilterScene();
+
+    void createButtonMenu();
+    void createButtonPanel();
+    void createDataPanel();
+    void createPixFilterPanel();
+
+    void incorrectFile();  //действия при не правильном файле
+    void showMarkers();
+
+    Filter_Clog createFilterFromPixFilterPanel();
+
     Ui::Viewer *ui;
     std::shared_ptr<Viewer_Processor> _spViewerProcessor; // обработчик данных
     // панели
@@ -72,24 +90,6 @@ private:
     //объект сцены
     QGraphicsScene* _pCurrentScene;
     QGraphicsScene _defaultScene;
-
-    void setImage(const QImage &);
-    void setSceneDefault();
-    void setEmptyImageOnViewerScene();     //вывести вместо изображения надпись - "Select file!"
-    void setEnablePanels(bool);
-
-    void resetTransform();
-    void connect_pEventFilterScene();
-
-    void createButtonMenu();
-    void createButtonPanel();
-    void createDataPanel();
-    void createPixFilterPanel();
-
-    void incorrectFile();  //действия при не правильном файле
-    void showMarkers();
-
-    Filter_Clog createFilterFromPixFilterPanel();
 
 public slots:
     void slotSetImageFile(QString);

@@ -35,6 +35,7 @@ SOURCES += \
     viewer_widget/checkFile/checkfile.cpp \
     viewer_widget/frames/frames.cpp \
     viewer_widget/frames/oneframe.cpp \
+    viewer_widget/prefilter.cpp \
     viewer_widget/viewer/panels/clogfilterpanel/clogfilterpanel.cpp \
     viewer_widget/masksettings.cpp \
     viewer_widget/viewer/panels/clogfilterpanel/rangewidget_extended.cpp \
@@ -72,6 +73,7 @@ HEADERS += \
     viewer_widget/checkFile/checkfile.h \
     viewer_widget/frames/frames.h \
     viewer_widget/frames/oneframe.h \
+    viewer_widget/prefilter.h \
     viewer_widget/viewer/panels/clogfilterpanel/clogfilterpanel.h \
     viewer_widget/masksettings.h \
     viewer_widget/viewer/panels/clogfilterpanel/rangewidget_extended.h \
@@ -105,6 +107,7 @@ FORMS += \
     settings/settingsclogfile.ui \
     settings/settingsimage.ui \
     viewer_widget/batch_processing.ui \
+    viewer_widget/prefilter.ui \
     viewer_widget/viewer/panels/clogfilterpanel/clogfilterpanel.ui \
     viewer_widget/masksettings.ui \
     viewer_widget/viewer/panels/pix_filter_panel.ui \

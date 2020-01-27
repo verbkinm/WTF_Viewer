@@ -27,6 +27,7 @@ public:
     void setToggleButtonEnable(bool);
     void setButtonCutDisable(bool);
     void setTabEnable(int, bool);
+
     void setClusterRange(const std::vector<double> &vector);
     void setTotRange(const std::vector<double> &vector);
     void setTotRangeFull(const std::vector<double> &vector);

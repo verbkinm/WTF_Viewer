@@ -15,7 +15,7 @@
 MainWindow::MainWindow(QWidget *parent): QMainWindow(parent),
     settings(std::make_shared<QSettings>(QSettings::IniFormat, QSettings::UserScope, "WTF.org", "WTF")),
     _viewerWidget(settings, this),
-    _programVersion("0.9.8.21.3")
+    _programVersion("0.9.8.3")
 {
     settings.get()->setIniCodec("UTF-8");
     _splitter.setOrientation(Qt::Horizontal);

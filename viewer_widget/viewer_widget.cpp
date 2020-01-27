@@ -221,8 +221,7 @@ QString Viewer_widget::processing_arrays(const std::vector<std::vector<double> >
 void Viewer_widget::slotTabChanged(int value)
 {
     /* при смене вкладки на Mask делаем так, чтобы на этой вкладке на виджете graphicsView
-     * нельзя было рисовать, создавать и перемещать рамку
-     */
+     * нельзя было рисовать, создавать и перемещать рамку*/
     if(value == MASK)
         ui->graphicsView->setSceneReadOnly(true);
     else if(value == VIEW_AND_EDIT)
@@ -242,22 +241,4 @@ void Viewer_widget::slotReconstruct_deconv()
     auto maskArray = _mask_viewer.getVec2D();
 
     _graphicsView_Result.setImageFileName(processing_arrays(originArray, maskArray));
-
-
-//    for(auto vec : originArray)
-//    {
-//        for(auto item : vec)
-//        {
-//            std::cout << item;
-//        }
-//        std::cout << std::endl << std::flush;
-//    }
-
-//    for(auto vec : maskArray)
-//    {
-//        for(auto item : vec)
-//        {
-//            std::cout << item << std::endl << std::flush;
-//        }
-//    }
 }

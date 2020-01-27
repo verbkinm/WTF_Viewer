@@ -29,18 +29,18 @@ public:
     void setImageFile(const QString &path);
 
 private:
-    Ui::Viewer_widget *ui;
-
-    QSplitter _main_splitter, _left_splitter, _right_splitter;
-    Viewer _graphicsView_origin, _mask_viewer, _graphicsView_Result;
-    MaskSettings _mask_settings;
-
     void makeMaskTab();
 
     enum tabsName {VIEW_AND_EDIT, MASK};
 
     QString processing_arrays(const std::vector<std::vector<double>> &origin_array,
                               const std::vector<std::vector<double>> &mask_array);
+
+    Ui::Viewer_widget *ui;
+
+    QSplitter _main_splitter, _left_splitter, _right_splitter;
+    Viewer _graphicsView_origin, _mask_viewer, _graphicsView_Result;
+    MaskSettings _mask_settings;
 
 private slots:
     void slotTabChanged(int);

@@ -2,7 +2,7 @@
 #define VIEWER_CLOG_PROCESSOR_H
 
 #include "../../frames/frames.h"
-#include "filter_clog.h"
+//#include "filter_clog.h"
 #include "viewer_processor.h"
 
 class Viewer_Clog_Processor : public Viewer_Processor
@@ -24,7 +24,7 @@ public:
 
 private:
     Frames _frames;
-    Filter_Clog _filter;
+//    Filter_Clog _filter;
 
     void modifyPointAccordingFilter(size_t frameNumber, size_t clusterNumber);
     void modifyPointAccordingPixMode(OneFrame::ePoint &point);

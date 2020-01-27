@@ -5,10 +5,9 @@
 #include <QtMath>
 #include <QMenu>
 
-#include <QDebug>
-
 #include "viewer.h"
 #include "saver.h"
+#include "../prefilter.h"
 
 #include "ui_viewer.h"
 
@@ -164,9 +163,17 @@ void Viewer::setImageFileName(const QString &fileName)
         _spMenuFile->actions()[PIX_AND_FILTER_PANEL]->setDisabled(true);
         _spViewerProcessor->setSettings(_spSettings);
         _spViewerProcessor->setFileName(fileName);
+
+        Filter_Clog filterClog = createFilterFromPixFilterPanel();
+        const Frames &frames = std::static_pointer_cast<Viewer_Clog_Processor>(_spViewerProcessor).get()->getFrames();
+        PreFilter prefilter(fileName, frames, this);
+        QApplication::restoreOverrideCursor();
+        if(prefilter.exec() == QDialog::Accepted)
+            filterClog._frameEnd = prefilter.getFrameMax();
+        std::static_pointer_cast<Viewer_Clog_Processor>(_spViewerProcessor).get()->setFilter(filterClog);
         setEnablePanels(true);
-        std::static_pointer_cast<Viewer_Clog_Processor>(_spViewerProcessor).get()->setFilter(createFilterFromPixFilterPanel());
         setImage(_spViewerProcessor->getImage());
+        slotApplyClogFilter(); // !!!!!!!!!!!!!!!!!!!!!!!!!!
     }
     else
         incorrectFile();
@@ -179,9 +186,6 @@ void Viewer::showMarkers()
     QString mask = "Mask; ";
     QString generalCalibration = "General calibration; ";
     QString totMode = "Tot mode; ";
-
-//    qDebug() << _spViewerProcessor->_markers.operator unsigned int();
-//    qDebug() << _spViewerProcessor->_markers;
 
     switch (_spViewerProcessor->_markers.operator unsigned int())
     {
@@ -314,6 +318,10 @@ void Viewer::slotApplyClogFilter()
 {
     QApplication::setOverrideCursor(QCursor(Qt::WaitCursor));
     Filter_Clog filter = createFilterFromPixFilterPanel();
+
+    filter._frameBegin = std::static_pointer_cast<Viewer_Clog_Processor>(_spViewerProcessor)->getFrames()._filter._frameBegin;
+    filter._frameEnd = std::static_pointer_cast<Viewer_Clog_Processor>(_spViewerProcessor)->getFrames()._filter._frameEnd;
+
     std::static_pointer_cast<Viewer_Clog_Processor>(_spViewerProcessor)->setFilter(filter);
     setImage(_spViewerProcessor->getImage());
     QApplication::restoreOverrideCursor();
@@ -526,59 +534,59 @@ void Viewer::slotRotatePlus()
     if (angle != 0)
     {
 
-    double radAngle = angle / 180. * M_PI, centrAngle;           //угол поворота в радианах. centrAngle - угол наклона отрезка
-    //проходящего через точки центров нового и исходного изображения к оси OX
+        double radAngle = angle / 180. * M_PI, centrAngle;           //угол поворота в радианах. centrAngle - угол наклона отрезка
+        //проходящего через точки центров нового и исходного изображения к оси OX
 
-    int sourceWidth = _spViewerProcessor->getRows();       //горизонтальный размер исходной картинки
-    int sourceHeight = _spViewerProcessor->getColumns();    //вертикальный размер исходной картинки
-    int newWidth =  sourceWidth * fabs(cos(radAngle)) + sourceHeight * fabs(cos(M_PI/2-radAngle));          //горизонтальный размер новой картинки
-    int newHeight = sourceWidth * fabs(sin(radAngle)) + sourceHeight * fabs(sin(M_PI/2-radAngle));       //вертикальный размер новой картинки
+        int sourceWidth = _spViewerProcessor->getRows();       //горизонтальный размер исходной картинки
+        int sourceHeight = _spViewerProcessor->getColumns();    //вертикальный размер исходной картинки
+        int newWidth =  sourceWidth * fabs(cos(radAngle)) + sourceHeight * fabs(cos(M_PI/2-radAngle));          //горизонтальный размер новой картинки
+        int newHeight = sourceWidth * fabs(sin(radAngle)) + sourceHeight * fabs(sin(M_PI/2-radAngle));       //вертикальный размер новой картинки
 
-    //    qDebug()<<sourceWidth<<"  "<<sourceHeight<<"  "<<newWidth<<"  "<<newHeight;
-    int hwn = newWidth /2,          //значения полувысот и полуширин нового и старого изображения
-            hws = sourceWidth / 2,
-            hhn = newHeight / 2,
-            hhs = sourceHeight / 2;
+        //    qDebug()<<sourceWidth<<"  "<<sourceHeight<<"  "<<newWidth<<"  "<<newHeight;
+        int hwn = newWidth /2,          //значения полувысот и полуширин нового и старого изображения
+                hws = sourceWidth / 2,
+                hhn = newHeight / 2,
+                hhs = sourceHeight / 2;
 
-    int radius = sqrt(hws*hws + hhs*hhs); //радиус рабочей области исходного изображения
+        int radius = sqrt(hws*hws + hhs*hhs); //радиус рабочей области исходного изображения
 
-    centrAngle = atan2(1. * hhs, hws);
+        centrAngle = atan2(1. * hhs, hws);
 
-    std::vector<std::vector<double>> newArrayOrigin(newWidth, std::vector<double>(newHeight));     //создание массива нового изображения
+        std::vector<std::vector<double>> newArrayOrigin(newWidth, std::vector<double>(newHeight));     //создание массива нового изображения
 
-    for (int i = 0; i < newWidth; i++)       //обнуление массива нового изображения
-    {
-        for (int j = 0; j < newHeight; j++)  //
+        for (int i = 0; i < newWidth; i++)       //обнуление массива нового изображения
         {
-            newArrayOrigin.at(i).at(j) = 0;     //
+            for (int j = 0; j < newHeight; j++)  //
+            {
+                newArrayOrigin.at(i).at(j) = 0;     //
+            }
         }
-    }
 
-    for (int i = 0 - hwn; i < newWidth - hwn; i++)       //поворот
-    {
-        for (int j = 0 - hhn ; j < newHeight - hhn; j++)
+        for (int i = 0 - hwn; i < newWidth - hwn; i++)       //поворот
         {
-            int newI =             i * cos (radAngle) - clockwise * j * sin(radAngle) + radius * cos(centrAngle);
-            int newJ = clockwise * i * sin (radAngle) +             j * cos(radAngle) + radius * sin(centrAngle);
+            for (int j = 0 - hhn ; j < newHeight - hhn; j++)
+            {
+                int newI =             i * cos (radAngle) - clockwise * j * sin(radAngle) + radius * cos(centrAngle);
+                int newJ = clockwise * i * sin (radAngle) +             j * cos(radAngle) + radius * sin(centrAngle);
 
-            if ((newI < 2*hws)  && (newI >= 0) && (newJ < 2*hhs) && (newJ >= 0))    //проверка выхода за пределеы картинки
-                newArrayOrigin.at(i+hwn).at(j+hhn) = _spViewerProcessor->getVec2D().at(newI).at(newJ);  // рисуем итоговое изображение
-            else newArrayOrigin.at(i+hwn).at(j+hhn) = 0;
+                if ((newI < 2*hws)  && (newI >= 0) && (newJ < 2*hhs) && (newJ >= 0))    //проверка выхода за пределеы картинки
+                    newArrayOrigin.at(i+hwn).at(j+hhn) = _spViewerProcessor->getVec2D().at(newI).at(newJ);  // рисуем итоговое изображение
+                else newArrayOrigin.at(i+hwn).at(j+hhn) = 0;
 
+            }
         }
-    }
-    for (int i = 0 ; i < newWidth ; i++)       //прорисовка
-    {
-        for (int j = 0 ; j < newHeight ; j++)
+        for (int i = 0 ; i < newWidth ; i++)       //прорисовка
         {
-            _spViewerProcessor->setDataInVec2D(i,j,newArrayOrigin.at(i).at(j));
+            for (int j = 0 ; j < newHeight ; j++)
+            {
+                _spViewerProcessor->setDataInVec2D(i,j,newArrayOrigin.at(i).at(j));
+            }
         }
-    }
 
-    //qDebug()<<newArrayOrigin.size();
-    //qDebug()<<newArrayOrigin[0][255] << "  "<<newArrayOrigin[255][255];
+        //qDebug()<<newArrayOrigin.size();
+        //qDebug()<<newArrayOrigin[0][255] << "  "<<newArrayOrigin[255][255];
 
-    slotRepaint();
+        slotRepaint();
     }
 }
 void Viewer::slotRotateMinus()
@@ -587,59 +595,59 @@ void Viewer::slotRotateMinus()
     double angle = _spViewerButtonPanel.get()->getAngle();      //угол поворота в градусах, полученный из формы
     if (angle != 0)
     {
-    double radAngle = angle / 180. * M_PI, centrAngle;           //угол поворота в радианах. centrAngle - угол наклона отрезка
-    //проходящего через точки центров нового и исходного изображения к оси OX
+        double radAngle = angle / 180. * M_PI, centrAngle;           //угол поворота в радианах. centrAngle - угол наклона отрезка
+        //проходящего через точки центров нового и исходного изображения к оси OX
 
-    int sourceWidth = _spViewerProcessor->getRows();       //горизонтальный размер исходной картинки
-    int sourceHeight = _spViewerProcessor->getColumns();    //вертикальный размер исходной картинки
-    int newWidth =  sourceWidth * fabs(cos(radAngle)) + sourceHeight * fabs(cos(M_PI/2-radAngle));          //горизонтальный размер новой картинки
-    int newHeight = sourceWidth * fabs(sin(radAngle)) + sourceHeight * fabs(sin(M_PI/2-radAngle));       //вертикальный размер новой картинки
+        int sourceWidth = _spViewerProcessor->getRows();       //горизонтальный размер исходной картинки
+        int sourceHeight = _spViewerProcessor->getColumns();    //вертикальный размер исходной картинки
+        int newWidth =  sourceWidth * fabs(cos(radAngle)) + sourceHeight * fabs(cos(M_PI/2-radAngle));          //горизонтальный размер новой картинки
+        int newHeight = sourceWidth * fabs(sin(radAngle)) + sourceHeight * fabs(sin(M_PI/2-radAngle));       //вертикальный размер новой картинки
 
-    //    qDebug()<<sourceWidth<<"  "<<sourceHeight<<"  "<<newWidth<<"  "<<newHeight;
-    int hwn = newWidth /2,          //значения полувысот и полуширин нового и старого изображения
-            hws = sourceWidth / 2,
-            hhn = newHeight / 2,
-            hhs = sourceHeight / 2;
+        //    qDebug()<<sourceWidth<<"  "<<sourceHeight<<"  "<<newWidth<<"  "<<newHeight;
+        int hwn = newWidth /2,          //значения полувысот и полуширин нового и старого изображения
+                hws = sourceWidth / 2,
+                hhn = newHeight / 2,
+                hhs = sourceHeight / 2;
 
-    int radius = sqrt(hws*hws + hhs*hhs); //радиус рабочей области исходного изображения
+        int radius = sqrt(hws*hws + hhs*hhs); //радиус рабочей области исходного изображения
 
-    centrAngle = atan2(1. * hhs, hws);
+        centrAngle = atan2(1. * hhs, hws);
 
-    std::vector<std::vector<double>> newArrayOrigin(newWidth, std::vector<double>(newHeight));     //создание массива нового изображения
+        std::vector<std::vector<double>> newArrayOrigin(newWidth, std::vector<double>(newHeight));     //создание массива нового изображения
 
-    for (int i = 0; i < newWidth; i++)       //обнуление массива нового изображения
-    {
-        for (int j = 0; j < newHeight; j++)  //
+        for (int i = 0; i < newWidth; i++)       //обнуление массива нового изображения
         {
-            newArrayOrigin.at(i).at(j) = 0;     //
+            for (int j = 0; j < newHeight; j++)  //
+            {
+                newArrayOrigin.at(i).at(j) = 0;     //
+            }
         }
-    }
 
-    for (int i = 0 - hwn; i < newWidth - hwn; i++)       //поворот
-    {
-        for (int j = 0 - hhn ; j < newHeight - hhn; j++)
+        for (int i = 0 - hwn; i < newWidth - hwn; i++)       //поворот
         {
-            int newI =             i * cos (radAngle) - conterclockwise * j * sin(radAngle) + radius * cos(centrAngle);
-            int newJ = conterclockwise * i * sin (radAngle) +             j * cos(radAngle) + radius * sin(centrAngle);
+            for (int j = 0 - hhn ; j < newHeight - hhn; j++)
+            {
+                int newI =             i * cos (radAngle) - conterclockwise * j * sin(radAngle) + radius * cos(centrAngle);
+                int newJ = conterclockwise * i * sin (radAngle) +             j * cos(radAngle) + radius * sin(centrAngle);
 
-            if ((newI < 2*hws)  && (newI >= 0) && (newJ < 2*hhs) && (newJ >= 0))    //проверка выхода за пределеы картинки
-                newArrayOrigin.at(i+hwn).at(j+hhn) = _spViewerProcessor->getVec2D().at(newI).at(newJ);  // рисуем итоговое изображение
-            else newArrayOrigin.at(i+hwn).at(j+hhn) = 0;
+                if ((newI < 2*hws)  && (newI >= 0) && (newJ < 2*hhs) && (newJ >= 0))    //проверка выхода за пределеы картинки
+                    newArrayOrigin.at(i+hwn).at(j+hhn) = _spViewerProcessor->getVec2D().at(newI).at(newJ);  // рисуем итоговое изображение
+                else newArrayOrigin.at(i+hwn).at(j+hhn) = 0;
 
+            }
         }
-    }
 
-    for (int i = 0 ; i < newWidth ; i++)       //прорисовка
-    {
-        for (int j = 0 ; j < newHeight ; j++)
+        for (int i = 0 ; i < newWidth ; i++)       //прорисовка
         {
-            _spViewerProcessor->setDataInVec2D(i,j,newArrayOrigin.at(i).at(j));
+            for (int j = 0 ; j < newHeight ; j++)
+            {
+                _spViewerProcessor->setDataInVec2D(i,j,newArrayOrigin.at(i).at(j));
+            }
         }
-    }
-    //qDebug()<<newArrayOrigin.size();
-    //qDebug()<<newArrayOrigin[0][255] << "  "<<newArrayOrigin[255][255];
+        //qDebug()<<newArrayOrigin.size();
+        //qDebug()<<newArrayOrigin[0][255] << "  "<<newArrayOrigin[255][255];
 
-    slotRepaint();
+        slotRepaint();
     }
 
 }

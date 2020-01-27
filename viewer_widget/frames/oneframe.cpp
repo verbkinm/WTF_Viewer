@@ -127,6 +127,6 @@ void OneFrame::setClusterProperies(QString &string)
     {
         QStringList point = str.split(",");
         if(point.length() == 3)
-            appendEPoint(_vectorOfCluster.size() - 1, {point[0].toULongLong(), point[1].toULongLong(), point[2].toDouble()});
+            appendEPoint(_vectorOfCluster.size() - 1, {static_cast<size_t>(point[0].toULongLong()), static_cast<size_t>(point[1].toULongLong()), point[2].toDouble()});
     }
 }

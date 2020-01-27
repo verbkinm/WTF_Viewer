@@ -1,5 +1,6 @@
 #include <QImage>
 #include <QtMath>
+
 #include "viewer_clog_processor.h"
 
 Viewer_Clog_Processor::Viewer_Clog_Processor() : Viewer_Processor()
@@ -11,7 +12,7 @@ QImage Viewer_Clog_Processor::getImage()
 {
     allocateEmptyVec2D(_vec2D, _columns, _rows);
 
-    for (size_t frameNumber = 0; frameNumber < _frames.getFrameCount(); ++frameNumber)
+    for (size_t frameNumber = _frames._filter._frameBegin; frameNumber <= _frames._filter._frameEnd; ++frameNumber)
         for (size_t clusterNumber = 0; clusterNumber < _frames.getClusterCount(frameNumber); ++clusterNumber)
             modifyPointAccordingFilter(frameNumber, clusterNumber);
 
@@ -52,26 +53,26 @@ Frames const &Viewer_Clog_Processor::getFrames() const
 
 void Viewer_Clog_Processor::setFilter(const Filter_Clog &filter)
 {
-    _filter = filter;
+    _frames._filter = filter;
 }
 
 void Viewer_Clog_Processor::modifyPointAccordingFilter(size_t frameNumber, size_t clusterNumber)
 {
-    if(!_frames.isClusterInRange(_frames.getClusterLength(frameNumber, clusterNumber), _filter._clusterRange))
+    if(!_frames.isClusterInRange(_frames.getClusterLength(frameNumber, clusterNumber), _frames._filter._clusterRange))
         return;
 
-    if(_filter._isTotRangeChecked && _frames.isTotInRange(frameNumber, clusterNumber, _filter._totRange))
+    if(_frames._filter._isTotRangeChecked && _frames.isTotInRange(frameNumber, clusterNumber, _frames._filter._totRange))
     {
-        if(_filter._isAllTotInCluster)
+        if(_frames._filter._isAllTotInCluster)
             modifyPoint(frameNumber, clusterNumber);
         else
         {
-            OneFrame::cluster clusterEPoint = _frames.getClusterInTotRange(frameNumber, clusterNumber, _filter._totRange);
+            OneFrame::cluster clusterEPoint = _frames.getClusterInTotRange(frameNumber, clusterNumber, _frames._filter._totRange);
             for (auto &point : clusterEPoint)
                 modifyPointAccordingPixMode(point);
         }
     }
-    else if (!_filter._isTotRangeChecked && _frames.isSumTotClusterInRange(frameNumber, clusterNumber, _filter._totRange))
+    else if (!_frames._filter._isTotRangeChecked && _frames.isSumTotClusterInRange(frameNumber, clusterNumber, _frames._filter._totRange))
     {
         modifyPoint(frameNumber, clusterNumber);
     }
@@ -82,7 +83,7 @@ void Viewer_Clog_Processor::modifyPointAccordingPixMode(OneFrame::ePoint &point)
     if(point.x >= _columns || point.y >= _rows )
         return;
 
-    if(_filter._isMidiPix)
+    if(_frames._filter._isMidiPix)
     {
         setMarkersGeneralOrTot();
         _vec2D.at(point.x).at(point.y) = _vec2D.at(point.x).at(point.y) + 1;
@@ -140,12 +141,12 @@ void Viewer_Clog_Processor::setMarkersGeneralOrTot()
 void Viewer_Clog_Processor::createVec2D()
 {
     _frames.createFromFile(_fileName);
-    _columns  = CLOG_SIZE;
-    _rows     = CLOG_SIZE;
+    _columns = CLOG_SIZE;
+    _rows = CLOG_SIZE;
 
     if(_spSettings->value("SettingsClogFile/generalCalibration").toBool())
     {
-        for (size_t frameNumber = 0; frameNumber < _frames.getFrameCount(); ++frameNumber)
+        for (size_t frameNumber = _frames._filter._frameBegin; frameNumber <= _frames._filter._frameEnd; ++frameNumber)
             for (size_t clusterNumber = 0; clusterNumber < _frames.getClusterCount(frameNumber); ++clusterNumber)
                 for (size_t eventNumber = 0; eventNumber < _frames.getClusterLength(frameNumber, clusterNumber); ++eventNumber)
                     generalCalibrationSettingsForEPoint(_frames.getPointer_to_EPoint(frameNumber, clusterNumber, eventNumber));
