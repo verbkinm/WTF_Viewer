@@ -33,7 +33,7 @@ private:
     const QString _programVersion;
     QMenu _menuFile, _menuGraph, _menuAbout, _menuSettings, _menuCalibration;
     std::list<CentralWidget *> _graphWindowMap;
-    QString _currentActiveFile;
+    QFileInfo _currentFile;
 
     void createMenu();
     void openLastDir();
@@ -51,6 +51,7 @@ private slots:
     void slotSettingsImage();
     void slotSettingsOpenClogFile();
     void slotExportFiles();
+    void slotBatchProcessing();
     void slotCloseGraphWindow(QObject *);
     //при выборе типа данных для диаграммы по оси X, проверяем чтобы не было попытки добавить
     //новый график с одним типом к, существующим графикам с другим типом

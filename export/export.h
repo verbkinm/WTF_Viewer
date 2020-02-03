@@ -22,6 +22,7 @@ public:
     int getOption();
 
     enum OPTION{BW, WB, BW_AND_WB};
+
 private:
     Ui::Export *ui;
 

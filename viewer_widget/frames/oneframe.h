@@ -33,16 +33,20 @@ public:
     size_t getClusterLenght(size_t clusterNumber) const;
     size_t getEventCountInCluster(size_t clusterNumber) const;
     const std::vector<cluster> &getClustersVector() const;
+    float getExposure_time() const;
+    float getThreshold_energy() const;
 
     const ePoint &getEPoint(size_t clusterNumber, size_t eventNumber) const;
     ePoint &getPointer_to_EPoint(size_t clusterNumber, size_t eventNumber);
 
     const ePoint empty_ePoint;
 
+    std::string toString() const;
+
 private:
     int _number;
-    double _threshold_energy;
-    double _exposure_time;
+    float _threshold_energy;
+    float _exposure_time;
 
     std::vector<cluster> _vectorOfCluster;
 
@@ -52,8 +56,8 @@ private:
     void setFrameProperties(QString &string);
     void setClusterProperies(QString &string);
 
-    void setThreshold_energy (double value) noexcept;
-    void setExposure_time (double value) noexcept;
+    void setThreshold_energy (float value) noexcept;
+    void setExposure_time (float value) noexcept;
     void setFrameNumber(int) noexcept;
 };
 

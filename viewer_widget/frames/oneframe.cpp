@@ -1,5 +1,7 @@
 #include "oneframe.h"
 
+#include <QDebug>
+
 OneFrame::OneFrame() : empty_ePoint({0,0,0}), _number(-1), _threshold_energy(-1), _exposure_time(-1)
 {
 
@@ -25,11 +27,11 @@ bool OneFrame::createFromStrings(QStringList buff)
     return  true;
 }
 
-void OneFrame::setThreshold_energy(double value) noexcept
+void OneFrame::setThreshold_energy(float value) noexcept
 {
     _threshold_energy = value;
 }
-void OneFrame::setExposure_time(double value) noexcept
+void OneFrame::setExposure_time(float value) noexcept
 {
     _exposure_time = value;
 }
@@ -99,12 +101,43 @@ OneFrame::ePoint &OneFrame::getPointer_to_EPoint(size_t clusterNumber, size_t ev
     return _vectorOfCluster[clusterNumber][eventNumber];
 }
 
+std::string OneFrame::toString() const
+{
+    std::string result;
+
+    result += "Frame " + std::to_string(_number) + " (" + std::to_string(_threshold_energy) + ", " + std::to_string(_exposure_time) + " s)\n";
+    for(const auto & cluster : _vectorOfCluster)
+    {
+        for(const auto & point : cluster)
+        {
+            result += "[" + std::to_string(point.x) + ", " + std::to_string(point.y) + ", " + std::to_string(point.tot) + "] ";
+        }
+        result += "\n";
+    }
+
+    return result;
+}
+
+float OneFrame::getThreshold_energy() const
+{
+    return _threshold_energy;
+}
+
+float OneFrame::getExposure_time() const
+{
+    return _exposure_time;
+}
+
 void OneFrame::setFrameProperties(QString &string)
 {
     QStringList stringSplit = string.split(' ');
     try
     {
         setFrameNumber(stringSplit.at(1).toInt());
+        QString te = stringSplit.at(2);
+        te.remove(',').remove('(');
+        setThreshold_energy(te.toFloat());
+        setExposure_time(stringSplit.at(3).toFloat());
     }
     catch(std::out_of_range&)
     {

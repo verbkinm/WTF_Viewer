@@ -14,6 +14,7 @@ class Frames : public QObject
 public:
     Frames(QObject *parent = nullptr);
 
+    const OneFrame &getOneFrame(size_t number_of_frame) const;
     size_t getFrameCount() const;
     size_t getClusterCount(size_t frameNumber) const;
     size_t getClusterLength(size_t frameNumber, size_t clusterNumber) const;
@@ -26,6 +27,8 @@ public:
     size_t getClusterMax() const;
     size_t getTotMin() const;
     size_t getTotMax() const;
+
+    float getExposure_time(size_t frameNumber) const;
 
     OneFrame::cluster getClusterInTotRange(size_t frameNumber, size_t clusterNumber, Range<double> range) const;
     std::map<double, double> getMapOfTotPoints(size_t clusterLenght) const;
@@ -46,7 +49,7 @@ public:
     Filter_Clog _filter;
 
 private:
-    const std::vector<OneFrame>& getFramesVector() const;
+//    const std::vector<OneFrame>& getFramesVector() const;
     bool isLineContainsWholeFrame(const QString &line, QStringList &buff);
     void countingTot(size_t frameNumber, size_t clusterNumber, size_t clusterLenght, std::map<double, double> &map) const;
     std::vector<QPointF> getVectorOfPointsFromClusters() const;

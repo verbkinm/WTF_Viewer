@@ -10,7 +10,6 @@ Viewer_Processor::Viewer_Processor() :
     _spSettings(nullptr),
     _rows(0), _columns(0)
 {
-
 }
 
 Viewer_Processor::~Viewer_Processor()

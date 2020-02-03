@@ -11,6 +11,19 @@ Frames::Frames(QObject *parent) : QObject(parent),
     
 }
 
+const OneFrame &Frames::getOneFrame(size_t number_of_frame) const
+{
+    try
+    {
+        return  _vectorOfFrames.at(number_of_frame);
+    }
+    catch (std::out_of_range&)
+    {
+        std::cerr << __FUNCTION__ << "out of range\n";
+        return _vectorOfFrames.at(_vectorOfFrames.size() - 1);
+    }
+}
+
 size_t Frames::getFrameCount() const
 {
     return _vectorOfFrames.size();
@@ -109,10 +122,10 @@ void Frames::clear()
     _vectorOfFrames.clear();
 }
 
-const std::vector<OneFrame> &Frames::getFramesVector() const
-{
-    return _vectorOfFrames;
-}
+//const std::vector<OneFrame> &Frames::getFramesVector() const
+//{
+//    return _vectorOfFrames;
+//}
 
 bool Frames::isClusterInRange(size_t clusterLength, Range<size_t> range) const
 {
@@ -317,4 +330,16 @@ size_t Frames::getTotMin() const
 size_t Frames::getTotMax() const
 {
     return _maxTot;
+}
+
+float Frames::getExposure_time(size_t frameNumber) const
+{
+    try
+    {
+        return _vectorOfFrames.at(frameNumber).getExposure_time();
+    }
+    catch(std::out_of_range&)
+    {
+        return  -1;
+    }
 }

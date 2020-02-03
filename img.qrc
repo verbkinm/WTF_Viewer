@@ -20,5 +20,6 @@
         <file alias="settings">img/settings.png</file>
         <file alias="horizontal">img/horizontal.png</file>
         <file alias="vertical">img/vertical.png</file>
+        <file alias="batch">img/bacth.png</file>
     </qresource>
 </RCC>

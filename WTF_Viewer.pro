@@ -19,6 +19,7 @@ DEFINES += QT_DEPRECATED_WARNINGS
 CONFIG += c++17
 
 SOURCES += \
+    settings/batch_processing.cpp \
     calibration/generalcalibration.cpp \
     calibration/pixelcalibration.cpp \
     eventfilter/eventfilter.cpp \
@@ -30,8 +31,10 @@ SOURCES += \
     graph/customtablemodel.cpp \
     graph/graphdialog.cpp \
     graph/panelwidget.cpp \
+    settings/batch_processing_cutter.cpp \
     settings/settingsclogfile.cpp \
     settings/settingsimage.cpp \
+    settings/tripleSpinBox.cpp \
     viewer_widget/checkFile/checkfile.cpp \
     viewer_widget/frames/frames.cpp \
     viewer_widget/frames/oneframe.cpp \
@@ -56,6 +59,7 @@ SOURCES += \
     mainwindow.cpp
 
 HEADERS += \
+    settings/batch_processing.h \
     calibration/generalcalibration.h \
     calibration/pixelcalibration.h \
     eventfilter/eventfilter.h \
@@ -68,8 +72,10 @@ HEADERS += \
     graph/graphdialog.h \
     graph/panelwidget.h \
     graph/range.h \
+    settings/batch_processing_cutter.h \
     settings/settingsclogfile.h \
     settings/settingsimage.h \
+    settings/tripleSpinBox.h \
     viewer_widget/checkFile/checkfile.h \
     viewer_widget/frames/frames.h \
     viewer_widget/frames/oneframe.h \
@@ -98,6 +104,7 @@ else: unix:!android: target.path = /opt/$${TARGET}/bin
 !isEmpty(target.path): INSTALLS += target
 
 FORMS += \
+    settings/batch_processing.ui \
     calibration/generalcalibration.ui \
     calibration/pixelcalibration.ui \
     export/export.ui \
@@ -106,7 +113,6 @@ FORMS += \
     loadcalibrationfiles.ui \
     settings/settingsclogfile.ui \
     settings/settingsimage.ui \
-    viewer_widget/batch_processing.ui \
     viewer_widget/prefilter.ui \
     viewer_widget/viewer/panels/clogfilterpanel/clogfilterpanel.ui \
     viewer_widget/masksettings.ui \

@@ -5,7 +5,6 @@
 
 Viewer_Clog_Processor::Viewer_Clog_Processor() : Viewer_Processor()
 {
-
 }
 
 QImage Viewer_Clog_Processor::getImage()

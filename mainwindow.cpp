@@ -11,11 +11,12 @@
 #include "viewer_widget/viewer/viewer_processor/viewer_txt_processor.h"
 #include "settings/settingsimage.h"
 #include "settings/settingsclogfile.h"
+#include "settings/batch_processing.h"
 
 MainWindow::MainWindow(QWidget *parent): QMainWindow(parent),
     settings(std::make_shared<QSettings>(QSettings::IniFormat, QSettings::UserScope, "WTF.org", "WTF")),
     _viewerWidget(settings, this),
-    _programVersion("0.9.8.3")
+    _programVersion("0.9.9")
 {
     settings.get()->setIniCodec("UTF-8");
     _splitter.setOrientation(Qt::Horizontal);
@@ -45,6 +46,7 @@ void MainWindow::createMenu()
 {
     _menuFile.setTitle("File");
     _menuFile.addAction(QIcon(":/save_as"), "Export files", this, SLOT(slotExportFiles()));
+    _menuFile.addAction(QIcon(":/batch"), "Batch processing", this, SLOT(slotBatchProcessing()));
     _menuFile.addSeparator();
     _menuFile.addAction(QIcon(":/exit"), "Exit", QApplication::instance(), SLOT(quit()));
     _menuSettings.setTitle("Settings");
@@ -174,6 +176,28 @@ void MainWindow::slotExportFiles()
         exportingFiles(file.absolutePath());
 }
 
+void MainWindow::slotBatchProcessing()
+{
+    if(_currentFile.suffix() != "clog")
+    {
+        QMessageBox::warning(this, "Warning", "Not selected CLOG file");
+        return;
+    }
+
+    std::pair<const Frames &, bool> pair = _viewerWidget.getFrames();
+    if(!pair.second)
+    {
+        qDebug() << __FUNCTION__ << "frames size < 0";
+        return;
+    }
+
+    Batch_Processing bp(_currentFile, pair.first, this);
+    if(bp.exec() == QDialog::Accepted)
+    {
+        bp.slice();
+    }
+}
+
 void MainWindow::slotGrapgWindowCheck(const QString &data)
 {
     GraphDialog* gd = static_cast<GraphDialog*>(sender());
@@ -202,7 +226,7 @@ std::map<double, double> MainWindow::createVectorAccordingGraphType(GraphDialog 
 
     else if(graphDialog.getType() == "Clusters")
     {
-        legendText = _currentActiveFile;
+//        legendText = _currentFile.fileName();
         return frames.getMapOfClusterSize();
     }
 
@@ -316,8 +340,7 @@ void MainWindow::slotSettingsOpenClogFile()
 }
 void MainWindow::slotSelectFile(const QModelIndex& index)
 {
-    QFileInfo file(_fs_model.filePath(index));
-    _currentActiveFile = file.fileName();
+    _currentFile.setFile(_fs_model.filePath(index));
 
     this->statusBar()->showMessage(_fs_model.filePath(index));
     QString fileName = _fs_model.filePath(index);
@@ -327,7 +350,7 @@ void MainWindow::slotSelectFile(const QModelIndex& index)
     else
         _treeView.expand(index);
 
-    if(file.suffix() == "clog")
+    if(_currentFile.suffix() == "clog")
         _menuGraph.setEnabled(true);
     else
         _menuGraph.setDisabled(true);
