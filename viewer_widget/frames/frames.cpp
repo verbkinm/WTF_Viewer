@@ -6,21 +6,20 @@
 
 Frames::Frames(QObject *parent) : QObject(parent),
     _minCluster(0), _maxCluster(0),
-    _minTot(0), _maxTot(0)
+    _minTot(0.0), _maxTot(0.0)
 {
-    
+
 }
 
-const OneFrame &Frames::getOneFrame(size_t number_of_frame) const
+const OneFrame *Frames::getOneFrame(size_t number_of_frame) const
 {
     try
     {
-        return  _vectorOfFrames.at(number_of_frame);
+        return  &_vectorOfFrames.at(number_of_frame);
     }
-    catch (std::out_of_range&)
+    catch (std::out_of_range &)
     {
-        std::cerr << __FUNCTION__ << "out of range\n";
-        return _vectorOfFrames.at(_vectorOfFrames.size() - 1);
+        return nullptr;
     }
 }
 
@@ -35,7 +34,7 @@ size_t Frames::getClusterCount(size_t frameNumber) const
     {
         return  _vectorOfFrames.at(frameNumber).getClusterCount();
     }
-    catch (std::out_of_range&)
+    catch (std::out_of_range &)
     {
         return 0;
     }
@@ -47,27 +46,34 @@ size_t Frames::getClusterLength(size_t frameNumber, size_t clusterNumber) const
     {
         return  _vectorOfFrames.at(frameNumber).getClusterLenght(clusterNumber);
     }
-    catch (std::out_of_range&)
+    catch (std::out_of_range &)
     {
         return 0;
     }
 }
 
-const OneFrame::ePoint& Frames::getEPoint(size_t frameNumber, size_t clusterNumber, size_t eventNumber) const
+const OneFrame::ePoint *Frames::getEPoint(size_t frameNumber, size_t clusterNumber, size_t eventNumber) const
 {
     try
     {
         return _vectorOfFrames.at(frameNumber).getEPoint(clusterNumber, eventNumber);
     }
-    catch (std::out_of_range&)
+    catch (std::out_of_range &)
     {
-        return _vectorOfFrames.at(frameNumber).empty_ePoint;
+        return nullptr;
     }
 }
 
-OneFrame::ePoint &Frames::getPointer_to_EPoint(size_t frameNumber, size_t clusterNumber, size_t eventNumber)
+OneFrame::ePoint *Frames::getEPoint(size_t frameNumber, size_t clusterNumber, size_t eventNumber)
 {
-    return _vectorOfFrames[frameNumber].getPointer_to_EPoint(clusterNumber, eventNumber);
+    try
+    {
+        return _vectorOfFrames.at(frameNumber).getEPoint(clusterNumber, eventNumber);
+    }
+    catch (std::out_of_range &)
+    {
+        return nullptr;
+    }
 }
 
 void Frames::createFromFile(const QString &path)
@@ -78,54 +84,41 @@ void Frames::createFromFile(const QString &path)
         std::cerr << "Can't open CLOG file \"" << path.toStdString() <<"\"";
         return;
     }
-    
+
     QString line;
-    QStringList buff;
     while(!file.atEnd())
     {
         line = file.readLine();
-        if(isLineContainsWholeFrame(line, buff))
+        if(line[0] == 'F')
         {
             OneFrame oneFrame;
-            oneFrame.createFromStrings(buff);
-            _vectorOfFrames.push_back(oneFrame);
-            buff.clear();
-            buff << line;
+            if(oneFrame.setFrameProperties(line))
+                _vectorOfFrames.push_back(oneFrame);
+            else
+                std::cerr << "error file syntax in string \"" << line.toStdString() << "\"\n";
+        }
+        else if (line[0] == '[')
+        {
+            auto frame = lastFrame();
+            if(frame != nullptr)
+            {
+                frame->appendCluster();
+                frame->setClusterProperies(line);
+            }
+            else
+                std::cerr << "error file syntax in string \"" << line.toStdString() << "\"\n";
         }
     }
     file.close();
-    
-    OneFrame oneFrame;
-    oneFrame.createFromStrings(buff);
-    _vectorOfFrames.push_back(oneFrame);
 
-    std::vector<double> lenghtList;
-    for (size_t frameNumber = 0; frameNumber < getFrameCount(); ++frameNumber)
-        for (size_t clusterNumber = 0; clusterNumber < getClusterCount(frameNumber); ++clusterNumber)
-            lenghtList.push_back(getClusterLength(frameNumber, clusterNumber));
-
-    _minCluster = *std::min_element(lenghtList.begin(), lenghtList.end());
-    _maxCluster = *std::max_element(lenghtList.begin(), lenghtList.end());
-
-    std::vector<double> totVector;
-    for (size_t frameNumber = 0; frameNumber < getFrameCount(); ++frameNumber)
-        for (size_t clusterNumber = 0; clusterNumber < getClusterCount(frameNumber); ++clusterNumber)
-            for (size_t eventNumber = 0; eventNumber < getClusterLength(frameNumber, clusterNumber); ++eventNumber)
-                totVector.push_back(getEPoint(frameNumber, clusterNumber, eventNumber).tot);
-
-    _minTot = *std::min_element(totVector.begin(), totVector.end());
-    _maxTot = *std::max_element(totVector.begin(), totVector.end());
+    setRangeClusters();
+    setRangeTots();
 }
 
 void Frames::clear()
 {
     _vectorOfFrames.clear();
 }
-
-//const std::vector<OneFrame> &Frames::getFramesVector() const
-//{
-//    return _vectorOfFrames;
-//}
 
 bool Frames::isClusterInRange(size_t clusterLength, Range<size_t> range) const
 {
@@ -134,77 +127,76 @@ bool Frames::isClusterInRange(size_t clusterLength, Range<size_t> range) const
     return false;
 }
 
-bool Frames::isTotInRange(size_t frameNumber, size_t clusterNumber, Range<double> range) const
+bool Frames::isTotInRange(size_t frameNumber, size_t clusterNumber, Range<float> range) const
 {
     try
     {
-        for (auto &point : _vectorOfFrames.at(frameNumber).getClustersVector().at(clusterNumber))
+        for (auto &point : _vectorOfFrames.at(frameNumber).getClustersVector()->at(clusterNumber))
             if(point.tot >= range.min() && point.tot <= range.max())
                 return true;
     }
-    catch(std::out_of_range&)
+    catch(std::out_of_range &)
     {
         return false;
     }
     return false;
 }
 
-bool Frames::isSumTotClusterInRange(size_t frameNumber, size_t clusterNumber, Range<double> range) const
+bool Frames::isSumTotClusterInRange(size_t frameNumber, size_t clusterNumber, Range<float> range) const
 {
-    double sum = summarizeTotsInCluster(frameNumber, clusterNumber);
+    float sum = summarizeTotsInCluster(frameNumber, clusterNumber);
     if(sum >= range.min() && sum <= range.max())
         return true;
     return false;
 }
 
-bool Frames::isLineContainsWholeFrame(const QString &line, QStringList &buff)
+bool Frames::isLineContainsWholeFrame(const QString &line, QStringList &buff, bool &firstStart)
 {
-    static bool firstStart = true;
-    if(line.startsWith("Frame") && firstStart)
+    if( (line[0] == 'F') && firstStart)
         firstStart = false;
-    else if(line.startsWith("Frame") && !firstStart)
+    else if( (line[0] == 'F') && !firstStart)
         return true;
-    
+
     buff << line;
     return false;
 }
 
-OneFrame::cluster Frames::getClusterInTotRange(size_t frameNumber, size_t clusterNumber, Range<double> range) const
+OneFrame::cluster Frames::getClusterInTotRange(size_t frameNumber, size_t clusterNumber, Range<float> range) const
 {
-    std::vector<OneFrame::ePoint> ePointVector;
+    OneFrame::cluster ePointVector;
     try
     {
-        for (const auto &point : _vectorOfFrames.at(frameNumber).getClustersVector().at(clusterNumber))
+        for(const auto &point : _vectorOfFrames.at(frameNumber).getClustersVector()->at(clusterNumber))
         {
             if(point.tot >= range.min() && point.tot <= range.max())
                 ePointVector.push_back(point);
         }
         return ePointVector;
     }
-    catch(std::out_of_range&)
+    catch(std::out_of_range &)
     {
         return  ePointVector;
     }
 }
-std::vector<double> Frames:: getClustersLengthVector() const
+std::vector<size_t> Frames::getClustersLengthVector() const
 {
-    std::vector<double> lenghtList;
+    std::vector<size_t> lenghtList;
     for (size_t frameNumber = _filter._frameBegin; frameNumber <= _filter._frameEnd; ++frameNumber)
         for (size_t clusterNumber = 0; clusterNumber < getClusterCount(frameNumber); ++clusterNumber)
             lenghtList.push_back(getClusterLength(frameNumber, clusterNumber));
-    
+
     std::sort(lenghtList.begin(), lenghtList.end());
     auto last = std::unique(lenghtList.begin(), lenghtList.end());
     lenghtList.erase(last, lenghtList.end());
-    
+
     return lenghtList;
 }
 
-std::map<double, double> Frames::getMapOfTotPoints(size_t clusterLenght) const
+std::map<float, float> Frames::getMapOfTotPoints(size_t clusterLenght) const
 {
     //key = tot, value = count
-    std::map<double, double> map;
-    
+    std::map<float, float> map;
+
     for (size_t frameNumber = _filter._frameBegin; frameNumber <= _filter._frameEnd; ++frameNumber)
         for (size_t clusterNumber = 0; clusterNumber < getClusterCount(frameNumber); ++clusterNumber)
             countingTot(frameNumber, clusterNumber, clusterLenght, map);
@@ -212,104 +204,168 @@ std::map<double, double> Frames::getMapOfTotPoints(size_t clusterLenght) const
     return map;
 }
 
-std::map<double, double> Frames::getMapOfTotPointsSummarize(size_t clusterLenght) const
+std::map<float, float> Frames::getMapOfTotPointsSummarize(size_t clusterLenght) const
 {
     //key = tot, value = count
-    std::map<double, double> map;
+    std::map<float, float> map;
 
     for (size_t frameNumber = _filter._frameBegin; frameNumber <= _filter._frameBegin; ++frameNumber)
         for (size_t clusterNumber = 0; clusterNumber < getClusterCount(frameNumber); ++clusterNumber)
-            if(getClusterLength(frameNumber, clusterNumber) == clusterLenght || clusterLenght == ALL_CLUSTER)
+            if( (getClusterLength(frameNumber, clusterNumber) == clusterLenght) || (clusterLenght == ALL_CLUSTER))
             {
-                double sum = summarizeTotsInCluster(frameNumber, clusterNumber);
+                float sum = summarizeTotsInCluster(frameNumber, clusterNumber);
                 map[sum] = map[sum] + 1;
             }
 
     return map;
 }
 
-std::map<double, double> Frames::getMapOfClusterSize() const
+std::map<float, float> Frames::getMapOfClusterSize() const
 {
     //key = cluster, value = count
-    std::map<double, double> map;
+    std::map<float, float> map;
 
     for (size_t frameNumber = _filter._frameBegin; frameNumber <= _filter._frameEnd; ++frameNumber)
         for (size_t clusterNumber = 0; clusterNumber < getClusterCount(frameNumber); ++clusterNumber)
         {
-            size_t lenght = getClusterLength(frameNumber, clusterNumber);
+            float lenght = getClusterLength(frameNumber, clusterNumber);
             map[lenght] = map[lenght] + 1;
         }
 
     return map;
 }
 
-void Frames::countingTot(size_t frameNumber, size_t clusterNumber, size_t clusterLenght, std::map<double, double> &map) const
+void Frames::countingTot(size_t frameNumber, size_t clusterNumber, size_t clusterLenght, std::map<float, float> &map) const
 {
-    if(getClusterLength(frameNumber, clusterNumber) == clusterLenght || clusterLenght == ALL_CLUSTER)
-        for (size_t eventNumber = 0; eventNumber < getClusterLength(frameNumber, clusterNumber); ++eventNumber)
+    size_t cl = getClusterLength(frameNumber, clusterNumber);
+    if(  (cl != clusterLenght) || (clusterLenght != ALL_CLUSTER))
+        return;
+
+    for (size_t eventNumber = 0; eventNumber < cl; ++eventNumber)
+    {
+        auto res = getEPoint(frameNumber, clusterNumber, eventNumber);
+        if(res)
         {
-            double key = getEPoint(frameNumber, clusterNumber, eventNumber).tot;
+            float key = res->tot;
             map[key] = map[key] + 1;
         }
+    }
 }
 
 std::vector<QPointF> Frames::getVectorOfPointsFromClusters() const
 {
     //key = cluster, value = count
     std::map<size_t, size_t> map;
-    
+
     for (size_t frameNumber = _filter._frameBegin; frameNumber <= _filter._frameEnd; ++frameNumber)
         for (size_t clusterNumber = 0; clusterNumber < getClusterCount(frameNumber); ++clusterNumber)
         {
             size_t key = getClusterLength(frameNumber, clusterNumber);
             map[key] = map[key] + 1;
         }
-    
+
     std::vector<QPointF> vector;
     for (auto &[key, value] : map)
         vector.push_back(QPointF(key, value));
-    
+
     return vector;
 }
 
-double Frames::summarizeTotsInCluster(size_t frameNumber, size_t clusterNumber) const
+float Frames::summarizeTotsInCluster(size_t frameNumber, size_t clusterNumber) const
 {
-    double sum = 0;
-    
+    float sum = 0;
     for (size_t eventNumber = 0; eventNumber < getClusterLength(frameNumber, clusterNumber); ++eventNumber)
-        sum += getEPoint(frameNumber, clusterNumber, eventNumber).tot;
-    
+    {
+        auto res = getEPoint(frameNumber, clusterNumber, eventNumber);
+        if(res)
+            sum += res->tot;
+    }
+
     return sum;
 }
 
-std::vector<double> Frames::getVectorValueTots() const
+void Frames::setRangeClusters()
 {
-    std::vector<double> totVector;
+    std::vector<size_t> lenghtList;
+    for (size_t frameNumber = 0; frameNumber < getFrameCount(); ++frameNumber)
+        for (size_t clusterNumber = 0; clusterNumber < getClusterCount(frameNumber); ++clusterNumber)
+            lenghtList.push_back(getClusterLength(frameNumber, clusterNumber));
+
+    _minCluster = *std::min_element(lenghtList.begin(), lenghtList.end());
+    _maxCluster = *std::max_element(lenghtList.begin(), lenghtList.end());
+}
+
+void Frames::setRangeTots()
+{
+    std::vector<float> totVector;
+    for (size_t frameNumber = 0; frameNumber < getFrameCount(); ++frameNumber)
+        for (size_t clusterNumber = 0; clusterNumber < getClusterCount(frameNumber); ++clusterNumber)
+            for (size_t eventNumber = 0; eventNumber < getClusterLength(frameNumber, clusterNumber); ++eventNumber)
+            {
+                auto ePoint = getEPoint(frameNumber, clusterNumber, eventNumber);
+                if(ePoint)
+                    totVector.push_back(ePoint->tot);
+            }
+
+    _minTot = *std::min_element(totVector.begin(), totVector.end());
+    _maxTot = *std::max_element(totVector.begin(), totVector.end());
+}
+
+OneFrame *Frames::lastFrame()
+{
+    if(_vectorOfFrames.size())
+        return &_vectorOfFrames[_vectorOfFrames.size() - 1];
+    else
+        return nullptr;
+}
+
+std::vector<float> Frames::getVectorValueTots() const
+{
+    std::vector<float> totVector;
     for (size_t frameNumber = _filter._frameBegin; frameNumber <= _filter._frameEnd; ++frameNumber)
         for (size_t clusterNumber = 0; clusterNumber < getClusterCount(frameNumber); ++clusterNumber)
             for (size_t eventNumber = 0; eventNumber < getClusterLength(frameNumber, clusterNumber); ++eventNumber)
-                totVector.push_back(getEPoint(frameNumber, clusterNumber, eventNumber).tot);
-    
+            {
+                auto res = getEPoint(frameNumber, clusterNumber, eventNumber);
+                if(res)
+                    totVector.push_back(res->tot);
+            }
+
     std::sort(totVector.begin(), totVector.end());
     auto last = std::unique(totVector.begin(), totVector.end());
     totVector.erase(last, totVector.end());
-    
+
     return totVector;
 }
 
-std::vector<double> Frames::getVectorSumTots() const
+std::vector<float> Frames::getVectorSumTots() const
 {
-    std::vector<double> sumtVector;
+    std::vector<float> sumtVector;
 
     for (size_t frameNumber = _filter._frameBegin; frameNumber <= _filter._frameEnd; ++frameNumber)
         for (size_t clusterNumber = 0; clusterNumber < getClusterCount(frameNumber); ++clusterNumber)
             sumtVector.push_back(summarizeTotsInCluster(frameNumber, clusterNumber));
-    
+
     std::sort(sumtVector.begin(), sumtVector.end());
     auto last = std::unique(sumtVector.begin(), sumtVector.end());
     sumtVector.erase(last, sumtVector.end());
-    
+
     return sumtVector;
+}
+
+size_t Frames::getFrameMin() const
+{
+    if(_vectorOfFrames.size())
+        return _vectorOfFrames.at(0).getNumber();
+    return 0;
+}
+
+size_t Frames::getFrameMax() const
+{
+    size_t vec_size = _vectorOfFrames.size();
+    if(vec_size)
+        return _vectorOfFrames.at(_vectorOfFrames.size() - 1).getNumber();
+    return 0;
 }
 
 size_t Frames::getClusterMin() const
@@ -322,12 +378,12 @@ size_t Frames::getClusterMax() const
     return _maxCluster;
 }
 
-size_t Frames::getTotMin() const
+float Frames::getTotMin() const
 {
     return _minTot;
 }
 
-size_t Frames::getTotMax() const
+float Frames::getTotMax() const
 {
     return _maxTot;
 }
@@ -338,7 +394,7 @@ float Frames::getExposure_time(size_t frameNumber) const
     {
         return _vectorOfFrames.at(frameNumber).getExposure_time();
     }
-    catch(std::out_of_range&)
+    catch(std::out_of_range &)
     {
         return  -1;
     }

@@ -30,7 +30,7 @@ public:
     CentralWidget(QWidget *parent = nullptr);
     ~CentralWidget();
 
-    void addSeries(std::map<double, double> &map, QString legendTitle = "",
+    void addSeries(std::map<float, float> &map, QString legendTitle = "",
                    QString axsisX_Title = "X", QString axsisY_Title = "Y");
 
     void setTitle(QString title);
@@ -60,7 +60,7 @@ private:
 
     QMenu _menuFile, _menuView;
 
-    void addSeries(std::map<double, double> &map, QXYSeries::SeriesType type = QXYSeries::SeriesTypeLine,
+    void addSeries(std::map<float, float> &map, QXYSeries::SeriesType type = QXYSeries::SeriesTypeLine,
                    QString legendTitle = "", QString axsisX_Title = "X", QString axsisY_Title = "Y");
 
     //ось X и Y на всем полотне
@@ -77,7 +77,7 @@ private:
     double findMinY(QXYSeries *series);
 
     void connectPanelWidgetSignals();
-    void fillSeriesOfPoints(std::map<double, double> &map, QXYSeries *series);
+    void fillSeriesOfPoints(std::map<float, float> &map, QXYSeries *series);
 
     void setMinAndMaxForXY(QXYSeries *series);
     void setRangeAndTitleForAxes(const QString &axsisX_Title, const QString &axsisY_Title);

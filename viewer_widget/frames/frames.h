@@ -14,33 +14,36 @@ class Frames : public QObject
 public:
     Frames(QObject *parent = nullptr);
 
-    const OneFrame &getOneFrame(size_t number_of_frame) const;
+    const OneFrame *getOneFrame(size_t number_of_frame) const;
     size_t getFrameCount() const;
     size_t getClusterCount(size_t frameNumber) const;
     size_t getClusterLength(size_t frameNumber, size_t clusterNumber) const;
 
-    std::vector<double> getClustersLengthVector() const;
-    std::vector<double> getVectorValueTots() const;
-    std::vector<double> getVectorSumTots() const;
+    std::vector<size_t> getClustersLengthVector() const;
+    std::vector<float> getVectorValueTots() const;
+    std::vector<float> getVectorSumTots() const;
+
+    size_t getFrameMin() const;
+    size_t getFrameMax() const;
 
     size_t getClusterMin() const;
     size_t getClusterMax() const;
-    size_t getTotMin() const;
-    size_t getTotMax() const;
+    float getTotMin() const;
+    float getTotMax() const;
 
     float getExposure_time(size_t frameNumber) const;
 
-    OneFrame::cluster getClusterInTotRange(size_t frameNumber, size_t clusterNumber, Range<double> range) const;
-    std::map<double, double> getMapOfTotPoints(size_t clusterLenght) const;
-    std::map<double, double> getMapOfTotPointsSummarize(size_t clusterLenght) const;
-    std::map<double, double> getMapOfClusterSize() const;
+    OneFrame::cluster getClusterInTotRange(size_t frameNumber, size_t clusterNumber, Range<float> range) const;
+    std::map<float, float> getMapOfTotPoints(size_t clusterLenght) const;
+    std::map<float, float> getMapOfTotPointsSummarize(size_t clusterLenght) const;
+    std::map<float, float> getMapOfClusterSize() const;
 
-    const OneFrame::ePoint& getEPoint(size_t frameNumber, size_t clusterNumber, size_t eventNumber) const;
-    OneFrame::ePoint &getPointer_to_EPoint(size_t frameNumber, size_t clusterNumber, size_t eventNumber);
+    const OneFrame::ePoint *getEPoint(size_t frameNumber, size_t clusterNumber, size_t eventNumber) const;
+    OneFrame::ePoint *getEPoint(size_t frameNumber, size_t clusterNumber, size_t eventNumber);
 
     bool isClusterInRange(size_t clusterLength, Range<size_t> range) const;
-    bool isTotInRange (size_t frameNumber, size_t clusterNumber, Range<double> range) const;
-    bool isSumTotClusterInRange (size_t frameNumber, size_t clusterNumber, Range<double> range) const;
+    bool isTotInRange (size_t frameNumber, size_t clusterNumber, Range<float> range) const;
+    bool isSumTotClusterInRange (size_t frameNumber, size_t clusterNumber, Range<float> range) const;
 
     void createFromFile(const QString& path);
     void clear();
@@ -49,15 +52,17 @@ public:
     Filter_Clog _filter;
 
 private:
-//    const std::vector<OneFrame>& getFramesVector() const;
-    bool isLineContainsWholeFrame(const QString &line, QStringList &buff);
-    void countingTot(size_t frameNumber, size_t clusterNumber, size_t clusterLenght, std::map<double, double> &map) const;
+    bool isLineContainsWholeFrame(const QString &line, QStringList &buff, bool &firstStart);
+    void countingTot(size_t frameNumber, size_t clusterNumber, size_t clusterLenght, std::map<float, float> &map) const;
     std::vector<QPointF> getVectorOfPointsFromClusters() const;
-    double summarizeTotsInCluster(size_t frameNumber, size_t clusterNumber) const;
+    float summarizeTotsInCluster(size_t frameNumber, size_t clusterNumber) const;
+    void setRangeClusters();
+    void setRangeTots();
+    OneFrame *lastFrame();
 
     std::vector<OneFrame> _vectorOfFrames;
-    size_t _minCluster, _maxCluster,
-           _minTot, _maxTot;
+    size_t _minCluster, _maxCluster;
+    float _minTot, _maxTot;
 };
 
 #endif // FRAMES_H

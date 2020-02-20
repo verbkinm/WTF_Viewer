@@ -318,7 +318,7 @@ void PanelWidget::slotSaveToCSV()
     QTextStream writeStrime(&file);
 
     if(file.open(QFile::WriteOnly))
-        foreach (QPointF point, _currentSeries->points())
+        for(auto &point : _currentSeries->points())
             writeStrime <<   point.x() << ";" << point.y() << "\n";
 
     file.close();

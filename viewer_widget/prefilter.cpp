@@ -14,17 +14,22 @@ PreFilter::PreFilter(const QString &fileName, const Frames &frames, QWidget *par
     ui->path->setText(fi.absoluteFilePath());
     ui->size->setText(getSize(fi));
 
-    ui->framesMax->setText(QString::number(frames.getFrameCount() - 1));
-    ui->filterFramesMax->setText(QString::number(frames.getFrameCount() - 1));
+    ui->framesMin->setText(QString::number(frames.getFrameMin()));
+
+    ui->framesMax->setText(QString::number(frames.getFrameMax()));
+    ui->filterFramesMax->setValue(frames.getFrameMax());
+    ui->filterFramesMax->setMinimum(frames.getFrameMin());
+    ui->filterFramesMax->setMaximum(frames.getFrameMax());
+
+    ui->filterFramesMin->setValue(frames.getFrameMin());
+    ui->filterFramesMin->setMinimum(frames.getFrameMin());
+    ui->filterFramesMin->setMaximum(frames.getFrameMax());
 
     ui->clustersMin->setText(QString::number(frames.getClusterMin()));
     ui->clustersMax->setText(QString::number(frames.getClusterMax()));
 
     ui->totsMin->setText(QString::number(frames.getTotMin()));
     ui->totsMax->setText(QString::number(frames.getTotMax()));
-
-    connect(ui->filterFramesMin, SIGNAL(textEdited(const QString &)), SLOT(slotCheckDigit(const QString &)));
-    connect(ui->filterFramesMax, SIGNAL(textEdited(const QString &)), SLOT(slotCheckDigit(const QString &)));
 }
 
 PreFilter::~PreFilter()
@@ -34,12 +39,12 @@ PreFilter::~PreFilter()
 
 size_t PreFilter::getFrameMin() const
 {
-    return ui->filterFramesMin->text().toULongLong() + 1;
+    return ui->filterFramesMin->value();
 }
 
 size_t PreFilter::getFrameMax() const
 {
-    return ui->filterFramesMax->text().toULongLong() + 1;
+    return ui->filterFramesMax->text().toULongLong();
 }
 
 QString PreFilter::getSize(const QFileInfo &fi)
@@ -57,25 +62,4 @@ QString PreFilter::getSize(const QFileInfo &fi)
         result = QString::number(static_cast<double>(size) / 1024) + " KB";
 
     return  result;
-}
-
-void PreFilter::slotCheckDigit(const QString &text)
-{
-    QLineEdit *lineEdit = qobject_cast<QLineEdit*>(sender());
-    if(!text.length())
-    {
-        lineEdit->setText("0");
-        return;
-    }
-    QPalette palette = lineEdit->palette();
-    palette.setColor(lineEdit->foregroundRole(), Qt::black);
-    for (auto &ch : text)
-        if(!ch.isDigit())
-            palette.setColor(lineEdit->foregroundRole(), Qt::red);
-
-    lineEdit->setPalette(palette);
-    if(palette.color(lineEdit->foregroundRole()) == Qt::red)
-        ui->buttonBox->setDisabled(true);
-    else
-        ui->buttonBox->setDisabled(false);
 }

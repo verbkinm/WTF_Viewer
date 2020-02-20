@@ -26,8 +26,6 @@ private:
 
     Ui::PreFilter *ui;
 
-private slots:
-    void slotCheckDigit(const QString &text);
 };
 
 #endif // PREFILTER_H

@@ -21,6 +21,11 @@ QImage Viewer_Txt_Processor::getRedrawnImage()
     return getImage();
 }
 
+void Viewer_Txt_Processor::clear()
+{
+    resetDataToDefault();
+}
+
 //void Viewer_Txt_Processor::rebuildVec2DAccordingToSettings()
 //{
 //    if(!checkSettingsPtr())

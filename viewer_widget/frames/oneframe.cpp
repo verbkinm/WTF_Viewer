@@ -2,47 +2,35 @@
 
 #include <QDebug>
 
-OneFrame::OneFrame() : empty_ePoint({0,0,0}), _number(-1), _threshold_energy(-1), _exposure_time(-1)
+OneFrame::OneFrame() : _number(0), _threshold_energy(-1), _exposure_time(-1)
 {
 
 }
 
-bool OneFrame::createFromStrings(QStringList buff)
-{
-    for(auto &string : buff)
-    {
-        if(string.startsWith("Frame"))
-            setFrameProperties(string);
-        else if(string.startsWith("["))
-        {
-            appendCluster();
-            setClusterProperies(string);
-        }
-    }
-    if(_number == -1)
-    {
-        _vectorOfCluster.clear();
-        return false;
-    }
-    return  true;
-}
-
-void OneFrame::setThreshold_energy(float value) noexcept
+void OneFrame::setThreshold_energy(float value)
 {
     _threshold_energy = value;
 }
-void OneFrame::setExposure_time(float value) noexcept
+void OneFrame::setExposure_time(float value)
 {
     _exposure_time = value;
 }
-void OneFrame::setFrameNumber(int number) noexcept
+
+void OneFrame::setFrameNumber(long long number)
 {
     _number = number;
 }
 
-void OneFrame::appendEPoint(const size_t &clusterNumber, const ePoint &point)
+void OneFrame::appendEPoint(size_t clusterNumber, const ePoint &point)
 {
-    _vectorOfCluster.at(clusterNumber).push_back(point);
+    try
+    {
+        _vectorOfCluster.at(clusterNumber).push_back(point);
+    }
+    catch (std::out_of_range &)
+    {
+        return;
+    }
 }
 
 void OneFrame::appendCluster()
@@ -61,7 +49,7 @@ size_t OneFrame::getClusterLenght(size_t clusterNumber) const
     {
         return _vectorOfCluster.at(clusterNumber).size();
     }
-    catch (std::out_of_range&)
+    catch (std::out_of_range &)
     {
         return 0;
     }
@@ -73,32 +61,39 @@ size_t OneFrame::getEventCountInCluster(size_t clusterNumber) const
     {
         return _vectorOfCluster.at(clusterNumber).size();
     }
-    catch (std::out_of_range&)
+    catch (std::out_of_range &)
     {
         return 0;
     }
 }
 
-const std::vector<OneFrame::cluster> &OneFrame::getClustersVector() const
+const std::vector<OneFrame::cluster> *OneFrame::getClustersVector() const
 {
-    return _vectorOfCluster;
+    return &_vectorOfCluster;
 }
 
-const OneFrame::ePoint &OneFrame::getEPoint(size_t clusterNumber, size_t eventNumber) const
+const OneFrame::ePoint *OneFrame::getEPoint(size_t clusterNumber, size_t eventNumber) const
 {
     try
     {
-        return _vectorOfCluster.at(clusterNumber).at(eventNumber);
+        return &_vectorOfCluster.at(clusterNumber).at(eventNumber);
     }
-    catch (std::out_of_range&)
+    catch (std::out_of_range &)
     {
-        return empty_ePoint;
+        return nullptr;
     }
 }
 
-OneFrame::ePoint &OneFrame::getPointer_to_EPoint(size_t clusterNumber, size_t eventNumber)
+OneFrame::ePoint *OneFrame::getEPoint(size_t clusterNumber, size_t eventNumber)
 {
-    return _vectorOfCluster[clusterNumber][eventNumber];
+    try
+    {
+        return &_vectorOfCluster.at(clusterNumber).at(eventNumber);
+    }
+    catch (std::out_of_range &)
+    {
+        return nullptr;
+    }
 }
 
 std::string OneFrame::toString() const
@@ -118,6 +113,11 @@ std::string OneFrame::toString() const
     return result;
 }
 
+size_t OneFrame::getNumber() const
+{
+    return _number;
+}
+
 float OneFrame::getThreshold_energy() const
 {
     return _threshold_energy;
@@ -128,38 +128,31 @@ float OneFrame::getExposure_time() const
     return _exposure_time;
 }
 
-void OneFrame::setFrameProperties(QString &string)
+bool OneFrame::setFrameProperties(const QString &string)
 {
     QStringList stringSplit = string.split(' ');
-    try
-    {
-        setFrameNumber(stringSplit.at(1).toInt());
-        QString te = stringSplit.at(2);
-        te.remove(',').remove('(');
-        setThreshold_energy(te.toFloat());
-        setExposure_time(stringSplit.at(3).toFloat());
-    }
-    catch(std::out_of_range&)
-    {
-        return;
-    }
+
+    if(stringSplit.length() != 5)
+        return false;
+
+    setFrameNumber(stringSplit.at(1).toLongLong());
+    QString threshold = stringSplit.at(2);
+    threshold.remove(',').remove('(');
+    setThreshold_energy(threshold.toFloat());
+    setExposure_time(stringSplit.at(3).toFloat());
+
+    return true;
 }
 
 void OneFrame::setClusterProperies(QString &string)
 {
-    string.remove(" ");
-    string.remove("\r\n");
-    string.remove(0, 1);
-    string.chop(1);
+    string.remove(" ").remove("\r\n").remove(0, 1).chop(1);
+    QStringList listFromString = string.split("][");
 
-    QStringList listFromString;
-    for (auto &str : string.split("]["))
-        listFromString << str;
-
-    for(auto &str : listFromString)
+    for(QString &str : listFromString)
     {
         QStringList point = str.split(",");
-        if(point.length() == 3)
-            appendEPoint(_vectorOfCluster.size() - 1, {static_cast<size_t>(point[0].toULongLong()), static_cast<size_t>(point[1].toULongLong()), point[2].toDouble()});
+        if( (point.length() == 3) && _vectorOfCluster.size())
+            appendEPoint(_vectorOfCluster.size() - 1, {point[0].toUInt(), point[1].toUInt(), point[2].toFloat()});
     }
 }

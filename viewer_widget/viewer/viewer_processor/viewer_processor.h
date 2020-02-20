@@ -39,6 +39,8 @@ public:
     virtual QImage getImage() = 0;
     virtual QImage getRedrawnImage() = 0;
 
+    virtual void clear() = 0;
+
 protected:
     fileType _fileType;
     std::shared_ptr<const QSettings> _spSettings;

@@ -15,21 +15,21 @@ public:
     virtual QImage getImage() override;
     virtual QImage getRedrawnImage() override;
 
-    std::vector<double> getClustersLengthVector() const;
-    std::vector<double> getVectorOfLengthsOfTots() const;
-    std::vector<double> getVectorOfSumOfTots() const;
+    std::vector<size_t> getClustersLengthVector() const;
+    std::vector<float> getVectorOfLengthsOfTots() const;
+    std::vector<float> getVectorOfSumOfTots() const;
     Frames const &getFrames() const;
 
     void setFilter(const Filter_Clog &filter);
+    virtual void clear() override;
 
 private:
     Frames _frames;
-//    Filter_Clog _filter;
 
     void modifyPointAccordingFilter(size_t frameNumber, size_t clusterNumber);
-    void modifyPointAccordingPixMode(OneFrame::ePoint &point);
+    void modifyPointAccordingPixMode(OneFrame::ePoint *point);
     void modifyPoint(size_t frameNumber, size_t clusterNumber);
-    void generalCalibrationSettingsForEPoint(OneFrame::ePoint &point);
+    void generalCalibrationSettingsForEPoint(OneFrame::ePoint *point);
 
     void setMarkersGeneralOrTot();
 

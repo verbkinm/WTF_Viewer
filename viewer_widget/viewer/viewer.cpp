@@ -96,8 +96,11 @@ void Viewer::setEnablePanels(bool state)
     else if(_spViewerProcessor->getFileType() == Viewer_Processor::fileType::CLOG)
     {
         _spPixFilterPanel->setTabEnable(Pix_Filter_Panel::CLOG_FILTER_TAB, true);
+        //!!!
         _spPixFilterPanel->setClusterRange(std::static_pointer_cast<Viewer_Clog_Processor>(_spViewerProcessor).get()->getClustersLengthVector());
+        //!!!
         _spPixFilterPanel->setTotRange(std::static_pointer_cast<Viewer_Clog_Processor>(_spViewerProcessor).get()->getVectorOfLengthsOfTots());
+        //!!!
         _spPixFilterPanel->setTotRangeFull(std::static_pointer_cast<Viewer_Clog_Processor>(_spViewerProcessor).get()->getVectorOfSumOfTots());
     }
 }
@@ -151,7 +154,7 @@ void Viewer::setImageFileName(const QString &fileName)
         _spViewerProcessor->setFileName(fileName);
         setImage(_spViewerProcessor->getImage());
     }
-    else if(fileName.mid(fileName.length()-4,-1) == "clog")
+    else if(fileName.mid(fileName.length() -4, -1) == "clog")
     {
         if(!_spPixFilterPanel)
         {
@@ -164,12 +167,19 @@ void Viewer::setImageFileName(const QString &fileName)
         _spViewerProcessor->setSettings(_spSettings);
         _spViewerProcessor->setFileName(fileName);
 
-        Filter_Clog filterClog = createFilterFromPixFilterPanel();
+        Filter_Clog filterClog;// = createFilterFromPixFilterPanel();
         const Frames &frames = std::static_pointer_cast<Viewer_Clog_Processor>(_spViewerProcessor).get()->getFrames();
         PreFilter prefilter(fileName, frames, this);
         QApplication::restoreOverrideCursor();
         if(prefilter.exec() == QDialog::Accepted)
+        {
+            filterClog._frameBegin = prefilter.getFrameMin();
             filterClog._frameEnd = prefilter.getFrameMax();
+        }
+        else
+        {
+            _spViewerProcessor->clear();
+        }
         std::static_pointer_cast<Viewer_Clog_Processor>(_spViewerProcessor).get()->setFilter(filterClog);
         setEnablePanels(true);
         setImage(_spViewerProcessor->getImage());

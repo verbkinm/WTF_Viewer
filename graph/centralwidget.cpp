@@ -48,7 +48,7 @@ CentralWidget::~CentralWidget()
     delete _pAxisY;
 }
 
-void CentralWidget::addSeries(std::map<double, double> &map, QXYSeries::SeriesType type, QString legendTitle, QString axsisX_Title, QString axsisY_Title)
+void CentralWidget::addSeries(std::map<float, float> &map, QXYSeries::SeriesType type, QString legendTitle, QString axsisX_Title, QString axsisY_Title)
 {
     QXYSeries* series = createSeriesAccordingType(type);
     series->setName(legendTitle);
@@ -64,7 +64,7 @@ void CentralWidget::addSeries(std::map<double, double> &map, QXYSeries::SeriesTy
     _panelWidget.addSeriesInList(series);
 }
 
-void CentralWidget::addSeries(std::map<double, double> &map, QString legendTitle, QString axsisX_Title, QString axsisY_Title)
+void CentralWidget::addSeries(std::map<float, float> &map, QString legendTitle, QString axsisX_Title, QString axsisY_Title)
 {
     addSeries(map, QXYSeries::SeriesType(_panelWidget.getSeriesType()), legendTitle, axsisX_Title, axsisY_Title);
 }
@@ -191,7 +191,7 @@ QXYSeries *CentralWidget::createSeriesAccordingType(QAbstractSeries::SeriesType 
     return series;
 }
 
-void CentralWidget::fillSeriesOfPoints(std::map<double, double> &map, QXYSeries *series)
+void CentralWidget::fillSeriesOfPoints(std::map<float, float> &map, QXYSeries *series)
 {
     for(auto [key, value] : map)
         *series << QPointF(key, value);
@@ -323,9 +323,9 @@ void CentralWidget::slotAnimation(bool value)
 void CentralWidget::slotAntialiasing(bool value)
 {
     if(value)
-        _chartView.setRenderHint(QPainter::HighQualityAntialiasing);
+        _chartView.setRenderHint(QPainter::Antialiasing);
     else
-        _chartView.setRenderHint(QPainter::HighQualityAntialiasing, false);
+        _chartView.setRenderHint(QPainter::Antialiasing, false);
 }
 
 void CentralWidget::slotSetTcickCountY(int value)

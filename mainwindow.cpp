@@ -145,7 +145,7 @@ void MainWindow::graphDialogExec(GraphDialog &graphDialog, const Frames &frames)
         QString legendText;
         QString chartTitle = "Graph ";
 
-        std::map<double, double> map = createVectorAccordingGraphType(graphDialog, legendText, frames);
+        std::map<float, float> map = createVectorAccordingGraphType(graphDialog, legendText, frames);
         if(_graphWindowMap.size() == 0 || graphDialog.getCurrentWindowGraph() == graphDialog._NEW_WINDOW)
         {
             CentralWidget* graphWindow = new CentralWidget(this);
@@ -210,9 +210,9 @@ void MainWindow::slotGrapgWindowCheck(const QString &data)
     gd->selectLastWindow();
 }
 
-std::map<double, double> MainWindow::createVectorAccordingGraphType(GraphDialog &graphDialog, QString &legendText, const Frames &frames)
+std::map<float, float> MainWindow::createVectorAccordingGraphType(GraphDialog &graphDialog, QString &legendText, const Frames &frames)
 {
-    std::map<double, double> map;
+    std::map<float, float> map;
     if(graphDialog.getType() == "Tots")
     {
         legendText = graphDialog.getClusterSize() + "px";
@@ -221,12 +221,8 @@ std::map<double, double> MainWindow::createVectorAccordingGraphType(GraphDialog 
         else
             return frames.getMapOfTotPointsSummarize(graphDialog.getClusterSize().toULongLong());
     }
-
-
-
     else if(graphDialog.getType() == "Clusters")
     {
-//        legendText = _currentFile.fileName();
         return frames.getMapOfClusterSize();
     }
 

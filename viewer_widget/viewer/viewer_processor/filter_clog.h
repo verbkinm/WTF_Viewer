@@ -12,7 +12,7 @@ public:
 
     size_t _frameBegin, _frameEnd;
     Range<size_t> _clusterRange;
-    Range<double> _totRange;
+    Range<float> _totRange;
 
     bool _isAllTotInCluster;
     bool _isMidiPix;

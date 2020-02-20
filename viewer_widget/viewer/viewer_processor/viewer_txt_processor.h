@@ -10,6 +10,8 @@ public:
     virtual QImage getImage() override;
     virtual QImage getRedrawnImage() override;
 
+    virtual void clear() override;
+
 private:
     virtual void createVec2D() override;
     virtual void resetDataToDefault() override;

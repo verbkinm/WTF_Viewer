@@ -1,5 +1,6 @@
 #ifndef RANGE_H
 #define RANGE_H
+
 #include <limits>
 
 template <typename T>

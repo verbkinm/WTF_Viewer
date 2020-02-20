@@ -74,19 +74,19 @@ void Pix_Filter_Panel::setTabEnable(int number, bool state)
     ui->tabWidget->setTabEnabled(number, state);
 }
 
-void Pix_Filter_Panel::setClusterRange(const std::vector<double> &vector)
+void Pix_Filter_Panel::setClusterRange(const std::vector<size_t> &vector)
 {
     ui->clogFilterPanel->setClusterRange(vector);
 }
 
-void Pix_Filter_Panel::setTotRange(const std::vector<double> &vector)
+void Pix_Filter_Panel::setTotRange(const std::vector<float> &vector)
 {
-    ui->clogFilterPanel->setTotRange(vector);
+//    ui->clogFilterPanel->setTotRange(vector);
 }
 
-void Pix_Filter_Panel::setTotRangeFull(const std::vector<double> &vector)
+void Pix_Filter_Panel::setTotRangeFull(const std::vector<float> &vector)
 {
-    ui->clogFilterPanel->setTotRangeFull(vector);
+//    ui->clogFilterPanel->setTotRangeFull(vector);
 }
 
 double Pix_Filter_Panel::getClusterBegin() const
