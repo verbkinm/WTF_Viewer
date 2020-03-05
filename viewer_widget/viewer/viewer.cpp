@@ -96,12 +96,9 @@ void Viewer::setEnablePanels(bool state)
     else if(_spViewerProcessor->getFileType() == Viewer_Processor::fileType::CLOG)
     {
         _spPixFilterPanel->setTabEnable(Pix_Filter_Panel::CLOG_FILTER_TAB, true);
-        //!!!
-        _spPixFilterPanel->setClusterRange(std::static_pointer_cast<Viewer_Clog_Processor>(_spViewerProcessor).get()->getClustersLengthVector());
-        //!!!
-        _spPixFilterPanel->setTotRange(std::static_pointer_cast<Viewer_Clog_Processor>(_spViewerProcessor).get()->getVectorOfLengthsOfTots());
-        //!!!
-        _spPixFilterPanel->setTotRangeFull(std::static_pointer_cast<Viewer_Clog_Processor>(_spViewerProcessor).get()->getVectorOfSumOfTots());
+        _spPixFilterPanel->setClusterRange(std::static_pointer_cast<Viewer_Clog_Processor>(_spViewerProcessor).get()->getClusterRange());
+        _spPixFilterPanel->setTotRange(std::static_pointer_cast<Viewer_Clog_Processor>(_spViewerProcessor).get()->getTotsRange());
+        _spPixFilterPanel->setTotRangeFull(std::static_pointer_cast<Viewer_Clog_Processor>(_spViewerProcessor).get()->getTotsSumRange());
     }
 }
 void Viewer::setImage(const QImage &image)
@@ -112,7 +109,6 @@ void Viewer::setImage(const QImage &image)
         incorrectFile();
         return;
     }
-    setEnablePanels(true);
     showMarkers();
     ui->graphicsView->resetTransform();
     _pCurrentScene->clear();
@@ -177,13 +173,11 @@ void Viewer::setImageFileName(const QString &fileName)
             filterClog._frameEnd = prefilter.getFrameMax();
         }
         else
-        {
             _spViewerProcessor->clear();
-        }
+
         std::static_pointer_cast<Viewer_Clog_Processor>(_spViewerProcessor).get()->setFilter(filterClog);
         setEnablePanels(true);
-        setImage(_spViewerProcessor->getImage());
-        slotApplyClogFilter(); // !!!!!!!!!!!!!!!!!!!!!!!!!!
+        slotApplyClogFilter();
     }
     else
         incorrectFile();

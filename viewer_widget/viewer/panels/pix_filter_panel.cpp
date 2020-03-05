@@ -74,32 +74,32 @@ void Pix_Filter_Panel::setTabEnable(int number, bool state)
     ui->tabWidget->setTabEnabled(number, state);
 }
 
-void Pix_Filter_Panel::setClusterRange(const std::vector<size_t> &vector)
+void Pix_Filter_Panel::setClusterRange(const std::pair<float, float> &range)
 {
-    ui->clogFilterPanel->setClusterRange(vector);
+    ui->clogFilterPanel->setClusterRange(range);
 }
 
-void Pix_Filter_Panel::setTotRange(const std::vector<float> &vector)
+void Pix_Filter_Panel::setTotRange(const std::pair<float, float> &range)
 {
-//    ui->clogFilterPanel->setTotRange(vector);
+    ui->clogFilterPanel->setTotRange(range);
 }
 
-void Pix_Filter_Panel::setTotRangeFull(const std::vector<float> &vector)
+void Pix_Filter_Panel::setTotRangeFull(const std::pair<float, float> &range)
 {
-//    ui->clogFilterPanel->setTotRangeFull(vector);
+    ui->clogFilterPanel->setTotRangeFull(range);
 }
 
-double Pix_Filter_Panel::getClusterBegin() const
+float Pix_Filter_Panel::getClusterBegin() const
 {
     return ui->clogFilterPanel->getClusterBegin();
 }
 
-double Pix_Filter_Panel::getClusterEnd() const
+float Pix_Filter_Panel::getClusterEnd() const
 {
     return ui->clogFilterPanel->getClusterEnd();
 }
 
-double Pix_Filter_Panel::getTotBegin() const
+float Pix_Filter_Panel::getTotBegin() const
 {
     if(isTotRangeChecked())
         return ui->clogFilterPanel->getTotBegin();
@@ -107,7 +107,7 @@ double Pix_Filter_Panel::getTotBegin() const
         return ui->clogFilterPanel->getTotBeginFull();
 }
 
-double Pix_Filter_Panel::getTotEnd() const
+float Pix_Filter_Panel::getTotEnd() const
 {
     if(isTotRangeChecked())
         return ui->clogFilterPanel->getTotEnd();
@@ -140,7 +140,7 @@ QColor Pix_Filter_Panel::getPenColor() const
     return ui->edit_panel->getPenColor();
 }
 
-double Pix_Filter_Panel::getPenValue() const
+float Pix_Filter_Panel::getPenValue() const
 {
     return ui->edit_panel->getPenValue();
 }

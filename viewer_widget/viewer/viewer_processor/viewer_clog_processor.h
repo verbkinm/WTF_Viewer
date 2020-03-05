@@ -2,7 +2,6 @@
 #define VIEWER_CLOG_PROCESSOR_H
 
 #include "../../frames/frames.h"
-//#include "filter_clog.h"
 #include "viewer_processor.h"
 
 class Viewer_Clog_Processor : public Viewer_Processor
@@ -15,8 +14,13 @@ public:
     virtual QImage getImage() override;
     virtual QImage getRedrawnImage() override;
 
+    std::pair<float, float> getClusterRange() const;
     std::vector<size_t> getClustersLengthVector() const;
+
+    std::pair<float, float> getTotsRange() const;
     std::vector<float> getVectorOfLengthsOfTots() const;
+
+    std::pair<float, float> getTotsSumRange() const;
     std::vector<float> getVectorOfSumOfTots() const;
     Frames const &getFrames() const;
 

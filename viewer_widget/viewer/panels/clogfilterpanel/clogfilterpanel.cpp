@@ -24,47 +24,47 @@ ClogFilterPanel::~ClogFilterPanel()
     delete ui;
 }
 
-void ClogFilterPanel::setClusterRange(const std::vector<size_t> &vector)
+void ClogFilterPanel::setClusterRange(const std::pair<float, float> &range)
 {
-//    ui->clusterRangeGroup->setRange(vector);
+    ui->clusterRangeGroup->setRange(range);
 }
 
-void ClogFilterPanel::setTotRange(const std::vector<double> &vector)
+void ClogFilterPanel::setTotRange(const std::pair<float, float> &range)
 {
-    ui->totRangeGroup->setRange(vector);
+    ui->totRangeGroup->setRange(range);
 }
 
-void ClogFilterPanel::setTotRangeFull(const std::vector<float> &vector)
+void ClogFilterPanel::setTotRangeFull(const std::pair<float, float> &range)
 {
-//    ui->totRangeGroupFull->setRange(vector);
+    ui->totRangeGroupFull->setRange(range);
 }
 
-double ClogFilterPanel::getClusterBegin() const
+float ClogFilterPanel::getClusterBegin() const
 {
     return ui->clusterRangeGroup->getRangeBegin();
 }
 
-double ClogFilterPanel::getClusterEnd() const
+float ClogFilterPanel::getClusterEnd() const
 {
     return ui->clusterRangeGroup->getRangeEnd();
 }
 
-double ClogFilterPanel::getTotBegin() const
+float ClogFilterPanel::getTotBegin() const
 {
     return ui->totRangeGroup->getRangeBegin();
 }
 
-double ClogFilterPanel::getTotEnd() const
+float ClogFilterPanel::getTotEnd() const
 {
     return  ui->totRangeGroup->getRangeEnd();
 }
 
-double ClogFilterPanel::getTotBeginFull() const
+float ClogFilterPanel::getTotBeginFull() const
 {
     return ui->totRangeGroupFull->getRangeBegin();
 }
 
-double ClogFilterPanel::getTotEndFull() const
+float ClogFilterPanel::getTotEndFull() const
 {
     return ui->totRangeGroupFull->getRangeEnd();
 }

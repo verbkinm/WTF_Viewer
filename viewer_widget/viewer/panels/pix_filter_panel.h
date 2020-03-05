@@ -28,22 +28,22 @@ public:
     void setButtonCutDisable(bool);
     void setTabEnable(int, bool);
 
-    void setClusterRange(const std::vector<size_t> &vector);
-    void setTotRange(const std::vector<float> &vector);
-    void setTotRangeFull(const std::vector<float> &vector);
+    void setClusterRange(const std::pair<float, float> &range);
+    void setTotRange(const std::pair<float, float> &range);
+    void setTotRangeFull(const std::pair<float, float> &range);
 
-    double getClusterBegin() const;
-    double getClusterEnd() const;
+    float getClusterBegin() const;
+    float getClusterEnd() const;
 
-    double getTotBegin() const;
-    double getTotEnd() const;
+    float getTotBegin() const;
+    float getTotEnd() const;
 
     int getX() const;
     int getY() const;
     int getWidth() const;
     int getHeight() const;
     QColor getPenColor() const;
-    double getPenValue() const;
+    float getPenValue() const;
 
     bool isAllTotInCluster() const;
     bool isMediPix() const;

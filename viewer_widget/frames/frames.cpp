@@ -1,12 +1,14 @@
 #include <QFile>
 #include <QPointF>
 #include <iostream>
+#include <limits>
 
 #include "frames.h"
 
 Frames::Frames(QObject *parent) : QObject(parent),
-    _minCluster(0), _maxCluster(0),
-    _minTot(0.0), _maxTot(0.0)
+    _minCluster(std::numeric_limits<size_t>::max()), _maxCluster(std::numeric_limits<size_t>::min()),
+    _minTot(std::numeric_limits<float>::max()), _maxTot(std::numeric_limits<float>::min()),
+    _minSumTot(std::numeric_limits<float>::max()), _maxSumTot(std::numeric_limits<float>::min())
 {
 
 }
@@ -110,9 +112,7 @@ void Frames::createFromFile(const QString &path)
         }
     }
     file.close();
-
-    setRangeClusters();
-    setRangeTots();
+    setRanges();
 }
 
 void Frames::clear()
@@ -284,31 +284,46 @@ float Frames::summarizeTotsInCluster(size_t frameNumber, size_t clusterNumber) c
     return sum;
 }
 
-void Frames::setRangeClusters()
+void Frames::setRangeClusters(size_t frameNumber, size_t clusterNumber)
 {
-    std::vector<size_t> lenghtList;
-    for (size_t frameNumber = 0; frameNumber < getFrameCount(); ++frameNumber)
-        for (size_t clusterNumber = 0; clusterNumber < getClusterCount(frameNumber); ++clusterNumber)
-            lenghtList.push_back(getClusterLength(frameNumber, clusterNumber));
-
-    _minCluster = *std::min_element(lenghtList.begin(), lenghtList.end());
-    _maxCluster = *std::max_element(lenghtList.begin(), lenghtList.end());
+    size_t lenght = getClusterLength(frameNumber, clusterNumber);
+    if(lenght > _maxCluster)
+        _maxCluster = lenght;
+    else if(lenght < _minCluster)
+        _minCluster = lenght;
 }
 
-void Frames::setRangeTots()
+void Frames::setRangeTots(size_t frameNumber, size_t clusterNumber, size_t eventNumber)
 {
-    std::vector<float> totVector;
+    auto ePoint = getEPoint(frameNumber, clusterNumber, eventNumber);
+    if(!ePoint)
+        return;
+
+    if(ePoint->tot > _maxTot)
+        _maxTot = ePoint->tot;
+    else if(ePoint->tot < _minTot)
+        _minTot = ePoint->tot;
+}
+
+void Frames::setRangeSumTots(size_t frameNumber, size_t clusterNumber)
+{
+    float sum = summarizeTotsInCluster(frameNumber, clusterNumber);
+    if(sum > _maxSumTot)
+        _maxSumTot = sum;
+    else if(sum < _minSumTot)
+        _minSumTot = sum;
+}
+
+void Frames::setRanges()
+{
     for (size_t frameNumber = 0; frameNumber < getFrameCount(); ++frameNumber)
         for (size_t clusterNumber = 0; clusterNumber < getClusterCount(frameNumber); ++clusterNumber)
+        {
+            setRangeSumTots(frameNumber, clusterNumber);
+            setRangeClusters(frameNumber, clusterNumber);
             for (size_t eventNumber = 0; eventNumber < getClusterLength(frameNumber, clusterNumber); ++eventNumber)
-            {
-                auto ePoint = getEPoint(frameNumber, clusterNumber, eventNumber);
-                if(ePoint)
-                    totVector.push_back(ePoint->tot);
-            }
-
-    _minTot = *std::min_element(totVector.begin(), totVector.end());
-    _maxTot = *std::max_element(totVector.begin(), totVector.end());
+                setRangeTots(frameNumber, clusterNumber, eventNumber);
+        }
 }
 
 OneFrame *Frames::lastFrame()
@@ -386,6 +401,16 @@ float Frames::getTotMin() const
 float Frames::getTotMax() const
 {
     return _maxTot;
+}
+
+float Frames::getSumTotMin() const
+{
+    return _minSumTot;
+}
+
+float Frames::getSumTotMax() const
+{
+    return _maxSumTot;
 }
 
 float Frames::getExposure_time(size_t frameNumber) const

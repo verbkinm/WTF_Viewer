@@ -31,14 +31,29 @@ QImage Viewer_Clog_Processor::getRedrawnImage()
     return imageFromVec2D;
 }
 
+std::pair<float, float> Viewer_Clog_Processor::getClusterRange() const
+{
+    return {_frames.getClusterMin(), _frames.getClusterMax()};
+}
+
 std::vector<size_t> Viewer_Clog_Processor::getClustersLengthVector() const
 {
     return _frames.getClustersLengthVector();
 }
 
+std::pair<float, float> Viewer_Clog_Processor::getTotsRange() const
+{
+    return {_frames.getTotMin(), _frames.getTotMax()};
+}
+
 std::vector<float> Viewer_Clog_Processor::getVectorOfLengthsOfTots() const
 {
     return  _frames.getVectorValueTots();
+}
+
+std::pair<float, float> Viewer_Clog_Processor::getTotsSumRange() const
+{
+    return {_frames.getSumTotMin(), _frames.getSumTotMax()};
 }
 
 std::vector<float> Viewer_Clog_Processor::getVectorOfSumOfTots() const

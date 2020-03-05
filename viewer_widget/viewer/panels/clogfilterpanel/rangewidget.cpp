@@ -7,6 +7,9 @@ RangeWidget::RangeWidget(QWidget *parent) :
     ui(new Ui::RangeWidget)
 {
     ui->setupUi(this);
+
+//    connect(ui->rangeBegin, SIGNAL(valueChanged(double)), SLOT(slotBeginChanged(double)));
+//    connect(ui->rangeEnd, SIGNAL(valueChanged(double)), SLOT(slotEndChanged(double)));
 }
 
 RangeWidget::~RangeWidget()
@@ -14,25 +17,13 @@ RangeWidget::~RangeWidget()
     delete ui;
 }
 
-void RangeWidget::setRange(const std::vector<double> &vector)
+void RangeWidget::setRange(const std::pair<float, float> &range)
 {
-    disconnectSignals();
+    ui->rangeBegin->setRange(range.first, range.second);
+    ui->rangeBegin->setValue(range.first);
 
-    if(!vector.size())
-        return;
-
-    _vector = vector;
-    std::sort(_vector.begin(), _vector.end());
-
-    if(_beginLast.isEmpty() || !containsInVector(_beginLast))
-        _beginLast = QString::number(_vector[0]);
-    if(_endLast.isEmpty() || !containsInVector(_endLast))
-        _endLast = QString::number(*_vector.rbegin());
-
-    fillBeginComboBox();
-    fillEndComboBox();
-
-    connectSignals();
+    ui->rangeEnd->setRange(range.first, range.second);
+    ui->rangeEnd->setValue(range.second);
 }
 
 void RangeWidget::setTitle(const QString &title)
@@ -40,98 +31,27 @@ void RangeWidget::setTitle(const QString &title)
     ui->RangeWidgetGroup->setTitle(title);
 }
 
-double RangeWidget::getRangeBegin() const
+float RangeWidget::getRangeBegin() const
 {
-    return ui->rangeBegin->currentText().toDouble();
+    return ui->rangeBegin->value();
 }
 
-double RangeWidget::getRangeEnd() const
+float RangeWidget::getRangeEnd() const
 {
-    return ui->rangeEnd->currentText().toDouble();
+    return ui->rangeEnd->value();
 }
 
-//QGridLayout *RangeWidget::layout()
-//{
-//    return ui->gridLayout;
-//}
-
-void RangeWidget::fillBeginComboBox()
+void RangeWidget::slotBeginChanged(double)
 {
-    ui->rangeBegin->clear();
-    for(const auto &item : _vector)
-        ui->rangeBegin->addItem(QString::number(item));
-
-    if(containsInVector(_beginLast))
-        ui->rangeBegin->setCurrentText(_beginLast);
-    else
-        ui->rangeBegin->setCurrentIndex(0);
+    disconnect(ui->rangeEnd, SIGNAL(valueChanged(double)), this, SLOT(slotEndChanged(double)));
+    ui->rangeEnd->setRange(ui->rangeBegin->value(), ui->rangeEnd->maximum());
+    connect(ui->rangeEnd, SIGNAL(valueChanged(double)), SLOT(slotEndChanged(double)));
 }
 
-void RangeWidget::fillEndComboBox()
+void RangeWidget::slotEndChanged(double)
 {
-    ui->rangeEnd->clear();
-    auto it = std::find(_vector.begin(), _vector.end(), _beginLast.toDouble());
-    while (it != _vector.end())
-    {
-        ui->rangeEnd->addItem(QString::number(*it));
-        it++;
-    }
-//    for(const auto &item : _vector)
-//        ui->rangeEnd->addItem(QString::number(item));
-
-    if(containsInVector(_endLast))
-        ui->rangeEnd->setCurrentText(_endLast);
-    else
-        ui->rangeEnd->setCurrentText(QString::number(*_vector.rbegin()));
-}
-bool RangeWidget::containsInVector(QString str_value)
-{
-    double digit_value = str_value.toDouble();
-    auto it = std::find(_vector.begin(), _vector.end(), digit_value);
-    if(it != _vector.end())
-        return true;
-
-    return false;
-}
-
-void RangeWidget::disconnectSignals()
-{
-    disconnect(ui->rangeBegin, SIGNAL(currentTextChanged(QString)), this, SLOT(slotChangeBeginRange(QString)));
-    disconnect(ui->rangeEnd, SIGNAL(currentTextChanged(QString)), this, SLOT(slotChangeEndRange(QString)));
-}
-
-void RangeWidget::connectSignals()
-{
-    connect(ui->rangeBegin, SIGNAL(currentTextChanged(QString)), this, SLOT(slotChangeBeginRange(QString)));
-    connect(ui->rangeEnd, SIGNAL(currentTextChanged(QString)), this, SLOT(slotChangeEndRange(QString)));
-}
-void RangeWidget::slotChangeEndRange(QString currentText)
-{
-    _endLast = currentText;
-}
-
-//void RangeWidget::slotRangeGroup(bool checked)
-//{
-//    disconnectSignals();
-//    if(checked)
-//    {
-//        ui->rangeBegin->setCurrentText(_beginLast);
-//        ui->rangeEnd->setCurrentText(_endLast);
-//    }
-//    else
-//    {
-//        ui->rangeBegin->setCurrentIndex(0);
-//        ui->rangeEnd->setCurrentText(QString::number(*_vector.rbegin()));
-//    }
-//    connectSignals();
-//}
-
-void RangeWidget::slotChangeBeginRange(QString currentText)
-{
-    disconnect(ui->rangeEnd, SIGNAL(currentTextChanged(QString)), this, SLOT(slotChangeEndRange(QString)));
-
-    _beginLast = currentText;
-    fillEndComboBox();
-
-    connect(ui->rangeEnd, SIGNAL(currentTextChanged(QString)), this, SLOT(slotChangeEndRange(QString)));
+    //!!!
+    disconnect(ui->rangeBegin, SIGNAL(valueChanged(double)), this, SLOT(slotBeginChanged(double)));
+    ui->rangeBegin->setRange(ui->rangeBegin->minimum(), ui->rangeEnd->value());
+    connect(ui->rangeBegin, SIGNAL(valueChanged(double)), SLOT(slotEndChanged(double)));
 }

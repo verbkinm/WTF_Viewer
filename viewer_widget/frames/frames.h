@@ -28,8 +28,12 @@ public:
 
     size_t getClusterMin() const;
     size_t getClusterMax() const;
+
     float getTotMin() const;
     float getTotMax() const;
+
+    float getSumTotMin() const;
+    float getSumTotMax() const;
 
     float getExposure_time(size_t frameNumber) const;
 
@@ -56,13 +60,15 @@ private:
     void countingTot(size_t frameNumber, size_t clusterNumber, size_t clusterLenght, std::map<float, float> &map) const;
     std::vector<QPointF> getVectorOfPointsFromClusters() const;
     float summarizeTotsInCluster(size_t frameNumber, size_t clusterNumber) const;
-    void setRangeClusters();
-    void setRangeTots();
+    void setRanges();
+    void setRangeClusters(size_t frameNumber, size_t clusterNumber);
+    void setRangeTots(size_t frameNumber, size_t clusterNumber, size_t eventNumber);
+    void setRangeSumTots(size_t frameNumber, size_t clusterNumber);
     OneFrame *lastFrame();
 
     std::vector<OneFrame> _vectorOfFrames;
     size_t _minCluster, _maxCluster;
-    float _minTot, _maxTot;
+    float _minTot, _maxTot, _minSumTot, _maxSumTot;
 };
 
 #endif // FRAMES_H
