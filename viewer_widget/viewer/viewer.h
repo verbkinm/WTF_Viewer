@@ -47,6 +47,7 @@ private:
     void setSceneDefault();
     void setEmptyImageOnViewerScene();     //вывести вместо изображения надпись - "Select file!"
     void setEnablePanels(bool);
+    void setRangesClogPanel();
 
     void resetTransform();
     void connect_pEventFilterScene();

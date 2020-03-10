@@ -101,6 +101,16 @@ void Viewer::setEnablePanels(bool state)
         _spPixFilterPanel->setTotRangeFull(std::static_pointer_cast<Viewer_Clog_Processor>(_spViewerProcessor).get()->getTotsSumRange());
     }
 }
+void Viewer::setRangesClogPanel()
+{
+    if(_spViewerProcessor && _spViewerProcessor->getFileType() == Viewer_Processor::fileType::CLOG)
+    {
+        _spPixFilterPanel->setTabEnable(Pix_Filter_Panel::CLOG_FILTER_TAB, true);
+        _spPixFilterPanel->setClusterRange(std::static_pointer_cast<Viewer_Clog_Processor>(_spViewerProcessor).get()->getClusterRange());
+        _spPixFilterPanel->setTotRange(std::static_pointer_cast<Viewer_Clog_Processor>(_spViewerProcessor).get()->getTotsRange());
+        _spPixFilterPanel->setTotRangeFull(std::static_pointer_cast<Viewer_Clog_Processor>(_spViewerProcessor).get()->getTotsSumRange());
+    }
+}
 void Viewer::setImage(const QImage &image)
 {
     _currentImage = image;
@@ -142,13 +152,14 @@ void Viewer::setImageFileName(const QString &fileName)
 {
     QApplication::setOverrideCursor(QCursor(Qt::WaitCursor));
     _filePath = fileName;
-    if(fileName.mid(fileName.length()-3,-1) == "txt")
+    if(fileName.mid(fileName.length() - 3, -1) == "txt")
     {
         _spViewerProcessor = std::make_shared<Viewer_Txt_Processor>();
         _spMenuFile->actions()[PIX_AND_FILTER_PANEL]->setEnabled(true);
         _spViewerProcessor->setSettings(_spSettings);
         _spViewerProcessor->setFileName(fileName);
         setImage(_spViewerProcessor->getImage());
+        setEnablePanels(true);
     }
     else if(fileName.mid(fileName.length() -4, -1) == "clog")
     {
@@ -177,6 +188,9 @@ void Viewer::setImageFileName(const QString &fileName)
 
         std::static_pointer_cast<Viewer_Clog_Processor>(_spViewerProcessor).get()->setFilter(filterClog);
         setEnablePanels(true);
+        //!!!
+        //setImage(_spViewerProcessor->getImage());
+        //!!! - повтор Filter_Clog
         slotApplyClogFilter();
     }
     else
@@ -403,7 +417,7 @@ void Viewer::slotDrawPoint(QPointF point)
     {
         _currentImage.setPixelColor(x, y, _spPixFilterPanel->getPenColor());
         slotImageAccordingInversionCheckBox(ui->inversion->checkState());
-        _spViewerProcessor->setDataInVec2D(static_cast<size_t>(x), static_cast<size_t>(y), _spPixFilterPanel->getPenValue());
+        _spViewerProcessor->setDataInVec2D(static_cast<size_t>(x), static_cast<size_t>(y), static_cast<double>(_spPixFilterPanel->getPenValue()));
     }
 }
 void Viewer::slotFinishSelection()
@@ -535,7 +549,7 @@ void Viewer::slotRotatePlus()
 {
     int clockwise = -1;
     double angle = _spViewerButtonPanel.get()->getAngle();      //угол поворота в градусах, полученный из формы
-    if (angle != 0)
+    if (angle != 0.0)
     {
 
         double radAngle = angle / 180. * M_PI, centrAngle;           //угол поворота в радианах. centrAngle - угол наклона отрезка
