@@ -3,6 +3,7 @@
 
 #include <memory>
 #include <QSettings>
+#include <QFileInfo>
 
 class Viewer_Processor
 {
@@ -25,16 +26,17 @@ public:
 
     fileType getFileType() const;
     QString getFileName() const;
+    const QFile *getFile() const;
     size_t getColumns() const;
     size_t getRows() const;
-    double getDataInVec2D(size_t column, size_t row);
-    const std::vector<std::vector<double> > &getVec2D() const;
+    float getDataInVec2D(size_t column, size_t row);
+    const std::vector<std::vector<float> > &getVec2D() const;
 
-    void setFileName(const QString &fileName);
+    bool setFileName(const QString &fileName);
     void setSettings(std::shared_ptr<const QSettings> spSettings);
-    void setDataInVec2D(size_t column_number, size_t row_number, double value);
+    void setDataInVec2D(size_t column_number, size_t row_number, float value);
 
-    std::vector<std::vector<double> > cutVec2D(size_t fromColumn, size_t fromRow, size_t width, size_t height);
+    std::vector<std::vector<float> > cutVec2D(size_t fromColumn, size_t fromRow, size_t width, size_t height);
 
     virtual QImage getImage() = 0;
     virtual QImage getRedrawnImage() = 0;
@@ -44,17 +46,17 @@ public:
 protected:
     fileType _fileType;
     std::shared_ptr<const QSettings> _spSettings;
-    QString _fileName;
+    QFile _file;
 
-    std::vector<std::vector<double>> _vec2D;
-    std::vector<std::vector<double>> _vec2DMask;
+    std::vector<std::vector<float>> _vec2D;
+    std::vector<std::vector<float>> _vec2DMask;
 
     size_t _rows;
     size_t _columns;
 
-    double findMaxInVec2D();
-    double findMinInVec2D();
-    double rangeConverter(double value, double From1, double From2, double To1, double To2);
+    float findMaxInVec2D();
+    float findMinInVec2D();
+    float rangeConverter(float value, float From1, float From2, float To1, float To2);
     void createFrameInVec2D();
     void createMaskInVec2D();
     void rebuildVec2DAccordingToSettings();
@@ -65,11 +67,11 @@ protected:
 //    QImage rotateMinus();
 
     void setFileType(const QString &fileName);
-    void allocateEmptyVec2D(std::vector<std::vector<double> > &vec2D, size_t columns, size_t rows);
+    void allocateEmptyVec2D(std::vector<std::vector<float> > &vec2D, size_t columns, size_t rows);
     QImage getImageFromVec2D();
     bool checkSettingsPtr();
 
-    virtual void createVec2D() = 0;
+    virtual bool createVec2D() = 0;
     virtual void resetDataToDefault() = 0;
 };
 Q_DECLARE_OPERATORS_FOR_FLAGS(Viewer_Processor::Markers_Flags)

@@ -37,7 +37,7 @@ private:
 
     void setMarkersGeneralOrTot();
 
-    virtual void createVec2D() override;
+    virtual bool createVec2D() override;
     virtual void resetDataToDefault() override;
 };
 

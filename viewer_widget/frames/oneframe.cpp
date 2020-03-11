@@ -16,7 +16,7 @@ void OneFrame::setExposure_time(float value)
     _exposure_time = value;
 }
 
-void OneFrame::setFrameNumber(long long number)
+void OneFrame::setFrameNumber(size_t number)
 {
     _number = number;
 }
@@ -44,18 +44,6 @@ size_t OneFrame::getClusterCount() const
 }
 
 size_t OneFrame::getClusterLenght(size_t clusterNumber) const
-{
-    try
-    {
-        return _vectorOfCluster.at(clusterNumber).size();
-    }
-    catch (std::out_of_range &)
-    {
-        return 0;
-    }
-}
-
-size_t OneFrame::getEventCountInCluster(size_t clusterNumber) const
 {
     try
     {
@@ -104,9 +92,7 @@ std::string OneFrame::toString() const
     for(const auto & cluster : _vectorOfCluster)
     {
         for(const auto & point : cluster)
-        {
             result += "[" + std::to_string(point.x) + ", " + std::to_string(point.y) + ", " + std::to_string(point.tot) + "] ";
-        }
         result += "\n";
     }
 
@@ -135,7 +121,7 @@ bool OneFrame::setFrameProperties(const QString &string)
     if(stringSplit.length() != 5)
         return false;
 
-    setFrameNumber(stringSplit.at(1).toLongLong());
+    setFrameNumber(stringSplit.at(1).toULongLong());
     QString threshold = stringSplit.at(2);
     threshold.remove(',').remove('(');
     setThreshold_energy(threshold.toFloat());
@@ -153,6 +139,6 @@ void OneFrame::setClusterProperies(QString &string)
     {
         QStringList point = str.split(",");
         if( (point.length() == 3) && _vectorOfCluster.size())
-            appendEPoint(_vectorOfCluster.size() - 1, {point[0].toUInt(), point[1].toUInt(), point[2].toFloat()});
+            appendEPoint(_vectorOfCluster.size() - 1, {static_cast<unsigned char>(point[0].toInt()), static_cast<unsigned char>(point[1].toInt()), point[2].toFloat()});
     }
 }

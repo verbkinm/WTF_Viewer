@@ -40,7 +40,7 @@ public:
     void hideAllPanel();
     void hideSettingsButton(bool);
 
-    std::vector<std::vector<double>> getVec2D() const;
+    std::vector<std::vector<float> > getVec2D() const;
 
 private:
     void setImage(const QImage &);

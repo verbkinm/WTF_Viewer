@@ -11,7 +11,7 @@ VectorFromTxtFile::VectorFromTxtFile(const QString &fileName) :
 {
     this->createVectorFromTxtFile(fileName);
 }
-std::vector<double> VectorFromTxtFile::createVectorFromTxtFile(const QString &fileName)
+std::vector<float> VectorFromTxtFile::createVectorFromTxtFile(const QString &fileName)
 {
     QFile originFile(fileName);
     if(!originFile.open(QIODevice::ReadOnly))
@@ -73,7 +73,7 @@ void VectorFromTxtFile::createDataVector()
         _countInLine = static_cast<size_t>(splitString.length());
 
         for (auto element : splitString)
-            _vector.push_back(element.toDouble());
+            _vector.push_back(element.toFloat());
         //если в текущей строке элементов меньше чем в максимальной строке - добавляем нули
         while (_countInLine != _maxCountElementString)
         {

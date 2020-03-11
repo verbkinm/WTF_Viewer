@@ -4,6 +4,7 @@
 #include <QMessageBox>
 #include <QtMath>
 #include <QMenu>
+#include <QDebug>
 
 #include "viewer.h"
 #include "saver.h"
@@ -77,7 +78,7 @@ void Viewer::hideSettingsButton(bool state)
     ui->marker_label->setVisible(!state);
 }
 
-std::vector<std::vector<double>> Viewer::getVec2D() const
+std::vector<std::vector<float>> Viewer::getVec2D() const
 {
     return _spViewerProcessor->getVec2D();
 }
@@ -157,7 +158,12 @@ void Viewer::setImageFileName(const QString &fileName)
         _spViewerProcessor = std::make_shared<Viewer_Txt_Processor>();
         _spMenuFile->actions()[PIX_AND_FILTER_PANEL]->setEnabled(true);
         _spViewerProcessor->setSettings(_spSettings);
-        _spViewerProcessor->setFileName(fileName);
+        if(!_spViewerProcessor->setFileName(fileName))
+        {
+            incorrectFile();
+            QApplication::restoreOverrideCursor();
+            return;
+        }
         setImage(_spViewerProcessor->getImage());
         setEnablePanels(true);
     }
@@ -172,9 +178,14 @@ void Viewer::setImageFileName(const QString &fileName)
         _spViewerProcessor = std::make_shared<Viewer_Clog_Processor>();
         _spMenuFile->actions()[PIX_AND_FILTER_PANEL]->setDisabled(true);
         _spViewerProcessor->setSettings(_spSettings);
-        _spViewerProcessor->setFileName(fileName);
+        if(!_spViewerProcessor->setFileName(fileName))
+        {
+            incorrectFile();
+            QApplication::restoreOverrideCursor();
+            return;
+        }
 
-        Filter_Clog filterClog;// = createFilterFromPixFilterPanel();
+        Filter_Clog filterClog = createFilterFromPixFilterPanel();
         const Frames &frames = std::static_pointer_cast<Viewer_Clog_Processor>(_spViewerProcessor).get()->getFrames();
         PreFilter prefilter(fileName, frames, this);
         QApplication::restoreOverrideCursor();
@@ -182,15 +193,13 @@ void Viewer::setImageFileName(const QString &fileName)
         {
             filterClog._frameBegin = prefilter.getFrameMin();
             filterClog._frameEnd = prefilter.getFrameMax();
+            filterClog._offset = prefilter.getFrameMin();
         }
         else
             _spViewerProcessor->clear();
 
         std::static_pointer_cast<Viewer_Clog_Processor>(_spViewerProcessor).get()->setFilter(filterClog);
         setEnablePanels(true);
-        //!!!
-        //setImage(_spViewerProcessor->getImage());
-        //!!! - повтор Filter_Clog
         slotApplyClogFilter();
     }
     else
@@ -337,8 +346,10 @@ void Viewer::slotApplyClogFilter()
     QApplication::setOverrideCursor(QCursor(Qt::WaitCursor));
     Filter_Clog filter = createFilterFromPixFilterPanel();
 
-    filter._frameBegin = std::static_pointer_cast<Viewer_Clog_Processor>(_spViewerProcessor)->getFrames()._filter._frameBegin;
-    filter._frameEnd = std::static_pointer_cast<Viewer_Clog_Processor>(_spViewerProcessor)->getFrames()._filter._frameEnd;
+    Filter_Clog filterFromClogProc = std::static_pointer_cast<Viewer_Clog_Processor>(_spViewerProcessor)->getFrames().getFilter();
+    filter._frameBegin = filterFromClogProc._frameBegin;
+    filter._frameEnd = filterFromClogProc._frameEnd;
+    filter._offset = filterFromClogProc._offset;
 
     std::static_pointer_cast<Viewer_Clog_Processor>(_spViewerProcessor)->setFilter(filter);
     setImage(_spViewerProcessor->getImage());
@@ -417,7 +428,7 @@ void Viewer::slotDrawPoint(QPointF point)
     {
         _currentImage.setPixelColor(x, y, _spPixFilterPanel->getPenColor());
         slotImageAccordingInversionCheckBox(ui->inversion->checkState());
-        _spViewerProcessor->setDataInVec2D(static_cast<size_t>(x), static_cast<size_t>(y), static_cast<double>(_spPixFilterPanel->getPenValue()));
+        _spViewerProcessor->setDataInVec2D(static_cast<size_t>(x), static_cast<size_t>(y), static_cast<float>(_spPixFilterPanel->getPenValue()));
     }
 }
 void Viewer::slotFinishSelection()
@@ -535,7 +546,7 @@ void Viewer::slotCut()
     }
     if(!_spPixFilterPanel)
         return;
-    std::vector<std::vector<double>> newVec2D = _spViewerProcessor->cutVec2D(static_cast<size_t>(_spPixFilterPanel->getX()),
+    std::vector<std::vector<float>> newVec2D = _spViewerProcessor->cutVec2D(static_cast<size_t>(_spPixFilterPanel->getX()),
                                                                              static_cast<size_t>(_spPixFilterPanel->getY()),
                                                                              static_cast<size_t>(_spPixFilterPanel->getWidth()),
                                                                              static_cast<size_t>(_spPixFilterPanel->getHeight()));
@@ -738,7 +749,7 @@ void Viewer::slotViewPosition(QPointF pos)
         return;
     _spViewerDataPanel->setData(static_cast<size_t>(pos.x()),
                                 static_cast<size_t>(pos.y()),
-                                _spViewerProcessor->getDataInVec2D(static_cast<size_t>(pos.x()), static_cast<size_t>(pos.y())),
+                                static_cast<double>(_spViewerProcessor->getDataInVec2D(static_cast<size_t>(pos.x()), static_cast<size_t>(pos.y()))),
                                 static_cast<size_t>(_pCurrentScene->sceneRect().width()),
                                 static_cast<size_t>(_pCurrentScene->sceneRect().height()));
 }

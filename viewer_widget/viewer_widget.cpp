@@ -61,7 +61,7 @@ void Viewer_widget::makeMaskTab()
     _main_splitter.setStretchFactor(0,1);
 }
 
-QString Viewer_widget::processing_arrays(const std::vector<std::vector<double> > &origin_array, const std::vector<std::vector<double> > &mask_array)
+QString Viewer_widget::processing_arrays(const std::vector<std::vector<float> > &origin_array, const std::vector<std::vector<float> > &mask_array)
 {
     int h, w;                               // high, width
     float t, u, tmp;                        // Temp coeffisients

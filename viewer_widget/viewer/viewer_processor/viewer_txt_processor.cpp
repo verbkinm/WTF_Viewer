@@ -60,9 +60,9 @@ void Viewer_Txt_Processor::clear()
 //    }
 //}
 
-void Viewer_Txt_Processor::createVec2D()
+bool Viewer_Txt_Processor::createVec2D()
 {
-    VectorFromTxtFile vectorFromTxtFile(_fileName);
+    VectorFromTxtFile vectorFromTxtFile(QFileInfo(_file).absoluteFilePath());
     _columns = vectorFromTxtFile._column;
     _rows = vectorFromTxtFile._row;
 
@@ -73,17 +73,18 @@ void Viewer_Txt_Processor::createVec2D()
     {
         for(size_t  x = 0; x < _columns; ++x)
         {
-            double value = vectorFromTxtFile._vector[i++];
+            float value = vectorFromTxtFile._vector[i++];
             _vec2D.at(x).at(y) = value;
         }
     }
+    return true;
 }
 
 void Viewer_Txt_Processor::resetDataToDefault()
 {
     _vec2D.clear();
     _vec2DMask.clear();
-    _fileName.clear();
+    _file.close();
     _rows = 0;
     _columns = 0;
     _fileType = fileType::UNDEFINED;

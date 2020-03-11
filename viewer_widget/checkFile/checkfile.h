@@ -9,10 +9,10 @@ struct VectorFromTxtFile
 {
     size_t _row;
     size_t _column;
-    std::vector<double> _vector;
+    std::vector<float> _vector;
 
     VectorFromTxtFile(const QString &fileName);
-    std::vector<double> createVectorFromTxtFile(const QString &fileName);
+    std::vector<float> createVectorFromTxtFile(const QString &fileName);
 
 private:
     size_t _maxCountElementString; //переменная для наибольшего кол-ва элементов в строке

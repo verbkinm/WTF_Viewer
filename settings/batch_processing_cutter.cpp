@@ -51,7 +51,7 @@ void Batch_Processing_Cutter::slice(const QDir &path)
 
         for(size_t frame_number = start_packet + _first_frames_of_a_packet; frame_number < end_packet - _last_frames_of_a_paket; ++frame_number)
         {
-            auto ptr = _frames.getOneFrame(frame_number);
+            auto ptr = _frames.getFrame(frame_number);
             if(ptr)
                 fileOut.write(ptr->toString().c_str());
         }

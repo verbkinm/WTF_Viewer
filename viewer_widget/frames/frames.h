@@ -1,7 +1,7 @@
 #ifndef FRAMES_H
 #define FRAMES_H
 
-#include <QObject>
+#include <QFile>
 
 #include "oneframe.h"
 #include "../viewer/viewer_processor/filter_clog.h"
@@ -14,7 +14,7 @@ class Frames : public QObject
 public:
     Frames(QObject *parent = nullptr);
 
-    const OneFrame *getOneFrame(size_t number_of_frame) const;
+    const OneFrame *getFrame(size_t number_of_frame) const;
     size_t getFrameCount() const;
     size_t getClusterCount(size_t frameNumber) const;
     size_t getClusterLength(size_t frameNumber, size_t clusterNumber) const;
@@ -37,7 +37,7 @@ public:
 
     float getExposure_time(size_t frameNumber) const;
 
-    OneFrame::cluster getClusterInTotRange(size_t frameNumber, size_t clusterNumber, Range<float> range) const;
+    OneFrame::cluster getClusterInTotRange(size_t frameNumber, size_t clusterNumber, const Range<float> &range) const;
     std::map<float, float> getMapOfTotPoints(size_t clusterLenght) const;
     std::map<float, float> getMapOfTotPointsSummarize(size_t clusterLenght) const;
     std::map<float, float> getMapOfClusterSize() const;
@@ -45,30 +45,39 @@ public:
     const OneFrame::ePoint *getEPoint(size_t frameNumber, size_t clusterNumber, size_t eventNumber) const;
     OneFrame::ePoint *getEPoint(size_t frameNumber, size_t clusterNumber, size_t eventNumber);
 
-    bool isClusterInRange(size_t clusterLength, Range<size_t> range) const;
-    bool isTotInRange (size_t frameNumber, size_t clusterNumber, Range<float> range) const;
-    bool isSumTotClusterInRange (size_t frameNumber, size_t clusterNumber, Range<float> range) const;
+    bool isClusterInRange(size_t clusterLength, const Range<size_t> &range) const;
+    bool isTotInRange (size_t frameNumber, size_t clusterNumber, const Range<float> &range) const;
+    bool isSumTotClusterInRange (size_t frameNumber, size_t clusterNumber, const Range<float> &range) const;
 
-    void createFromFile(const QString& path);
+    bool createFromFile(QFile &file);
     void clear();
 
+    Filter_Clog getFilter() const;
+    void setFilter(const Filter_Clog &filter);
+
     enum {ALL_CLUSTER = 0};
-    Filter_Clog _filter;
 
 private:
     bool isLineContainsWholeFrame(const QString &line, QStringList &buff, bool &firstStart);
     void countingTot(size_t frameNumber, size_t clusterNumber, size_t clusterLenght, std::map<float, float> &map) const;
     std::vector<QPointF> getVectorOfPointsFromClusters() const;
     float summarizeTotsInCluster(size_t frameNumber, size_t clusterNumber) const;
+
     void setRanges();
     void setRangeClusters(size_t frameNumber, size_t clusterNumber);
     void setRangeTots(size_t frameNumber, size_t clusterNumber, size_t eventNumber);
     void setRangeSumTots(size_t frameNumber, size_t clusterNumber);
+
+    bool checkingSequentialNumberingFrames(const OneFrame &frame);
+    void errorMessage(const std::string &str);
+
     OneFrame *lastFrame();
 
     std::vector<OneFrame> _vectorOfFrames;
     size_t _minCluster, _maxCluster;
     float _minTot, _maxTot, _minSumTot, _maxSumTot;
+
+    Filter_Clog _filter;
 };
 
 #endif // FRAMES_H

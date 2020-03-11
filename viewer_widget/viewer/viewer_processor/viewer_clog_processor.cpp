@@ -12,7 +12,8 @@ QImage Viewer_Clog_Processor::getImage()
 {
     allocateEmptyVec2D(_vec2D, _columns, _rows);
 
-    for (size_t frameNumber = _frames._filter._frameBegin; frameNumber <= _frames._filter._frameEnd; ++frameNumber)
+    Filter_Clog filter = _frames.getFilter();
+    for (size_t frameNumber = filter._frameBegin - filter._offset; frameNumber <= filter._frameEnd; ++frameNumber)
         for (size_t clusterNumber = 0; clusterNumber < _frames.getClusterCount(frameNumber); ++clusterNumber)
             modifyPointAccordingFilter(frameNumber, clusterNumber);
 
@@ -68,7 +69,7 @@ Frames const &Viewer_Clog_Processor::getFrames() const
 
 void Viewer_Clog_Processor::setFilter(const Filter_Clog &filter)
 {
-    _frames._filter = filter;
+    _frames.setFilter(filter);
 }
 
 void Viewer_Clog_Processor::clear()
@@ -78,21 +79,23 @@ void Viewer_Clog_Processor::clear()
 
 void Viewer_Clog_Processor::modifyPointAccordingFilter(size_t frameNumber, size_t clusterNumber)
 {
-    if(!_frames.isClusterInRange(_frames.getClusterLength(frameNumber, clusterNumber), _frames._filter._clusterRange))
+    Filter_Clog filter = _frames.getFilter();
+
+    if(!_frames.isClusterInRange(_frames.getClusterLength(frameNumber, clusterNumber), filter._clusterRange))
         return;
 
-    if(_frames._filter._isTotRangeChecked && _frames.isTotInRange(frameNumber, clusterNumber, _frames._filter._totRange))
+    if(filter._isTotRangeChecked && _frames.isTotInRange(frameNumber, clusterNumber, filter._totRange))
     {
-        if(_frames._filter._isAllTotInCluster)
+        if(filter._isAllTotInCluster)
             modifyPoint(frameNumber, clusterNumber);
         else
         {
-            OneFrame::cluster clusterEPoint = _frames.getClusterInTotRange(frameNumber, clusterNumber, _frames._filter._totRange);
+            OneFrame::cluster clusterEPoint = _frames.getClusterInTotRange(frameNumber, clusterNumber, filter._totRange);
             for (auto point : clusterEPoint)
                 modifyPointAccordingPixMode(&point);
         }
     }
-    else if (!_frames._filter._isTotRangeChecked && _frames.isSumTotClusterInRange(frameNumber, clusterNumber, _frames._filter._totRange))
+    else if (!filter._isTotRangeChecked && _frames.isSumTotClusterInRange(frameNumber, clusterNumber, filter._totRange))
     {
         modifyPoint(frameNumber, clusterNumber);
     }
@@ -100,13 +103,15 @@ void Viewer_Clog_Processor::modifyPointAccordingFilter(size_t frameNumber, size_
 
 void Viewer_Clog_Processor::modifyPointAccordingPixMode(OneFrame::ePoint *point)
 {
+    Filter_Clog filter = _frames.getFilter();
+
     if(point == nullptr)
         return;
 
     if(point->x >= _columns || point->y >= _rows )
         return;
 
-    if(_frames._filter._isMidiPix)
+    if(filter._isMidiPix)
     {
         setMarkersGeneralOrTot();
         _vec2D.at(point->x).at(point->y) = _vec2D.at(point->x).at(point->y) + 1;
@@ -139,10 +144,10 @@ void Viewer_Clog_Processor::generalCalibrationSettingsForEPoint(OneFrame::ePoint
     double T = (_spSettings->value("GeneralCalibration/T").toDouble());
 
     double parA = A;
-    double parB = B - point->tot - A * T;
-    double parC = point->tot * T - B * T - C;
+    double parB = B - static_cast<double>(point->tot) - A * T;
+    double parC = static_cast<double>(point->tot) * T - B * T - C;
 
-    point->tot = ( -parB + ( qSqrt(parB * parB - 4 * parA * parC)) ) / (2 * parA);
+    point->tot = static_cast<float>(( -parB + ( qSqrt(parB * parB - 4 * parA * parC)) ) / (2 * parA));
 }
 
 void Viewer_Clog_Processor::setMarkersGeneralOrTot()
@@ -162,15 +167,22 @@ void Viewer_Clog_Processor::setMarkersGeneralOrTot()
     }
 }
 
-void Viewer_Clog_Processor::createVec2D()
+bool Viewer_Clog_Processor::createVec2D()
 {
-    _frames.createFromFile(_fileName);
+    if(!_frames.createFromFile(_file))
+    {
+        clear();
+        return false;
+    }
+
     _columns = CLOG_SIZE;
     _rows = CLOG_SIZE;
 
+    Filter_Clog filter = _frames.getFilter();
+
     if(_spSettings->value("SettingsClogFile/generalCalibration").toBool())
     {
-        for (size_t frameNumber = _frames._filter._frameBegin; frameNumber <= _frames._filter._frameEnd; ++frameNumber)
+        for (size_t frameNumber = filter._frameBegin - filter._offset; frameNumber <= filter._frameEnd; ++frameNumber)
             for (size_t clusterNumber = 0; clusterNumber < _frames.getClusterCount(frameNumber); ++clusterNumber)
                 for (size_t eventNumber = 0; eventNumber < _frames.getClusterLength(frameNumber, clusterNumber); ++eventNumber)
                 {
@@ -179,6 +191,7 @@ void Viewer_Clog_Processor::createVec2D()
                         generalCalibrationSettingsForEPoint(res);
                 }
     }
+    return true;
 }
 
 void Viewer_Clog_Processor::resetDataToDefault()
@@ -186,7 +199,7 @@ void Viewer_Clog_Processor::resetDataToDefault()
     _vec2D.clear();
     _vec2DMask.clear();
 
-    _fileName.clear();
+    _file.close();
     _fileType = fileType::UNDEFINED;
 
     _rows = 0;

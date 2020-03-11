@@ -19,7 +19,12 @@ Viewer_Processor::~Viewer_Processor()
 
 QString Viewer_Processor::getFileName() const
 {
-    return _fileName;
+    return QFileInfo(_file).absoluteFilePath();
+}
+
+const QFile *Viewer_Processor::getFile() const
+{
+    return &_file;
 }
 
 size_t Viewer_Processor::getColumns() const
@@ -32,7 +37,7 @@ size_t Viewer_Processor::getRows() const
     return _rows;
 }
 
-double Viewer_Processor::getDataInVec2D(size_t column, size_t row)
+float Viewer_Processor::getDataInVec2D(size_t column, size_t row)
 {
     try
     {
@@ -44,17 +49,17 @@ double Viewer_Processor::getDataInVec2D(size_t column, size_t row)
     }
 }
 
-const std::vector<std::vector<double> > &Viewer_Processor::getVec2D() const
+const std::vector<std::vector<float> > &Viewer_Processor::getVec2D() const
 {
     return _vec2D;
 }
 
-void Viewer_Processor::setFileName(const QString &fileName)
+bool Viewer_Processor::setFileName(const QString &fileName)
 {
     resetDataToDefault();
-    _fileName = fileName;
+    _file.setFileName(fileName);
     setFileType(fileName);
-    createVec2D();
+    return createVec2D();
 }
 
 void Viewer_Processor::setSettings(std::shared_ptr<const QSettings>spSettings)
@@ -62,7 +67,7 @@ void Viewer_Processor::setSettings(std::shared_ptr<const QSettings>spSettings)
     _spSettings = spSettings;
 }
 
-void Viewer_Processor::setDataInVec2D(size_t column_number, size_t row_number, double value)
+void Viewer_Processor::setDataInVec2D(size_t column_number, size_t row_number, float value)
 {
     try
     {
@@ -73,11 +78,11 @@ void Viewer_Processor::setDataInVec2D(size_t column_number, size_t row_number, d
         return;
     }
 }
-std::vector<std::vector<double>> Viewer_Processor::cutVec2D(size_t cutX, size_t fromRow, size_t width, size_t height)
+std::vector<std::vector<float>> Viewer_Processor::cutVec2D(size_t cutX, size_t fromRow, size_t width, size_t height)
 {
-    std::vector<std::vector<double>> newVec2D(width, std::vector<double>(height));
+    std::vector<std::vector<float>> newVec2D(width, std::vector<float>(height));
 
-    double value = 0;
+    float value = 0;
     for (size_t x = cutX, tmpX = 0; tmpX < width; ++x, ++tmpX)
     {
         for (size_t y = fromRow, tmpY = 0; tmpY < height; ++y, ++tmpY) {
@@ -98,19 +103,19 @@ Viewer_Processor::fileType Viewer_Processor::getFileType() const
 
 QImage Viewer_Processor::getImageFromVec2D()
 {
-    double max = findMaxInVec2D();
-    double min = findMinInVec2D();
+    float max = findMaxInVec2D();
+    float min = findMinInVec2D();
 
     QImage image(static_cast<int>(_columns), static_cast<int>(_rows), QImage::Format_ARGB32_Premultiplied);
     for (size_t  x = 0; x < _columns; ++x)
     {
         for (size_t  y = 0; y < _rows; ++y)
         {
-            double value = rangeConverter(_vec2D.at(x).at(y), \
+            float value = rangeConverter(_vec2D.at(x).at(y), \
                                     min, \
                                     max, \
-                                    double(0), \
-                                    double(255) );
+                                    float(0), \
+                                    float(255) );
 
             QColor color(qRound(value), qRound(value), qRound(value));
             image.setPixelColor(static_cast<int>(x), static_cast<int>(y), color);
@@ -173,16 +178,16 @@ void Viewer_Processor::setFileType(const QString &fileName)
         _fileType = fileType::UNDEFINED;
 }
 
-void Viewer_Processor::allocateEmptyVec2D(std::vector<std::vector<double>> &vec2D, size_t columns, size_t rows)
+void Viewer_Processor::allocateEmptyVec2D(std::vector<std::vector<float>> &vec2D, size_t columns, size_t rows)
 {
     vec2D.clear();
-    vec2D.resize(columns, std::vector<double>(rows, 0));
+    vec2D.resize(columns, std::vector<float>(rows, 0));
 }
 
-double Viewer_Processor::findMaxInVec2D()
+float Viewer_Processor::findMaxInVec2D()
 {
-    double max = 0;
-    double value = 0;
+    float max = 0;
+    float value = 0;
 
     for (size_t y = 0; y < _rows; ++y)
     {
@@ -196,10 +201,10 @@ double Viewer_Processor::findMaxInVec2D()
     return max;
 }
 
-double Viewer_Processor::findMinInVec2D()
+float Viewer_Processor::findMinInVec2D()
 {
-    double min = std::numeric_limits<double>::max();
-    double value = 0;
+    float min = std::numeric_limits<float>::max();
+    float value = 0;
 
     for (size_t y = 0; y < _rows; ++y)
         for (size_t x = 0; x < _columns; ++x) {
@@ -210,7 +215,7 @@ double Viewer_Processor::findMinInVec2D()
     return min;
 }
 
-double Viewer_Processor::rangeConverter(double value, double From1, double From2, double To1, double To2)
+float Viewer_Processor::rangeConverter(float value, float From1, float From2, float To1, float To2)
 {
     if( (static_cast<int>(From1) == static_cast<int>(From2)) ||  (static_cast<int>(To1) == static_cast<int>(To2)))
         return 0.0;

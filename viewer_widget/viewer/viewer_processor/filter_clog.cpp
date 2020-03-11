@@ -2,7 +2,7 @@
 
 Filter_Clog::Filter_Clog() :
     _frameBegin(0), _frameEnd(0),
-    _isAllTotInCluster(false), _isMidiPix(false)
+    _isAllTotInCluster(false), _isMidiPix(false), _offset(0)
 {
 
 }

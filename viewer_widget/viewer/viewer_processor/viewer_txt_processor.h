@@ -13,7 +13,7 @@ public:
     virtual void clear() override;
 
 private:
-    virtual void createVec2D() override;
+    virtual bool createVec2D() override;
     virtual void resetDataToDefault() override;
 };
 

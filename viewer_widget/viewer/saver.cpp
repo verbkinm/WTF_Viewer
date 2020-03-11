@@ -13,7 +13,7 @@ Saver::Saver(QObject *parent) : QObject(parent)
 
 }
 
-void Saver::dialogSaveTXT(size_t columns, size_t rows, const std::vector<std::vector<double>> &vector)
+void Saver::dialogSaveTXT(size_t columns, size_t rows, const std::vector<std::vector<float>> &vector)
 {
     QString fileName = QFileDialog::getSaveFileName(nullptr,
                                                     ("Save file"),
@@ -43,7 +43,7 @@ void Saver::dialogSaveTXT(size_t columns, size_t rows, const std::vector<std::ve
     QMessageBox::information(nullptr, "Saved", "File \"" + fileName + "\" successfully saved!");
 }
 
-QString Saver::saveInTemporaryTXT(size_t columns, size_t rows, const std::vector<std::vector<double>> &vector)
+QString Saver::saveInTemporaryTXT(size_t columns, size_t rows, const std::vector<std::vector<float>> &vector)
 {
     QTemporaryFile tmpFile;
     tmpFile.setAutoRemove(false);

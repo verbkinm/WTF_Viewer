@@ -18,6 +18,8 @@ public:
     bool _isMidiPix;
     bool _isTotRangeChecked;
 
+    size_t _offset;
+
     void clear();
 };
 

@@ -33,8 +33,8 @@ private:
 
     enum tabsName {VIEW_AND_EDIT, MASK};
 
-    QString processing_arrays(const std::vector<std::vector<double>> &origin_array,
-                              const std::vector<std::vector<double>> &mask_array);
+    QString processing_arrays(const std::vector<std::vector<float> > &origin_array,
+                              const std::vector<std::vector<float> > &mask_array);
 
     Ui::Viewer_widget *ui;
 

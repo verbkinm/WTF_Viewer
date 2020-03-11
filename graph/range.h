@@ -24,12 +24,12 @@ public:
         _min = min;
     }
 
-    T max()
+    T max() const
     {
         return _max;
     }
 
-    T min()
+    T min() const
     {
         return _min;
     }
