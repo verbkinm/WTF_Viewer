@@ -149,25 +149,25 @@ void Viewer::setSceneDefault()
     _pCurrentScene = &_defaultScene;
     ui->graphicsView->setScene(_pCurrentScene);
 }
-void Viewer::setImageFileName(const QString &fileName)
+void Viewer::setImageFile(const QFile &file)
 {
     QApplication::setOverrideCursor(QCursor(Qt::WaitCursor));
-    _filePath = fileName;
-    if(fileName.mid(fileName.length() - 3, -1) == "txt")
+    QFileInfo fi =  QFileInfo(file);
+    _filePath = fi.absoluteFilePath();
+    if(fi.completeSuffix() == "txt")
     {
         _spViewerProcessor = std::make_shared<Viewer_Txt_Processor>();
         _spMenuFile->actions()[PIX_AND_FILTER_PANEL]->setEnabled(true);
         _spViewerProcessor->setSettings(_spSettings);
-        if(!_spViewerProcessor->setFileName(fileName))
+        if(!_spViewerProcessor->setFile(file))
         {
-            incorrectFile();
-            QApplication::restoreOverrideCursor();
+            cantCreateFile();
             return;
         }
         setImage(_spViewerProcessor->getImage());
         setEnablePanels(true);
     }
-    else if(fileName.mid(fileName.length() -4, -1) == "clog")
+    else if(fi.completeSuffix() == "clog")
     {
         if(!_spPixFilterPanel)
         {
@@ -178,16 +178,15 @@ void Viewer::setImageFileName(const QString &fileName)
         _spViewerProcessor = std::make_shared<Viewer_Clog_Processor>();
         _spMenuFile->actions()[PIX_AND_FILTER_PANEL]->setDisabled(true);
         _spViewerProcessor->setSettings(_spSettings);
-        if(!_spViewerProcessor->setFileName(fileName))
+        if(!_spViewerProcessor->setFile(file))
         {
-            incorrectFile();
-            QApplication::restoreOverrideCursor();
+            cantCreateFile();
             return;
         }
 
         Filter_Clog filterClog = createFilterFromPixFilterPanel();
-        const Frames &frames = std::static_pointer_cast<Viewer_Clog_Processor>(_spViewerProcessor).get()->getFrames();
-        PreFilter prefilter(fileName, frames, this);
+        auto *frames = std::static_pointer_cast<Viewer_Clog_Processor>(_spViewerProcessor).get()->getFrames();
+        PreFilter prefilter(file, *frames, this);
         QApplication::restoreOverrideCursor();
         if(prefilter.exec() == QDialog::Accepted)
         {
@@ -198,6 +197,7 @@ void Viewer::setImageFileName(const QString &fileName)
         else
             _spViewerProcessor->clear();
 
+        frames->setRanges(filterClog._frameBegin - filterClog._offset, filterClog._frameEnd - filterClog._offset);
         std::static_pointer_cast<Viewer_Clog_Processor>(_spViewerProcessor).get()->setFilter(filterClog);
         setEnablePanels(true);
         slotApplyClogFilter();
@@ -326,9 +326,16 @@ void Viewer::createPixFilterPanel()
     connect_pEventFilterScene();
 }
 
+void Viewer::cantCreateFile()
+{
+    incorrectFile();
+    QApplication::restoreOverrideCursor();
+    QMessageBox::warning(this, "Error", "Error file syntax. See line number in stderr! ");
+}
+
 void Viewer::slotSetImageFile(QString file)
 {
-    setImageFileName(file);
+    setImageFile(QFile(file));
 }
 void Viewer::slotMoveRectFromKey(QRect rect)
 {
@@ -346,7 +353,7 @@ void Viewer::slotApplyClogFilter()
     QApplication::setOverrideCursor(QCursor(Qt::WaitCursor));
     Filter_Clog filter = createFilterFromPixFilterPanel();
 
-    Filter_Clog filterFromClogProc = std::static_pointer_cast<Viewer_Clog_Processor>(_spViewerProcessor)->getFrames().getFilter();
+    Filter_Clog filterFromClogProc = std::static_pointer_cast<Viewer_Clog_Processor>(_spViewerProcessor)->getFrames()->getFilter();
     filter._frameBegin = filterFromClogProc._frameBegin;
     filter._frameEnd = filterFromClogProc._frameEnd;
     filter._offset = filterFromClogProc._offset;
@@ -401,9 +408,9 @@ void Viewer::slotSeparateWindowMenuToggle()
     SW->show();
 
     if(_spViewerProcessor  && _spViewerProcessor->getFileType() == Viewer_Processor::fileType::TXT)
-        SW->setImageFileName(_filePath);
+        SW->setImageFile(_filePath);
     else if(_spViewerProcessor  && _spViewerProcessor->getFileType() == Viewer_Processor::fileType::CLOG)
-        SW->setImageFileName(_filePath);
+        SW->setImageFile(_filePath);
 }
 
 void Viewer::slotViewSelectionMovePos(QPoint point)
@@ -547,13 +554,13 @@ void Viewer::slotCut()
     if(!_spPixFilterPanel)
         return;
     std::vector<std::vector<float>> newVec2D = _spViewerProcessor->cutVec2D(static_cast<size_t>(_spPixFilterPanel->getX()),
-                                                                             static_cast<size_t>(_spPixFilterPanel->getY()),
-                                                                             static_cast<size_t>(_spPixFilterPanel->getWidth()),
-                                                                             static_cast<size_t>(_spPixFilterPanel->getHeight()));
+                                                                            static_cast<size_t>(_spPixFilterPanel->getY()),
+                                                                            static_cast<size_t>(_spPixFilterPanel->getWidth()),
+                                                                            static_cast<size_t>(_spPixFilterPanel->getHeight()));
     QString fileName = Saver::saveInTemporaryTXT(static_cast<size_t>(_spPixFilterPanel->getWidth()),
                                                  static_cast<size_t>(_spPixFilterPanel->getHeight()),
                                                  newVec2D);
-    setImageFileName(fileName);
+    setImageFile(fileName);
 }
 
 void Viewer::slotRotatePlus()

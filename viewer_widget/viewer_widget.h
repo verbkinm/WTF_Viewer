@@ -26,7 +26,7 @@ public:
     std::shared_ptr<const QSettings>_spSettings;
     std::pair<const Frames &, bool> getFrames() const;
 
-    void setImageFile(const QString &path);
+    void setImageFile(const QFile &file);
 
 private:
     void makeMaskTab();

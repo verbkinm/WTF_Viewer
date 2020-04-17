@@ -15,7 +15,7 @@ class PreFilter : public QDialog
     Q_OBJECT
 
 public:
-    explicit PreFilter(const QString &fileName, const Frames &frames, QWidget *parent = nullptr);
+    explicit PreFilter(const QFile &file, const Frames &frames, QWidget *parent = nullptr);
     ~PreFilter();
 
     size_t getFrameMin() const;

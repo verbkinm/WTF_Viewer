@@ -32,7 +32,7 @@ public:
     void setSettings(std::shared_ptr<const QSettings>);
     void setScene(QGraphicsScene*);
     void setSceneReadOnly(bool);
-    void setImageFileName(const QString &);
+    void setImageFile(const QFile &file);
 
     QGraphicsScene* getScenePtr();
     std::pair<const Frames &, bool> getFrames() const;
@@ -57,6 +57,7 @@ private:
     void createDataPanel();
     void createPixFilterPanel();
 
+    void cantCreateFile();
     void incorrectFile();  //действия при не правильном файле
     void showMarkers();
 

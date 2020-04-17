@@ -32,7 +32,7 @@ public:
     float getDataInVec2D(size_t column, size_t row);
     const std::vector<std::vector<float> > &getVec2D() const;
 
-    bool setFileName(const QString &fileName);
+    bool setFile(const QFile &file);
     void setSettings(std::shared_ptr<const QSettings> spSettings);
     void setDataInVec2D(size_t column_number, size_t row_number, float value);
 
@@ -66,7 +66,7 @@ protected:
 //    QImage rotatePlus();
 //    QImage rotateMinus();
 
-    void setFileType(const QString &fileName);
+    void setFileType(const QFile &file);
     void allocateEmptyVec2D(std::vector<std::vector<float> > &vec2D, size_t columns, size_t rows);
     QImage getImageFromVec2D();
     bool checkSettingsPtr();

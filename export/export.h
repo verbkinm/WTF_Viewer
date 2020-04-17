@@ -15,8 +15,6 @@ public:
     explicit Export(QString path, QWidget *parent = nullptr);
     ~Export();
 
-    QString path;
-
     QString getPath();
     QStringList getFileNames();
     int getOption();
@@ -25,6 +23,7 @@ public:
 
 private:
     Ui::Export *ui;
+    QString path;
 
 private slots:
     void slotDirDialog();

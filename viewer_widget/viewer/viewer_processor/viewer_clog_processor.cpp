@@ -13,7 +13,7 @@ QImage Viewer_Clog_Processor::getImage()
     allocateEmptyVec2D(_vec2D, _columns, _rows);
 
     Filter_Clog filter = _frames.getFilter();
-    for (size_t frameNumber = filter._frameBegin - filter._offset; frameNumber <= filter._frameEnd; ++frameNumber)
+    for (size_t frameNumber = filter._frameBegin - filter._offset; frameNumber <= filter._frameEnd - filter._offset; ++frameNumber)
         for (size_t clusterNumber = 0; clusterNumber < _frames.getClusterCount(frameNumber); ++clusterNumber)
             modifyPointAccordingFilter(frameNumber, clusterNumber);
 
@@ -62,9 +62,14 @@ std::vector<float> Viewer_Clog_Processor::getVectorOfSumOfTots() const
     return _frames.getVectorSumTots();
 }
 
-Frames const &Viewer_Clog_Processor::getFrames() const
+const Frames *Viewer_Clog_Processor::getFrames() const
 {
-    return _frames;
+    return &_frames;
+}
+
+Frames *Viewer_Clog_Processor::getFrames()
+{
+    return &_frames;
 }
 
 void Viewer_Clog_Processor::setFilter(const Filter_Clog &filter)

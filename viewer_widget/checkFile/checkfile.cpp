@@ -39,6 +39,7 @@ void VectorFromTxtFile::tabToSpace()
 {
     char c;
     //замена символов табуляции, если они есть, на пробелы
+    _file.seek(0);
     while (!_file.atEnd())
     {
         _file.getChar(&c);

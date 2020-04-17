@@ -54,11 +54,11 @@ const std::vector<std::vector<float> > &Viewer_Processor::getVec2D() const
     return _vec2D;
 }
 
-bool Viewer_Processor::setFileName(const QString &fileName)
+bool Viewer_Processor::setFile(const QFile &file)
 {
     resetDataToDefault();
-    _file.setFileName(fileName);
-    setFileType(fileName);
+    _file.setFileName(file.fileName());
+    setFileType(file);
     return createVec2D();
 }
 
@@ -167,12 +167,12 @@ void Viewer_Processor::rebuildImageAccordingToSettings(QImage &image)
     }
 }
 
-void Viewer_Processor::setFileType(const QString &fileName)
+void Viewer_Processor::setFileType(const QFile &file)
 {
-    QFileInfo file(fileName);
-    if(file.suffix() == "txt")
+    QFileInfo fi(file);
+    if(fi.completeSuffix() == "txt")
         _fileType = fileType::TXT;
-    else if(file.suffix() == "clog")
+    else if(fi.completeSuffix() == "clog")
         _fileType = fileType::CLOG;
     else
         _fileType = fileType::UNDEFINED;

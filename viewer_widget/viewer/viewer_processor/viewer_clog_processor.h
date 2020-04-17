@@ -22,7 +22,8 @@ public:
 
     std::pair<float, float> getTotsSumRange() const;
     std::vector<float> getVectorOfSumOfTots() const;
-    Frames const &getFrames() const;
+    const Frames *getFrames() const;
+    Frames *getFrames();
 
     void setFilter(const Filter_Clog &filter);
     virtual void clear() override;

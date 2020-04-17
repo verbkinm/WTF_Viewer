@@ -31,9 +31,9 @@ Viewer_widget::~Viewer_widget()
     delete ui;
 }
 
-void Viewer_widget::setImageFile(const QString &path)
+void Viewer_widget::setImageFile(const QFile &file)
 {
-    ui->graphicsView->setImageFileName(path);
+    ui->graphicsView->setImageFile(file);
 }
 
 std::pair<const Frames &, bool> Viewer_widget::getFrames() const
@@ -240,5 +240,5 @@ void Viewer_widget::slotReconstruct_deconv()
     auto originArray = ui->graphicsView->getVec2D();
     auto maskArray = _mask_viewer.getVec2D();
 
-    _graphicsView_Result.setImageFileName(processing_arrays(originArray, maskArray));
+    _graphicsView_Result.setImageFile(processing_arrays(originArray, maskArray));
 }

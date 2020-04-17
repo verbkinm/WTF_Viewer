@@ -52,6 +52,9 @@ public:
     bool createFromFile(QFile &file);
     void clear();
 
+    void setRanges();
+    void setRanges(size_t frame_start, size_t frame_end);
+
     Filter_Clog getFilter() const;
     void setFilter(const Filter_Clog &filter);
 
@@ -63,7 +66,7 @@ private:
     std::vector<QPointF> getVectorOfPointsFromClusters() const;
     float summarizeTotsInCluster(size_t frameNumber, size_t clusterNumber) const;
 
-    void setRanges();
+
     void setRangeClusters(size_t frameNumber, size_t clusterNumber);
     void setRangeTots(size_t frameNumber, size_t clusterNumber, size_t eventNumber);
     void setRangeSumTots(size_t frameNumber, size_t clusterNumber);

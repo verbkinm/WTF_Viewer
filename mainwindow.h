@@ -13,6 +13,7 @@
 #include "eventfilter\eventfilter.h"
 #include "graph/centralwidget.h"
 #include "settings/settingsimage.h"
+#include "settings/mergetoclog.h"
 #include "graph/graphdialog.h"
 
 class MainWindow : public QMainWindow
@@ -24,6 +25,14 @@ public:
     ~MainWindow();
 
 private:
+    void createMenu();
+    void openLastDir();
+    void saveAccordingOptions(int options, int &error, int &correct, QImage &image, const QString &fullName);
+    void exportingFiles(const QString &path);
+    void mergingFiles(const QString &path);
+    void graphDialogExec(GraphDialog &graphDialog, const Frames &frames);
+    std::map<float, float> createVectorAccordingGraphType(GraphDialog &graphDialog, QString &legendText, const Frames &frames);
+
     std::shared_ptr<QSettings> settings;
     QSplitter _splitter;
     QFileSystemModel _fs_model;
@@ -35,15 +44,8 @@ private:
     std::list<CentralWidget *> _graphWindowMap;
     QFileInfo _currentFile;
 
-    void createMenu();
-    void openLastDir();
-    void saveAccordingOptions(int, int &, int &, QImage &, const QString &);
-    void exportingFiles(const QString &);
-    void graphDialogExec(GraphDialog &, const Frames &);
-    std::map<float, float> createVectorAccordingGraphType(GraphDialog &, QString &, const Frames &);
-
 private slots:
-    void slotSelectFile(const QModelIndex &);
+    void slotSelectFile(const QModelIndex &index);
     void slotAuthor();
     void slotPlotGraph();
     void slotGeneralCalibration();
@@ -52,7 +54,8 @@ private slots:
     void slotSettingsOpenClogFile();
     void slotExportFiles();
     void slotBatchProcessing();
-    void slotCloseGraphWindow(QObject *);
+    void slotMergeToClog();
+    void slotCloseGraphWindow(QObject *obj);
     //при выборе типа данных для диаграммы по оси X, проверяем чтобы не было попытки добавить
     //новый график с одним типом к, существующим графикам с другим типом
     void slotGrapgWindowCheck(const QString &);

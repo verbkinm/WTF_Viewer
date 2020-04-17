@@ -3,13 +3,13 @@
 #include "prefilter.h"
 #include "ui_prefilter.h"
 
-PreFilter::PreFilter(const QString &fileName, const Frames &frames, QWidget *parent) :
+PreFilter::PreFilter(const QFile &file, const Frames &frames, QWidget *parent) :
     QDialog(parent),
     ui(new Ui::PreFilter)
 {
     ui->setupUi(this);
 
-    QFileInfo fi(fileName);
+    QFileInfo fi(file);
 
     ui->path->setText(fi.absoluteFilePath());
     ui->size->setText(getSize(fi));

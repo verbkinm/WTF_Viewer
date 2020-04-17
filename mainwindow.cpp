@@ -16,7 +16,7 @@
 MainWindow::MainWindow(QWidget *parent): QMainWindow(parent),
     settings(std::make_shared<QSettings>(QSettings::IniFormat, QSettings::UserScope, "WTF.org", "WTF")),
     _viewerWidget(settings, this),
-    _programVersion("0.9.10.4")
+    _programVersion("0.9.10.5")
 {
     settings.get()->setIniCodec("UTF-8");
     _splitter.setOrientation(Qt::Horizontal);
@@ -47,6 +47,7 @@ void MainWindow::createMenu()
     _menuFile.setTitle("File");
     _menuFile.addAction(QIcon(":/save_as"), "Export files", this, SLOT(slotExportFiles()));
     _menuFile.addAction(QIcon(":/batch"), "Batch processing", this, SLOT(slotBatchProcessing()));
+    _menuFile.addAction(QIcon(":/merge"), "Merge to clog", this, SLOT(slotMergeToClog()));
     _menuFile.addSeparator();
     _menuFile.addAction(QIcon(":/exit"), "Exit", QApplication::instance(), SLOT(quit()));
     _menuSettings.setTitle("Settings");
@@ -120,7 +121,7 @@ void MainWindow::exportingFiles(const QString &path)
         for (auto &fileName : listFiles)
         {
             Viewer_Txt_Processor viewerTxtProc;
-            viewerTxtProc.setFileName(fileName);
+            viewerTxtProc.setFile(fileName);
             QImage image(viewerTxtProc.getImage());
             if(image.format() != QImage::Format_Invalid)
             {
@@ -135,6 +136,25 @@ void MainWindow::exportingFiles(const QString &path)
         QApplication::restoreOverrideCursor();
         QMessageBox::information(this, "Export", "Export " + QString::number(correct) +
                                  " file(s)<br>Error export " + QString::number(error) + " file(s)");
+    }
+}
+
+void MainWindow::mergingFiles(const QString &path)
+{
+    MergeToCLog merge_to_clog(path, this);
+    if(merge_to_clog.exec() == QDialog::Accepted)
+    {
+        QApplication::setOverrideCursor(Qt::WaitCursor);
+        int correct = 0;
+        int error = 0;
+        QStringList listFiles = merge_to_clog.getFileNames();
+        for (auto &fileName : listFiles)
+        {
+
+        }
+        QApplication::restoreOverrideCursor();
+        QMessageBox::information(this, "Merged", "Merged " + QString::number(correct) +
+                                 " file(s)<br>Error Merged " + QString::number(error) + " file(s)");
     }
 }
 
@@ -196,6 +216,16 @@ void MainWindow::slotBatchProcessing()
     {
         bp.slice();
     }
+}
+
+void MainWindow::slotMergeToClog()
+{
+    QFileInfo file(_fs_model.filePath(_treeView.currentIndex()));
+    if(file.isDir())
+        mergingFiles(file.absoluteFilePath());
+    else if(file.isFile())
+        mergingFiles(file.absolutePath());
+
 }
 
 void MainWindow::slotGrapgWindowCheck(const QString &data)
@@ -339,8 +369,8 @@ void MainWindow::slotSelectFile(const QModelIndex& index)
     _currentFile.setFile(_fs_model.filePath(index));
 
     this->statusBar()->showMessage(_fs_model.filePath(index));
-    QString fileName = _fs_model.filePath(index);
-    _viewerWidget.setImageFile(fileName);
+    QFile file(_fs_model.filePath(index));
+    _viewerWidget.setImageFile(file);
     if(_treeView.isExpanded(index))
         _treeView.collapse(index);
     else

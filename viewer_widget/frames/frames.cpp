@@ -2,6 +2,7 @@
 #include <QPointF>
 #include <iostream>
 #include <limits>
+#include <QDebug>
 
 #include "frames.h"
 
@@ -345,6 +346,9 @@ void Frames::errorMessage(const std::string &str)
 
 void Frames::setRanges()
 {
+    std::chrono::time_point<std::chrono::high_resolution_clock> start, stop;
+    start = std::chrono::high_resolution_clock::now();
+
     for (size_t frameNumber = 0; frameNumber < getFrameCount(); ++frameNumber)
         for (size_t clusterNumber = 0; clusterNumber < getClusterCount(frameNumber); ++clusterNumber)
         {
@@ -353,6 +357,25 @@ void Frames::setRanges()
             for (size_t eventNumber = 0; eventNumber < getClusterLength(frameNumber, clusterNumber); ++eventNumber)
                 setRangeTots(frameNumber, clusterNumber, eventNumber);
         }
+    stop = std::chrono::high_resolution_clock::now();
+    qDebug() << std::chrono::duration_cast<std::chrono::milliseconds>(stop-start).count();
+}
+
+void Frames::setRanges(size_t frame_start, size_t frame_end)
+{
+    std::chrono::time_point<std::chrono::high_resolution_clock> start, stop;
+    start = std::chrono::high_resolution_clock::now();
+
+    for (size_t frameNumber = frame_start; frameNumber < frame_end; ++frameNumber)
+        for (size_t clusterNumber = 0; clusterNumber < getClusterCount(frameNumber); ++clusterNumber)
+        {
+            setRangeSumTots(frameNumber, clusterNumber);
+            setRangeClusters(frameNumber, clusterNumber);
+            for (size_t eventNumber = 0; eventNumber < getClusterLength(frameNumber, clusterNumber); ++eventNumber)
+                setRangeTots(frameNumber, clusterNumber, eventNumber);
+        }
+    stop = std::chrono::high_resolution_clock::now();
+    qDebug() << std::chrono::duration_cast<std::chrono::milliseconds>(stop-start).count();
 }
 
 OneFrame *Frames::lastFrame()

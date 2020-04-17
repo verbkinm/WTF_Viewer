@@ -32,6 +32,7 @@ SOURCES += \
     graph/graphdialog.cpp \
     graph/panelwidget.cpp \
     settings/batch_processing_cutter.cpp \
+    settings/mergetoclog.cpp \
     settings/settingsclogfile.cpp \
     settings/settingsimage.cpp \
     settings/tripleSpinBox.cpp \
@@ -73,6 +74,7 @@ HEADERS += \
     graph/panelwidget.h \
     graph/range.h \
     settings/batch_processing_cutter.h \
+    settings/mergetoclog.h \
     settings/settingsclogfile.h \
     settings/settingsimage.h \
     settings/tripleSpinBox.h \
@@ -111,6 +113,7 @@ FORMS += \
     graph/graphdialog.ui \
     graph/panelwidget.ui \
     loadcalibrationfiles.ui \
+    settings/mergetoclog.ui \
     settings/settingsclogfile.ui \
     settings/settingsimage.ui \
     viewer_widget/prefilter.ui \
