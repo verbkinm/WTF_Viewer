@@ -3,7 +3,7 @@
 
 #include <QDialog>
 #include <QFileInfo>
-#include "../viewer_widget/frames/frames.h"
+#include "../../viewer_widget/frames/frames.h"
 
 namespace Ui {
 class Batch_Processing;

@@ -13,7 +13,7 @@
 #include "eventfilter\eventfilter.h"
 #include "graph/centralwidget.h"
 #include "settings/settingsimage.h"
-#include "settings/mergetoclog.h"
+#include "menu/mergetoclog/mergetoclog.h"
 #include "graph/graphdialog.h"
 
 class MainWindow : public QMainWindow

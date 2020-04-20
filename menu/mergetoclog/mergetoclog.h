@@ -12,7 +12,7 @@ class MergeToCLog : public QDialog
     Q_OBJECT
 
 public:
-    explicit MergeToCLog(QString path, QWidget *parent = nullptr);
+    explicit MergeToCLog(QString _path, QWidget *parent = nullptr);
     ~MergeToCLog();
 
     QString getPath();
@@ -20,7 +20,7 @@ public:
 
 private:
     Ui::MergeToCLog *ui;
-    QString path;
+    QString _path;
 
 private slots:
     void slotDirDialog();

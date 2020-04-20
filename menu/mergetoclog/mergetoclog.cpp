@@ -5,7 +5,7 @@
 
 MergeToCLog::MergeToCLog(QString path, QWidget *parent) :
     QDialog(parent),
-    ui(new Ui::MergeToCLog), path(path)
+    ui(new Ui::MergeToCLog), _path(path)
 {
     ui->setupUi(this);
     ui->ExportTo->setText(path);
@@ -33,10 +33,10 @@ QStringList MergeToCLog::getFileNames()
 
 void MergeToCLog::slotDirDialog()
 {
-    QString savePath = QFileDialog::getExistingDirectory(this,
-                                                         "Selecting a save location",
-                                                         path,
-                                                         QFileDialog::ShowDirsOnly);
+    QString savePath = QFileDialog::getSaveFileName(this,
+                                                    "Selecting a save location",
+                                                    _path,
+                                                    "CLOG (*.clog)");
     if(!savePath.isEmpty())
         ui->ExportTo->setText(savePath);
 }
@@ -45,7 +45,7 @@ void MergeToCLog::slotFileDialog()
 {
     QStringList listFiles = QFileDialog::getOpenFileNames(this,
                                                           "Merge from",
-                                                          path,
+                                                          _path,
                                                           "TXT (*.txt)");
     for (auto &str : listFiles)
         ui->filesToExport->setText(ui->filesToExport->text() + str + ";");

@@ -6,17 +6,17 @@
 #include <QtMath>
 
 #include "mainwindow.h"
-#include "export\export.h"
-#include "calibration/generalcalibration.h"
+#include "menu/export/export.h"
+#include "menu/calibration/generalcalibration.h"
 #include "viewer_widget/viewer/viewer_processor/viewer_txt_processor.h"
 #include "settings/settingsimage.h"
 #include "settings/settingsclogfile.h"
-#include "settings/batch_processing.h"
+#include "menu/batch_processing/batch_processing.h"
 
 MainWindow::MainWindow(QWidget *parent): QMainWindow(parent),
     settings(std::make_shared<QSettings>(QSettings::IniFormat, QSettings::UserScope, "WTF.org", "WTF")),
     _viewerWidget(settings, this),
-    _programVersion("0.9.10.5")
+    _programVersion("0.9.10.6")
 {
     settings.get()->setIniCodec("UTF-8");
     _splitter.setOrientation(Qt::Horizontal);

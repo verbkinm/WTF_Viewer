@@ -19,20 +19,20 @@ DEFINES += QT_DEPRECATED_WARNINGS
 CONFIG += c++17
 
 SOURCES += \
-    settings/batch_processing.cpp \
-    calibration/generalcalibration.cpp \
-    calibration/pixelcalibration.cpp \
+    menu/batch_processing/batch_processing.cpp \
+    menu/calibration/generalcalibration.cpp \
+    menu/calibration/pixelcalibration.cpp \
     eventfilter/eventfilter.cpp \
     eventfilter/fingerslide.cpp \
-    export/export.cpp \
+    menu/export/export.cpp \
     graph/centralwidget.cpp \
     graph/chart.cpp \
     graph/chartview.cpp \
     graph/customtablemodel.cpp \
     graph/graphdialog.cpp \
     graph/panelwidget.cpp \
-    settings/batch_processing_cutter.cpp \
-    settings/mergetoclog.cpp \
+    menu/batch_processing/batch_processing_cutter.cpp \
+    menu/mergetoclog/mergetoclog.cpp \
     settings/settingsclogfile.cpp \
     settings/settingsimage.cpp \
     settings/tripleSpinBox.cpp \
@@ -60,12 +60,12 @@ SOURCES += \
     mainwindow.cpp
 
 HEADERS += \
-    settings/batch_processing.h \
-    calibration/generalcalibration.h \
-    calibration/pixelcalibration.h \
+    menu/batch_processing/batch_processing.h \
+    menu/calibration/generalcalibration.h \
+    menu/calibration/pixelcalibration.h \
     eventfilter/eventfilter.h \
     eventfilter/fingerslide.h \
-    export/export.h \
+    menu/export/export.h \
     graph/centralwidget.h \
     graph/chart.h \
     graph/chartview.h \
@@ -73,8 +73,8 @@ HEADERS += \
     graph/graphdialog.h \
     graph/panelwidget.h \
     graph/range.h \
-    settings/batch_processing_cutter.h \
-    settings/mergetoclog.h \
+    menu/batch_processing/batch_processing_cutter.h \
+    menu/mergetoclog/mergetoclog.h \
     settings/settingsclogfile.h \
     settings/settingsimage.h \
     settings/tripleSpinBox.h \
@@ -106,14 +106,14 @@ else: unix:!android: target.path = /opt/$${TARGET}/bin
 !isEmpty(target.path): INSTALLS += target
 
 FORMS += \
-    settings/batch_processing.ui \
-    calibration/generalcalibration.ui \
-    calibration/pixelcalibration.ui \
-    export/export.ui \
+    menu/batch_processing/batch_processing.ui \
+    menu/calibration/generalcalibration.ui \
+    menu/calibration/pixelcalibration.ui \
+    menu/export/export.ui \
     graph/graphdialog.ui \
     graph/panelwidget.ui \
     loadcalibrationfiles.ui \
-    settings/mergetoclog.ui \
+    menu/mergetoclog/mergetoclog.ui \
     settings/settingsclogfile.ui \
     settings/settingsimage.ui \
     viewer_widget/prefilter.ui \

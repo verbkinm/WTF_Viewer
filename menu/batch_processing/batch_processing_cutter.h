@@ -2,7 +2,7 @@
 #define BATCH_PROCESSING_CUTTER_H
 
 #include <QDir>
-#include "../viewer_widget/frames/frames.h"
+#include "../../viewer_widget/frames/frames.h"
 
 class Batch_Processing_Cutter
 {
